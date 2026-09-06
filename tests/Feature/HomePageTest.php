@@ -53,10 +53,22 @@ test('an editor can save a validated homepage draft', function () {
         ->toBe('A reviewed demo title');
 });
 
-test('homepage drafts reject missing hero content', function () {
+test('an editor can save emergency and status fields in a homepage draft', function () {
     $editor = User::factory()->create(['role' => 'communications_editor']);
 
-    $this->actingAs($editor)
-        ->post(route('cms.homepage.store'), ['hero_title' => ''])
-        ->assertSessionHasErrors(['hero_title', 'hero_summary']);
+    $response = $this->actingAs($editor)->post(route('cms.homepage.store'), [
+        'hero_title' => 'Emergency Response Title',
+        'hero_summary' => 'Emergency response summary details.',
+        'emergency_message' => 'Custom triage advisory message.',
+        'emergency_phone' => '+2348000000000',
+        'campus_status' => 'Surge capacity active',
+        'service_desk' => 'Desk operating at station 2',
+    ]);
+
+    $response->assertRedirect(route('cms.homepage.edit'));
+    $config = HomeConfiguration::query()->latest()->first();
+    expect($config->sections['emergency']['message'])->toBe('Custom triage advisory message.')
+        ->and($config->sections['emergency']['phone'])->toBe('+2348000000000')
+        ->and($config->sections['status']['campusStatus'])->toBe('Surge capacity active')
+        ->and($config->sections['status']['serviceDesk'])->toBe('Desk operating at station 2');
 });

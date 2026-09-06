@@ -1,27 +1,281 @@
-import { Form, Head } from '@inertiajs/react';
-import { ArrowUpRight, CheckCircle2, Clock3, FileClock, ShieldCheck } from 'lucide-react';
+import { Form, Head, Link } from '@inertiajs/react';
+import { ArrowUpRight, CheckCircle2, Clock3, FileClock, HeartPulse, PhoneCall, ShieldAlert, ShieldCheck } from 'lucide-react';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { home } from '@/routes';
-import { store as storeHomepage } from '@/actions/App/Http/Controllers/Cms/HomepageController';
+import { store as storeHomepage, submitForReview } from '@/actions/App/Http/Controllers/Cms/HomepageController';
 
-type Configuration = { status?: string; sections?: { hero?: { title?: string; summary?: string } } } | null;
-type Props = { configuration: Configuration; sections: string[] };
+type Configuration = {
+    id?: number;
+    status?: string;
+    sections?: {
+        hero?: { title?: string; summary?: string };
+        emergency?: { message?: string; phone?: string };
+        status?: { campusStatus?: string; serviceDesk?: string };
+    };
+} | null;
+
+type Props = {
+    configuration: Configuration;
+    sections: string[];
+};
 
 export default function HomepageWorkspace({ configuration, sections }: Props) {
     const status = configuration?.status ?? 'draft';
+    const [heroTitle, setHeroTitle] = useState(configuration?.sections?.hero?.title ?? 'Care information you can trust');
+    const [heroSummary, setHeroSummary] = useState(
+        configuration?.sections?.hero?.summary ??
+        'Clear clinical guidance for patients, families and referring clinical teams across the Federal Capital Territory.'
+    );
+
+    const canSubmitForReview = Boolean(configuration?.id) && (status === 'draft' || status === 'changes_requested');
 
     return (
-        <><Head title="Homepage workspace" /><div className="min-h-screen bg-[#f5f8f6] p-4 text-fmca-ink sm:p-8"><div className="mx-auto max-w-6xl">
-            <header className="flex flex-col gap-5 border-b border-fmca-ink/10 pb-8 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-sm font-bold text-fmca-green">FMCA CONTENT STUDIO</p><h1 className="mt-2 font-display text-3xl font-bold text-fmca-green-dark">Homepage workspace</h1><p className="mt-3 max-w-xl text-sm leading-6 text-slate-600">Manage the controlled Home template, approvals and publication readiness from one place.</p></div><a href={home.url()} target="_blank" rel="noreferrer" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-fmca-green px-4 text-sm font-bold text-fmca-green hover:bg-white">Preview public home <ArrowUpRight size={16} /></a></header>
-            <section className="mt-8 grid gap-4 sm:grid-cols-3"><StatusCard icon={Clock3} label="Publication state" value={status.replace('_', ' ')} /><StatusCard icon={ShieldCheck} label="Approval gate" value="Clinical review required" /><StatusCard icon={FileClock} label="Revision history" value="Ready for audit trail" /></section>
-            <section className="mt-8 rounded-2xl border border-fmca-ink/10 bg-white p-5 sm:p-7"><div className="flex items-center justify-between gap-4"><div><h2 className="font-display text-xl font-bold text-fmca-green-dark">Hero campaign draft</h2><p className="mt-1 text-sm text-slate-500">Demo copy only. Owners must review before publication.</p></div><span className="hidden items-center gap-2 text-sm font-semibold text-fmca-green sm:flex"><CheckCircle2 size={17} /> Editable draft</span></div><Form {...storeHomepage.form()} className="mt-7 grid gap-5" resetOnError>{({ errors, processing, recentlySuccessful }) => <><div className="grid gap-2"><Label htmlFor="hero_title">Hero title</Label><Input id="hero_title" name="hero_title" defaultValue={configuration?.sections?.hero?.title ?? 'Care information you can trust'} aria-invalid={Boolean(errors.hero_title)} />{errors.hero_title && <p className="text-sm text-fmca-crimson">{errors.hero_title}</p>}</div><div className="grid gap-2"><Label htmlFor="hero_summary">Hero summary</Label><textarea id="hero_summary" name="hero_summary" defaultValue={configuration?.sections?.hero?.summary ?? 'Clear guidance for patients, families and referring teams at every step of the journey.'} rows={4} aria-invalid={Boolean(errors.hero_summary)} className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-fmca-sky" />{errors.hero_summary && <p className="text-sm text-fmca-crimson">{errors.hero_summary}</p>}</div><div className="flex items-center gap-3"><button type="submit" disabled={processing} className="inline-flex min-h-12 items-center justify-center rounded-md bg-fmca-green px-5 font-bold text-white hover:bg-fmca-green-dark disabled:opacity-50">{processing ? 'Saving draft...' : 'Save draft'}</button>{recentlySuccessful && <span className="text-sm font-semibold text-fmca-green">Draft saved.</span>}</div></>}</Form></section>
-            <section className="mt-8 overflow-hidden rounded-2xl border border-fmca-ink/10 bg-white"><div className="border-b border-fmca-ink/10 px-5 py-5 sm:px-7"><h2 className="font-display text-xl font-bold text-fmca-green-dark">Homepage sections</h2><p className="mt-1 text-sm text-slate-500">Controlled order from the approved Home template.</p></div><div className="divide-y divide-fmca-ink/10">{sections.map((section, index) => <div key={section} className="flex min-h-16 items-center gap-4 px-5 py-3 sm:px-7"><span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-fmca-mist text-sm font-bold text-fmca-green">{index + 1}</span><span className="flex-1 font-semibold">{section}</span><span className="text-xs font-semibold text-slate-500">Draft · owner required</span><button type="button" className="min-h-12 min-w-12 rounded-md text-sm font-bold text-fmca-green hover:bg-fmca-mist" aria-label={`Edit ${section}`}>Edit</button></div>)}</div></section>
-        </div></div></>
+        <>
+            <Head title="Homepage workspace | FMCA Content Studio" />
+            <div className="min-h-screen bg-[#f5f8f6] p-4 text-fmca-ink sm:p-8">
+                <div className="mx-auto max-w-6xl">
+                    <header className="flex flex-col gap-5 border-b border-fmca-ink/10 pb-8 sm:flex-row sm:items-end sm:justify-between">
+                        <div>
+                            <p className="text-xs font-bold uppercase tracking-[0.14em] text-fmca-green">
+                                FMCA Content Studio | Editorial Governance
+                            </p>
+                            <h1 className="mt-2 font-display text-3xl font-bold text-fmca-green-dark">
+                                Homepage workspace
+                            </h1>
+                            <p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-600">
+                                Configure the controlled institutional Home template, clinical alerts, and publication approvals.
+                            </p>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-3">
+                            <a
+                                href={home.url()}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-fmca-green bg-white px-4 text-sm font-bold text-fmca-green shadow-xs hover:bg-fmca-mist"
+                            >
+                                <span>Preview public home</span>
+                                <ArrowUpRight size={16} aria-hidden="true" />
+                            </a>
+                            {canSubmitForReview && configuration && (
+                                <Link
+                                    href={submitForReview.url(configuration.id!)}
+                                    method="post"
+                                    as="button"
+                                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-fmca-green px-5 text-sm font-bold text-white shadow-sm hover:bg-fmca-green-dark"
+                                >
+                                    <span>Submit for clinical review</span>
+                                </Link>
+                            )}
+                        </div>
+                    </header>
+
+                    {/* Operational Status Badges */}
+                    <section className="mt-8 grid gap-4 sm:grid-cols-3" aria-label="Workflow governance state">
+                        <StatusCard icon={Clock3} label="Publication status" value={status.replace('_', ' ')} />
+                        <StatusCard
+                            icon={ShieldCheck}
+                            label="Clinical governance"
+                            value={status === 'in_review' ? 'Awaiting approver sign-off' : 'Clinical review required'}
+                        />
+                        <StatusCard icon={FileClock} label="Audit trail" value="Immutable change log active" />
+                    </section>
+
+                    {/* Section Configuration Form */}
+                    <section className="mt-8 rounded-2xl border border-fmca-ink/10 bg-white p-6 sm:p-8 shadow-xs">
+                        <div className="flex items-center justify-between border-b border-fmca-ink/10 pb-5">
+                            <div>
+                                <h2 className="font-display text-xl font-bold text-fmca-green-dark">
+                                    Hero Campaign & Emergency Settings
+                                </h2>
+                                <p className="mt-1 text-xs text-slate-500">
+                                    Fields enforce character length limits to prevent mobile layout clipping.
+                                </p>
+                            </div>
+                            <span className="hidden items-center gap-2 text-xs font-bold text-fmca-green sm:flex">
+                                <CheckCircle2 size={16} />
+                                <span>Active Schema Guard</span>
+                            </span>
+                        </div>
+
+                        <Form {...storeHomepage.form()} className="mt-7 grid gap-6" resetOnError>
+                            {({ errors, processing, recentlySuccessful }) => (
+                                <>
+                                    {/* Hero Section Configuration */}
+                                    <div className="grid gap-2">
+                                        <div className="flex items-center justify-between">
+                                            <Label htmlFor="hero_title" className="text-sm font-bold">
+                                                Hero headline (Max 120 chars)
+                                            </Label>
+                                            <span className={`text-xs ${heroTitle.length > 100 ? 'text-amber-600 font-bold' : 'text-slate-400'}`}>
+                                                {heroTitle.length} / 120
+                                            </span>
+                                        </div>
+                                        <Input
+                                            id="hero_title"
+                                            name="hero_title"
+                                            value={heroTitle}
+                                            onChange={(e) => setHeroTitle(e.target.value)}
+                                            maxLength={120}
+                                            aria-invalid={Boolean(errors.hero_title)}
+                                            className="h-11"
+                                        />
+                                        {errors.hero_title && <p className="text-xs text-fmca-crimson">{errors.hero_title}</p>}
+                                    </div>
+
+                                    <div className="grid gap-2">
+                                        <div className="flex items-center justify-between">
+                                            <Label htmlFor="hero_summary" className="text-sm font-bold">
+                                                Hero supporting summary (Max 240 chars)
+                                            </Label>
+                                            <span className={`text-xs ${heroSummary.length > 200 ? 'text-amber-600 font-bold' : 'text-slate-400'}`}>
+                                                {heroSummary.length} / 240
+                                            </span>
+                                        </div>
+                                        <textarea
+                                            id="hero_summary"
+                                            name="hero_summary"
+                                            value={heroSummary}
+                                            onChange={(e) => setHeroSummary(e.target.value)}
+                                            maxLength={240}
+                                            rows={3}
+                                            aria-invalid={Boolean(errors.hero_summary)}
+                                            className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-fmca-sky"
+                                        />
+                                        {errors.hero_summary && <p className="text-xs text-fmca-crimson">{errors.hero_summary}</p>}
+                                    </div>
+
+                                    {/* Emergency Configuration Fields */}
+                                    <div className="grid gap-5 pt-4 border-t border-fmca-ink/10 sm:grid-cols-2">
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="emergency_message" className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
+                                                <ShieldAlert size={15} className="text-fmca-crimson" />
+                                                Emergency hotbar notification (Max 160 chars)
+                                            </Label>
+                                            <Input
+                                                id="emergency_message"
+                                                name="emergency_message"
+                                                defaultValue={configuration?.sections?.emergency?.message ?? 'Clinical emergency triage is active. For life-threatening emergencies, dispatch or visit directly.'}
+                                                maxLength={160}
+                                                aria-invalid={Boolean(errors.emergency_message)}
+                                                className="h-11"
+                                            />
+                                            {errors.emergency_message && <p className="text-xs text-fmca-crimson">{errors.emergency_message}</p>}
+                                        </div>
+
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="emergency_phone" className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
+                                                <PhoneCall size={15} className="text-fmca-crimson" />
+                                                Emergency dispatch phone line
+                                            </Label>
+                                            <Input
+                                                id="emergency_phone"
+                                                name="emergency_phone"
+                                                defaultValue={configuration?.sections?.emergency?.phone ?? '+2340000000000'}
+                                                maxLength={30}
+                                                aria-invalid={Boolean(errors.emergency_phone)}
+                                                className="h-11"
+                                            />
+                                            {errors.emergency_phone && <p className="text-xs text-fmca-crimson">{errors.emergency_phone}</p>}
+                                        </div>
+                                    </div>
+
+                                    {/* Operational Status Fields */}
+                                    <div className="grid gap-5 pt-4 border-t border-fmca-ink/10 sm:grid-cols-2">
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="campus_status" className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
+                                                <HeartPulse size={15} className="text-fmca-teal" />
+                                                Campus operational status (Max 100 chars)
+                                            </Label>
+                                            <Input
+                                                id="campus_status"
+                                                name="campus_status"
+                                                defaultValue={configuration?.sections?.status?.campusStatus ?? 'Campus operations: Normal clinical capacity'}
+                                                maxLength={100}
+                                                aria-invalid={Boolean(errors.campus_status)}
+                                                className="h-11"
+                                            />
+                                            {errors.campus_status && <p className="text-xs text-fmca-crimson">{errors.campus_status}</p>}
+                                        </div>
+
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="service_desk" className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
+                                                <Clock3 size={15} className="text-fmca-teal" />
+                                                Service desk hours (Max 100 chars)
+                                            </Label>
+                                            <Input
+                                                id="service_desk"
+                                                name="service_desk"
+                                                defaultValue={configuration?.sections?.status?.serviceDesk ?? 'Triage & desk: 24/7 active'}
+                                                maxLength={100}
+                                                aria-invalid={Boolean(errors.service_desk)}
+                                                className="h-11"
+                                            />
+                                            {errors.service_desk && <p className="text-xs text-fmca-crimson">{errors.service_desk}</p>}
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-4 pt-4 border-t border-fmca-ink/10">
+                                        <Button
+                                            type="submit"
+                                            disabled={processing}
+                                            className="h-12 bg-fmca-green px-6 font-bold text-white shadow-sm hover:bg-fmca-green-dark disabled:opacity-50"
+                                        >
+                                            {processing ? 'Saving changes...' : 'Save draft configuration'}
+                                        </Button>
+                                        {recentlySuccessful && (
+                                            <span className="flex items-center gap-1.5 text-sm font-bold text-fmca-green">
+                                                <CheckCircle2 size={16} />
+                                                <span>Draft updated successfully.</span>
+                                            </span>
+                                        )}
+                                    </div>
+                                </>
+                            )}
+                        </Form>
+                    </section>
+
+                    {/* Ordered Section Registry */}
+                    <section className="mt-8 overflow-hidden rounded-2xl border border-fmca-ink/10 bg-white shadow-xs">
+                        <div className="border-b border-fmca-ink/10 px-6 py-5">
+                            <h2 className="font-display text-xl font-bold text-fmca-green-dark">
+                                Controlled Section Order
+                            </h2>
+                            <p className="mt-1 text-xs text-slate-500">
+                                Section order is locked to the approved FMCA Home Page Template to ensure patient triage and clinical priority.
+                            </p>
+                        </div>
+                        <div className="divide-y divide-fmca-ink/10">
+                            {sections.map((section, index) => (
+                                <div key={section} className="flex min-h-14 items-center justify-between gap-4 px-6 py-3">
+                                    <div className="flex items-center gap-4">
+                                        <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-fmca-mist text-xs font-bold text-fmca-green">
+                                            {index + 1}
+                                        </span>
+                                        <span className="font-semibold text-sm text-slate-800">{section}</span>
+                                    </div>
+                                    <span className="rounded-sm bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
+                                        Template controlled
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </>
     );
 }
 
 function StatusCard({ icon: Icon, label, value }: { icon: typeof Clock3; label: string; value: string }) {
-    return <Card className="border-0 bg-white p-5 shadow-none"><Icon className="text-fmca-teal" size={22} /><p className="mt-5 text-xs font-bold uppercase tracking-[0.14em] text-slate-500">{label}</p><p className="mt-2 font-display text-xl font-bold capitalize">{value}</p></Card>;
+    return (
+        <Card className="border border-fmca-ink/10 bg-white p-5 shadow-xs">
+            <Icon className="text-fmca-teal" size={22} aria-hidden="true" />
+            <p className="mt-4 text-xs font-bold uppercase tracking-[0.14em] text-slate-500">{label}</p>
+            <p className="mt-1 font-display text-lg font-bold capitalize text-fmca-green-dark">{value}</p>
+        </Card>
+    );
 }

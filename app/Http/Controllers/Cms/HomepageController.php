@@ -53,6 +53,16 @@ class HomepageController extends Controller
                         'title' => $request->string('hero_title')->toString(),
                         'summary' => $request->string('hero_summary')->toString(),
                     ],
+                    'emergency' => [
+                        'message' => $request->filled('emergency_message') ? $request->string('emergency_message')->toString() : 'Clinical emergency triage is active. For life-threatening emergencies, dispatch or visit directly.',
+                        'phone' => $request->filled('emergency_phone') ? $request->string('emergency_phone')->toString() : '+2340000000000',
+                        'phoneLabel' => 'Emergency dispatch call',
+                    ],
+                    'status' => [
+                        'campusStatus' => $request->filled('campus_status') ? $request->string('campus_status')->toString() : 'Campus operations: Normal clinical capacity',
+                        'serviceDesk' => $request->filled('service_desk') ? $request->string('service_desk')->toString() : 'Triage & desk: 24/7 active',
+                        'reviewStatus' => 'Verified institutional release',
+                    ],
                 ],
                 'created_by' => $configuration?->created_by ?? $request->user()->id,
                 'approved_by' => null,

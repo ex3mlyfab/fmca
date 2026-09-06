@@ -1,44 +1,117 @@
 import { Head } from '@inertiajs/react';
-import { ArrowRight, CalendarDays, ChevronLeft, ChevronRight, Clock3, Compass, FileText, HeartPulse, MapPin, ShieldCheck, Stethoscope, UsersRound } from 'lucide-react';
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { SiteShell } from '@/components/public/site-shell';
+import {
+    CampaignCarousel,
+    CampusAccess,
+    CentresOfExcellence,
+    EmergencyBanner,
+    EmergencyHotbar,
+    InstitutionalStrength,
+    InsuranceGuidance,
+    MetricStrip,
+    OperationalStatusStrip,
+    QuickServices,
+} from '@/components/public/home';
 
-type HomeProps = { configuration: Record<string, unknown> };
+type HomeConfigurationData = {
+    hero?: {
+        title?: string;
+        summary?: string;
+        image?: string;
+    };
+    emergency?: {
+        message?: string;
+        phone?: string;
+        phoneLabel?: string;
+    };
+    status?: {
+        campusStatus?: string;
+        serviceDesk?: string;
+        reviewStatus?: string;
+    };
+    campaigns?: Array<{
+        eyebrow?: string;
+        title: string;
+        copy: string;
+        image?: string;
+        primaryCtaLabel?: string;
+        primaryCtaHref?: string;
+    }>;
+};
 
-const campaigns = [
-    { eyebrow: 'DEMO CAMPAIGN · PENDING APPROVAL', title: 'Care information you can trust', copy: 'Clear guidance for patients, families and referring teams at every step of the journey.', image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1800&q=80' },
-    { eyebrow: 'DEMO CAMPAIGN · PENDING APPROVAL', title: 'A centre for healing and learning', copy: 'Discover the people, services and practical information that help you plan your visit.', image: 'https://images.unsplash.com/photo-1584982751601-97dcc096659c?auto=format&fit=crop&w=1800&q=80' },
-];
+type HomeProps = {
+    configuration?: HomeConfigurationData;
+};
 
-const services = [
-    ['Find a service', 'Explore departments and patient-facing services.', Compass],
-    ['Request an appointment', 'Send a request for staff follow-up. Not a confirmed booking.', CalendarDays],
-    ['Patient guides', 'Prepare for admission, referrals and visiting.', FileText],
-    ['NHIA guidance', 'Understand the support pathway before you visit.', ShieldCheck],
-    ['Laboratory information', 'Contact the laboratory for approved result pathways.', HeartPulse],
-    ['Directions & access', 'Plan your route to the campus and key facilities.', MapPin],
-] as const;
+export default function Home({ configuration }: HomeProps) {
+    const heroConfig = configuration?.hero;
+    const emergencyConfig = configuration?.emergency;
+    const statusConfig = configuration?.status;
 
-export default function Home({ configuration: _configuration }: HomeProps) {
-    const [slide, setSlide] = useState(0);
-    const campaign = campaigns[slide];
+    // Construct campaign slides, incorporating CMS hero draft if present
+    const slides = configuration?.campaigns ?? (heroConfig?.title
+        ? [
+            {
+                eyebrow: 'Institutional Care & Public Service',
+                title: heroConfig.title,
+                copy: heroConfig.summary ?? 'Clear clinical guidance for patients, families and referring clinical teams.',
+                image: heroConfig.image ?? 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1800&q=80',
+                primaryCtaLabel: 'Find patient services',
+                primaryCtaHref: '#services',
+                secondaryCtaLabel: 'About FMCA',
+                secondaryCtaHref: '#about',
+            },
+        ]
+        : undefined);
 
-    return <SiteShell><Head title="Federal Medical Centre, Abuja" /><main id="main-content">
-        <section className="border-b border-fmca-ink/10 bg-fmca-crimson px-4 py-3 text-white sm:px-6"><div className="mx-auto flex max-w-7xl items-center justify-between gap-4 text-sm"><p className="flex items-center gap-2 font-semibold"><span className="size-2 rounded-full bg-white" aria-hidden="true" />Emergency information: demo contact pending confirmation</p><a href="tel:+2340000000000" className="hidden min-h-12 items-center rounded-md bg-white px-4 font-bold text-fmca-crimson sm:inline-flex">Call emergency contact</a></div></section>
-        <section className="border-b border-fmca-ink/10 bg-fmca-mist"><div className="mx-auto grid max-w-7xl grid-cols-3 divide-x divide-fmca-ink/10 px-4 py-3 text-center text-xs font-semibold text-slate-600 sm:px-6"><span>Campus status: demo</span><span>Service desk: demo</span><span>Last reviewed: pending</span></div></section>
-        <section className="relative isolate min-h-[560px] overflow-hidden bg-fmca-green-dark text-white sm:min-h-[600px]"><img src={campaign.image} alt="Demo campaign image pending FMCA media approval" className="absolute inset-0 -z-20 size-full object-cover" fetchPriority={slide === 0 ? 'high' : 'auto'} /><div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(6,67,42,.96),rgba(6,67,42,.64)_50%,rgba(6,67,42,.22))]" /><div className="mx-auto flex min-h-[560px] max-w-7xl items-end px-4 py-14 sm:min-h-[600px] sm:px-6 lg:items-center lg:py-20"><div className="max-w-xl"><p className="mb-4 text-xs font-bold tracking-[0.16em] text-emerald-200">{campaign.eyebrow}</p><h1 className="max-w-lg text-4xl font-bold leading-[1.08] text-balance sm:text-5xl">{campaign.title}</h1><p className="mt-5 max-w-md text-base leading-7 text-white/85">{campaign.copy}</p><div className="mt-8 flex flex-wrap gap-3"><Button asChild className="h-12 bg-white px-5 text-fmca-green-dark hover:bg-emerald-50"><a href="#services">Find patient services <ArrowRight size={17} /></a></Button><Button asChild variant="outline" className="h-12 border-white/60 bg-transparent px-5 text-white hover:bg-white/10 hover:text-white"><a href="#about">About FMCA</a></Button></div><div className="mt-10 flex items-center gap-3"><Button variant="outline" size="icon" className="size-12 border-white/50 bg-transparent text-white hover:bg-white/10 hover:text-white" onClick={() => setSlide((slide + campaigns.length - 1) % campaigns.length)} aria-label="Previous campaign"><ChevronLeft /></Button><span className="text-sm tabular-nums" aria-live="polite">0{slide + 1} / 0{campaigns.length}</span><Button variant="outline" size="icon" className="size-12 border-white/50 bg-transparent text-white hover:bg-white/10 hover:text-white" onClick={() => setSlide((slide + 1) % campaigns.length)} aria-label="Next campaign"><ChevronRight /></Button></div></div></div></section>
-        <section id="services" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:py-24"><div className="max-w-xl"><p className="text-sm font-bold text-fmca-green">Start here</p><h2 className="mt-2 text-3xl font-bold text-fmca-green-dark sm:text-4xl">What do you need today?</h2><p className="mt-4 leading-7 text-slate-600">Simple pathways for common patient and family questions. All service details are subject to FMCA review.</p></div><div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5">{services.map(([title, copy, Icon]) => <a href="#request" key={title} className="group flex min-h-44 flex-col justify-between rounded-2xl border border-fmca-ink/10 bg-white p-5 shadow-[0_8px_24px_rgba(24,48,42,0.05)] transition-transform hover:-translate-y-1 focus-visible:-translate-y-1 sm:min-h-48 sm:p-6"><span className="flex size-11 items-center justify-center rounded-xl bg-fmca-mist text-fmca-green"><Icon size={22} /></span><span><strong className="block font-display text-base text-fmca-green-dark sm:text-lg">{title}</strong><span className="mt-2 block text-xs leading-5 text-slate-500 sm:text-sm">{copy}</span></span><ArrowRight size={18} className="text-fmca-green transition-transform group-hover:translate-x-1" /></a>)}</div></section>
-        <section className="bg-fmca-green-dark text-white"><div className="mx-auto grid max-w-7xl grid-cols-2 divide-x divide-white/15 px-4 py-10 sm:px-6 md:grid-cols-4"><Metric value="01" label="demo care pathway" /><Metric value="24/7" label="emergency guidance" /><Metric value="06" label="quick service routes" /><Metric value="100%" label="content owner review" /></div></section>
-        <section id="about" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:py-24"><div className="grid gap-8 lg:grid-cols-[1.1fr_.9fr] lg:items-stretch"><div><p className="text-sm font-bold text-fmca-gold">Insurance guidance</p><h2 className="mt-2 text-3xl font-bold text-fmca-green-dark sm:text-4xl">Need help understanding NHIA support?</h2><p className="mt-5 max-w-xl leading-7 text-slate-600">This pathway provides general guidance and a request for staff support. It does not verify eligibility or make a coverage decision.</p><Button asChild className="mt-7 h-12 bg-fmca-green hover:bg-fmca-green-dark"><a href="#request">Request eligibility support <ArrowRight size={17} /></a></Button></div><Card className="border-0 bg-amber-50 p-6 shadow-none sm:p-8"><ShieldCheck className="text-fmca-gold" size={30} /><h3 className="mt-7 font-display text-xl font-bold text-fmca-ink">Bring your documents</h3><p className="mt-3 text-sm leading-6 text-slate-600">Demo guidance: keep your approved identification and insurance documents available for the service desk.</p></Card></div></section>
-        <section className="bg-fmca-mist px-4 py-16 sm:px-6 lg:py-24"><div className="mx-auto max-w-7xl"><div className="flex items-end justify-between gap-5"><div><p className="text-sm font-bold text-fmca-green">Care pathways</p><h2 className="mt-2 text-3xl font-bold text-fmca-green-dark sm:text-4xl">Centres of excellence</h2></div><a href="#services" className="hidden min-h-12 items-center gap-2 font-semibold text-fmca-green sm:inline-flex">View services <ArrowRight size={17} /></a></div><div className="mt-10 grid snap-x grid-cols-[repeat(4,minmax(270px,1fr))] gap-5 overflow-x-auto pb-4 lg:grid-cols-4 lg:overflow-visible">{['Women and children', 'Surgical care', 'Medical services', 'Diagnostics and support'].map((title, index) => <Card key={title} className="min-h-64 snap-start overflow-hidden border-fmca-ink/10 bg-white p-0 shadow-none"><div className="flex h-28 items-end bg-fmca-green p-5 text-white"><span className="text-4xl font-bold tabular-nums opacity-40">0{index + 1}</span></div><div className="p-5"><h3 className="font-display text-lg font-bold text-fmca-green-dark">{title}</h3><p className="mt-2 text-sm leading-6 text-slate-600">Approved service information will be managed here.</p><a href="#request" className="mt-4 inline-flex min-h-12 items-center gap-2 text-sm font-bold text-fmca-green">Explore pathway <ArrowRight size={16} /></a></div></Card>)}</div></div></section>
-        <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:py-24"><div className="grid gap-10 lg:grid-cols-[.9fr_1.1fr] lg:items-center"><div><p className="text-sm font-bold text-fmca-green">Institutional strength</p><h2 className="mt-2 text-3xl font-bold text-fmca-green-dark sm:text-4xl">A public institution built around care, learning and accountability.</h2><p className="mt-5 leading-7 text-slate-600">FMCA content will connect approved clinical services with institutional evidence, research and training updates.</p></div><div className="grid gap-4 sm:grid-cols-2"><Evidence icon={Stethoscope} title="Clinical care" copy="Verified service pathways, reviewed by the right owner." /><Evidence icon={UsersRound} title="Training & research" copy="Institutional highlights published after approval." /><Evidence icon={ShieldCheck} title="Governance" copy="Clear ownership, review dates and revision history." /><Evidence icon={Clock3} title="Current information" copy="Operational messages expire automatically when scheduled." /></div></div></section>
-        <section id="visiting" className="border-y border-fmca-ink/10 bg-[#f8fbfa] px-4 py-16 sm:px-6 lg:py-24"><div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1.15fr_.85fr]"><div className="min-h-80 rounded-2xl bg-[url('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=1400&q=80')] bg-cover bg-center p-6 text-white sm:p-8"><div className="flex h-full max-w-sm flex-col justify-end"><MapPin size={30} /><h2 className="mt-4 font-display text-3xl font-bold">Find your way to campus</h2><p className="mt-3 text-sm leading-6 text-white/85">Demo address and directions await confirmation by FMCA.</p><a href="#directions" className="mt-6 inline-flex min-h-12 w-fit items-center gap-2 rounded-md bg-white px-5 font-bold text-fmca-green-dark">Open directions <ArrowRight size={17} /></a></div></div><div className="rounded-2xl border border-fmca-ink/10 bg-white p-6 sm:p-8"><h2 className="font-display text-2xl font-bold text-fmca-green-dark">Visiting hours</h2><p className="mt-3 text-sm leading-6 text-slate-600">Demo hours are shown for layout only and must be replaced before publication.</p><div className="mt-8 space-y-4 text-sm"><div className="flex justify-between border-b border-fmca-ink/10 pb-4"><span>Monday – Friday</span><strong className="tabular-nums">To be confirmed</strong></div><div className="flex justify-between border-b border-fmca-ink/10 pb-4"><span>Weekends</span><strong className="tabular-nums">To be confirmed</strong></div><div className="flex justify-between"><span>Accessibility support</span><strong>Contact desk</strong></div></div></div></div></section>
-        <section id="request" className="bg-fmca-crimson px-4 py-12 text-white sm:px-6"><div className="mx-auto flex max-w-7xl flex-col gap-6 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="font-display text-2xl font-bold">Need urgent help?</h2><p className="mt-2 text-sm text-white/85">Use the configured emergency contact only after FMCA verification.</p></div><a href="tel:+2340000000000" className="inline-flex min-h-14 items-center justify-center gap-3 rounded-md bg-white px-6 font-bold text-fmca-crimson"><PhoneIcon /> Call emergency contact</a></div></section>
-    </main></SiteShell>;
+    return (
+        <SiteShell>
+            <Head title="Federal Medical Centre, Abuja | Tertiary Care & Clinical Governance" />
+            <main id="main-content">
+                {/* 1 & 2: Government Utility & Header are managed in SiteShell */}
+
+                {/* 3: Emergency Hotbar */}
+                <EmergencyHotbar
+                    message={emergencyConfig?.message}
+                    phone={emergencyConfig?.phone}
+                    phoneLabel={emergencyConfig?.phoneLabel}
+                />
+
+                {/* 4: Operational Status Strip */}
+                <OperationalStatusStrip
+                    campusStatus={statusConfig?.campusStatus}
+                    serviceDesk={statusConfig?.serviceDesk}
+                    reviewStatus={statusConfig?.reviewStatus}
+                />
+
+                {/* 5: Campaign Hero Carousel */}
+                <CampaignCarousel slides={slides} />
+
+                {/* 6: Immediate Patient Services (Two-Tier Asymmetric Layout) */}
+                <QuickServices />
+
+                {/* 7: Institutional Capacity & Trust Metrics */}
+                <MetricStrip />
+
+                {/* 8: Insurance Guidance & NHIA Support */}
+                <InsuranceGuidance />
+
+                {/* 9: Centres of Clinical Excellence */}
+                <CentresOfExcellence />
+
+                {/* 10: Academic Mandate & Institutional Strength */}
+                <InstitutionalStrength />
+
+                {/* 11: Campus Access & Visiting Hours */}
+                <CampusAccess />
+
+                {/* 12: Final Emergency Dispatch Callout */}
+                <EmergencyBanner
+                    phone={emergencyConfig?.phone}
+                />
+
+                {/* 13: Footer is managed in SiteShell */}
+            </main>
+        </SiteShell>
+    );
 }
-
-function Metric({ value, label }: { value: string; label: string }) { return <div className="px-4 first:pl-0 last:pr-0 sm:px-7"><strong className="block font-display text-2xl tabular-nums sm:text-3xl">{value}</strong><span className="mt-1 block text-xs text-white/70">{label}</span></div>; }
-function Evidence({ icon: Icon, title, copy }: { icon: typeof Stethoscope; title: string; copy: string }) { return <Card className="border-fmca-ink/10 bg-white p-5 shadow-none"><Icon size={23} className="text-fmca-teal" /><h3 className="mt-5 font-display font-bold text-fmca-green-dark">{title}</h3><p className="mt-2 text-sm leading-6 text-slate-600">{copy}</p></Card>; }
-function PhoneIcon() { return <span aria-hidden="true">☎</span>; }

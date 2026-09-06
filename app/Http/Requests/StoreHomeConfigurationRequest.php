@@ -17,6 +17,10 @@ class StoreHomeConfigurationRequest extends FormRequest
         return [
             'hero_title' => ['required', 'string', 'max:120'],
             'hero_summary' => ['required', 'string', 'max:240'],
+            'emergency_message' => ['nullable', 'string', 'max:160'],
+            'emergency_phone' => ['nullable', 'string', 'max:30'],
+            'campus_status' => ['nullable', 'string', 'max:100'],
+            'service_desk' => ['nullable', 'string', 'max:100'],
             'status' => ['sometimes', Rule::in(['draft'])],
         ];
     }

@@ -140,30 +140,27 @@ The public Home page has a fixed, ordered composition. Its blocks may be configu
 | 12 | Final emergency banner | Last high-visibility emergency action before footer | Sticky-safe CTA that does not collide with mobile navigation | `Emergency & Status` |
 | 13 | Footer | Full multi-column navigation, contacts, governance and legal details | Compact contact/legal groups plus mobile bottom navigation | `Global Footer` |
 
-### Home page component inventory
+### Home page component inventory and defensive layout rules
 
-Build the following reusable public components before assembling the Home page. Each component needs responsive, hover/focus/disabled, empty, and loading states where relevant.
+Build the following modular, schema-governed public components under `resources/js/components/public/home/` before assembling the Home page:
 
-- `SiteShell`, `ContentContainer`, `SectionHeading`, `SkipLink`, `Breadcrumbs`, `SearchTrigger`.
-- `GovernmentUtilityBar`, `SiteHeader`, `DesktopNavigation`, `MobileNavigationSheet`, `MobileBottomNavigation`, `PrimaryNavigationItem`, `HeaderAction`.
-- `EmergencyHotbar`, `OperationalStatusStrip`, `StatusBadge`, `EmergencyCallAction`.
-- `CampaignCarousel`, `CampaignSlide`, `CarouselControls`, `CarouselProgress`, `MediaOverlay`.
-- `QuickServiceGrid`, `QuickServiceCard`, `ServiceCategoryBadge`, `ServiceAction`.
-- `MetricStrip`, `MetricCard`, `InsuranceGuidancePanel`, `EligibilityRequestForm`.
-- `CentreOfExcellenceGrid`, `CentreOfExcellenceCard`, `ConsultantCallToAction`.
-- `InstitutionalStrengthPanel`, `AccreditationCard`, `TestimonialCard`.
-- `CampusAccessPanel`, `DirectionsAction`, `VisitingHoursCard`, `ContactList`.
-- `SiteFooter`, `FooterNavigationGroup`, `FooterContactPanel`, `LegalFooter`, `SocialLink`.
+- `SiteShell`: Global federal utility strip, responsive navigation header, accessible mobile menu sheet, and mobile quick bottom navigation.
+- `EmergencyHotbar`: High-contrast triage alert banner with direct emergency call dispatch.
+- `OperationalStatusStrip`: Real-time campus status, blood bank reserves, and clinical desk indicators.
+- `CampaignCarousel`: Accessible hero carousel with touch swipe, keyboard navigation, pause on hover, and automated gradient scrim for text readability over variable media.
+- `QuickServices`: Asymmetric two-tier services section (Immediate Patient Actions vs. Reference Guidance) eliminating repetitive card-grid monotony.
+- `MetricStrip`: Tabular institutional capacity metrics without arbitrary numbers.
+- `InsuranceGuidance`: Refined NHIA advisory panel with required document checklist.
+- `CentresOfExcellence`: Distinct clinical specialty units with department tags, retiring decorative number watermarks.
+- `InstitutionalStrength`: Academic residency, postgraduate training, and clinical governance evidence cards with owner review timestamps.
+- `CampusAccess`: 50/50 split campus wayfinding card with address and GPS directions alongside a structured visiting-hours schedule.
+- `EmergencyBanner`: Last high-visibility pre-footer SOS dispatch action.
 
-Use the existing button, card, badge, dialog, navigation-menu, sheet, input, label, tooltip, avatar, skeleton, and alert primitives as the base for these components. Do not build click targets from generic `div` elements.
-
-### Responsive home-page rules
-
-- At 1024px and above, show the layered utility bar, complete primary navigation, full carousel composition, six-card service grid, and full footer columns.
-- At 768px to 1023px, collapse secondary header utilities and use an 8-column layout; preserve service and emergency priority.
-- Below 768px, use the compact header, mobile menu sheet, emergency hotbar, two-column quick-service grid, readable hero overlay, snap-scroll centre cards, and bottom navigation shown by the mobile Stitch reference.
-- The mobile carousel slide must retain its headline, emergency status and primary CTA in the first viewport. Its controls must be at least 48px and be usable with keyboard and swipe.
-- Use `100dvh` only where necessary for a viewport-filling hero; do not trap content or allow the sticky mobile navigation to cover buttons.
+#### CMS-First Defensive UI Directives
+- **Character length caps:** Hero headlines are capped at 120 characters; summaries at 240 characters. Mobile layouts use defensive line clamping so CTAs remain visible above the fold.
+- **Media safeguards:** Images use fixed aspect ratios (`object-cover`) with dark scrim overlays to preserve WCAG AA text contrast regardless of editor-uploaded image luminosity.
+- **Anti-slop standards:** Zero raw Unicode emojis or characters (`⌂`, `+`, `☎`) for interactive controls; all icons are rendered via approved SVG icon primitives. Zero decorative em-dashes (`—`) or en-dashes (`–`).
+- **Layout diversity:** Multi-cell grids vary in hierarchy (e.g. prominent action cards paired with bordered guidance rows) rather than repeating identical white cards.
 
 ### Home CMS: dedicated backend workspace
 
