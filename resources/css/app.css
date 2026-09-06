@@ -9,9 +9,18 @@
 
 @theme {
     --font-sans:
-        'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
+        'Inter', ui-sans-serif, system-ui, sans-serif,
         'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
         'Noto Color Emoji';
+    --font-display: 'Plus Jakarta Sans', 'Inter', ui-sans-serif, sans-serif;
+    --color-fmca-green: #0b5d39;
+    --color-fmca-green-dark: #06432a;
+    --color-fmca-teal: #0d9488;
+    --color-fmca-sky: #0284c7;
+    --color-fmca-gold: #d97706;
+    --color-fmca-crimson: #dc2626;
+    --color-fmca-ink: #18302a;
+    --color-fmca-mist: #f4f8f6;
 
     --radius-lg: var(--radius);
     --radius-md: calc(var(--radius) - 2px);
@@ -139,5 +148,20 @@
 
     body {
         @apply bg-background text-foreground;
+        font-family: var(--font-sans);
+        -webkit-font-smoothing: antialiased;
+    }
+
+    h1, h2, h3, h4 { font-family: var(--font-display); }
+
+    :focus-visible { @apply outline-2 outline-offset-2 outline-fmca-sky; }
+
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+            scroll-behavior: auto !important;
+            transition-duration: 0.01ms !important;
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+        }
     }
 }
