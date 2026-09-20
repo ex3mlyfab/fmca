@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { StatusChip } from '@/pages/cms/departments';
 import cmsCampaigns from '@/routes/cms/campaigns';
+import cmsMedia from '@/routes/cms/media';
 
 type Campaign = {
     id?: number;
@@ -127,8 +128,12 @@ export default function CampaignEditor({ campaign }: Props) {
                                     <div className="border-t border-fmca-ink/10 pt-5">
                                         <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Media</p>
                                         <p className="mt-1 text-xs text-slate-500">
-                                            The media library is not available yet — leave these blank and the carousel renders
-                                            on the institutional green background until media is approved.
+                                            Upload approved assets in the
+                                            <Link href={cmsMedia.index()} as="button" className="font-bold text-fmca-green hover:underline">
+                                                media library
+                                            </Link>
+                                            and paste the asset URL here. Leave the fields blank and the carousel
+                                            renders on the institutional green background.
                                         </p>
                                         <div className="mt-4 grid gap-5 sm:grid-cols-2">
                                             <div className="grid gap-1.5">

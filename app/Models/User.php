@@ -110,4 +110,14 @@ class User extends Authenticatable implements PasskeyUser
     {
         return $this->hasPermission('edit_redirects');
     }
+
+    public function canManageMedia(): bool
+    {
+        return $this->hasPermission('upload_media');
+    }
+
+    public function canManageDocuments(): bool
+    {
+        return $this->hasPermission('edit_documents');
+    }
 }

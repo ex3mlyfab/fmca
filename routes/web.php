@@ -5,7 +5,9 @@ use App\Http\Controllers\Cms\AuditLogController;
 use App\Http\Controllers\Cms\CampaignController;
 use App\Http\Controllers\Cms\CategoryController;
 use App\Http\Controllers\Cms\DepartmentController;
+use App\Http\Controllers\Cms\DocumentController;
 use App\Http\Controllers\Cms\HomepageController;
+use App\Http\Controllers\Cms\MediaController;
 use App\Http\Controllers\Cms\PageController as CmsPageController;
 use App\Http\Controllers\Cms\PostController;
 use App\Http\Controllers\Cms\RedirectController;
@@ -13,6 +15,7 @@ use App\Http\Controllers\Cms\SeoMetadataController;
 use App\Http\Controllers\Cms\ServiceController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DepartmentsController;
+use App\Http\Controllers\DocumentsController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\PageController;
@@ -23,7 +26,9 @@ use App\Models\AuditLog;
 use App\Models\Campaign;
 use App\Models\Category;
 use App\Models\Department;
+use App\Models\Document;
 use App\Models\HomeConfiguration;
+use App\Models\Media;
 use App\Models\Page;
 use App\Models\Post;
 use App\Models\Redirect;
@@ -42,6 +47,7 @@ Route::get('news/{slug}', [NewsController::class, 'show'])->name('news.show');
 Route::get('patients', [PageController::class, 'patientGuides'])->name('patients');
 Route::get('legal', [PageController::class, 'legalStatements'])->name('legal');
 Route::get('search', [SearchController::class, 'index'])->name('search');
+Route::get('documents/{document}', [DocumentsController::class, 'download'])->name('documents.download');
 
 // XML sitemaps (one per public content type, plus the index) and robots.txt.
 Route::get('sitemap.xml', [SitemapController::class, 'index'])->name('sitemap.index');
@@ -93,6 +99,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::middleware('can:viewAny,'.AuditLog::class)->group(function (): void {
         Route::get('cms/audit', [AuditLogController::class, 'index'])->name('cms.audit.index');
+    });
+
+    Route::middleware('can:viewAny,'.Media::class)->group(function (): void {
+        Route::get('cms/media', [MediaController::class, 'index'])->name('cms.media.index');
+        Route::post('cms/media', [MediaController::class, 'store'])->name('cms.media.store');
+        Route::get('cms/media/{media}', [MediaController::class, 'edit'])->name('cms.media.edit');
+        Route::put('cms/media/{media}', [MediaController::class, 'update'])->name('cms.media.update');
+        Route::delete('cms/media/{media}', [MediaController::class, 'destroy'])->name('cms.media.destroy');
+    });
+
+    Route::middleware('can:viewAny,'.Document::class)->group(function (): void {
+        Route::get('cms/documents', [DocumentController::class, 'index'])->name('cms.documents.index');
+        Route::get('cms/documents/create', [DocumentController::class, 'create'])->name('cms.documents.create');
+        Route::post('cms/documents', [DocumentController::class, 'store'])->name('cms.documents.store');
+        Route::get('cms/documents/{document}', [DocumentController::class, 'edit'])->name('cms.documents.edit');
+        Route::put('cms/documents/{document}', [DocumentController::class, 'update'])->name('cms.documents.update');
     });
 
     Route::middleware('can:viewAny,'.Department::class)->group(function (): void {
