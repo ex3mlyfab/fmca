@@ -12,7 +12,7 @@ class HomeConfigurationPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->canManageHomepage();
+        return $user->hasPermission('view_homepage');
     }
 
     /**
@@ -20,7 +20,7 @@ class HomeConfigurationPolicy
      */
     public function view(User $user, HomeConfiguration $homeConfiguration): bool
     {
-        return $user->canManageHomepage();
+        return $user->hasPermission('view_homepage');
     }
 
     /**
@@ -28,7 +28,7 @@ class HomeConfigurationPolicy
      */
     public function create(User $user): bool
     {
-        return $user->canManageHomepage();
+        return $user->hasPermission('edit_homepage');
     }
 
     /**
@@ -36,7 +36,7 @@ class HomeConfigurationPolicy
      */
     public function update(User $user, HomeConfiguration $homeConfiguration): bool
     {
-        return $user->canManageHomepage();
+        return $user->hasPermission('edit_homepage');
     }
 
     /**
@@ -44,7 +44,7 @@ class HomeConfigurationPolicy
      */
     public function delete(User $user, HomeConfiguration $homeConfiguration): bool
     {
-        return $user->role === 'super_admin';
+        return $user->hasPermission('manage_roles');
     }
 
     /**
@@ -52,7 +52,7 @@ class HomeConfigurationPolicy
      */
     public function restore(User $user, HomeConfiguration $homeConfiguration): bool
     {
-        return $user->role === 'super_admin';
+        return $user->hasPermission('manage_roles');
     }
 
     /**

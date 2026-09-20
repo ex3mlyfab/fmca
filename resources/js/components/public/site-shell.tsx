@@ -3,7 +3,7 @@ import { CalendarPlus, Home, Menu, PhoneCall, Search, Stethoscope, X } from 'luc
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { home } from '@/routes';
+import { appointments, contact, home, news, services } from '@/routes';
 
 const navigation = [
     ['About FMCA', '#about'],
@@ -57,7 +57,7 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
                     <div className="flex items-center gap-2">
                         <Button variant="ghost" size="icon" className="size-12" aria-label="Search"><Search /></Button>
                         <Button asChild className="hidden h-12 bg-fmca-green px-5 hover:bg-fmca-green-dark sm:inline-flex">
-                            <a href="#request">Request an appointment</a>
+                            <Link href={appointments()}>Request an appointment</Link>
                         </Button>
                         <a href="tel:+2340000000000" className="hidden min-h-12 items-center gap-2 rounded-md bg-fmca-crimson px-4 text-sm font-bold text-white hover:bg-red-700 lg:inline-flex">
                             <PhoneCall size={17} /> SOS
@@ -77,9 +77,13 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
                                     <a href="tel:+2340000000000" className="mt-5 flex min-h-14 items-center justify-center gap-2 rounded-md bg-fmca-crimson font-bold text-white">
                                         <PhoneCall size={18} /> Emergency contact
                                     </a>
-                                    <a href="#request" onClick={() => setOpen(false)} className="flex min-h-14 items-center justify-center rounded-md bg-fmca-green font-bold text-white">
+                                    <Link
+                                        href={appointments()}
+                                        onClick={() => setOpen(false)}
+                                        className="flex min-h-14 items-center justify-center rounded-md bg-fmca-green font-bold text-white"
+                                    >
                                         Request an appointment
-                                    </a>
+                                    </Link>
                                 </div>
                             </SheetContent>
                         </Sheet>
@@ -98,8 +102,24 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
                             Public care and guidance for patients, families, referring clinicians and our community. Content verified by institutional approvers.
                         </p>
                     </div>
-                    <FooterGroup title="Explore" links={['About FMCA', 'Services', 'Patients & Visitors', 'News & Updates']} />
-                    <FooterGroup title="Help" links={['Directions', 'Request an appointment', 'NHIA guidance', 'Contact FMCA']} />
+                    <FooterGroup
+                        title="Explore"
+                        links={[
+                            { label: 'About FMCA', href: home() },
+                            { label: 'Services', href: services() },
+                            { label: 'Patients & Visitors', href: home() },
+                            { label: 'News & Updates', href: news() },
+                        ]}
+                    />
+                    <FooterGroup
+                        title="Help"
+                        links={[
+                            { label: 'Directions', href: contact() },
+                            { label: 'Request an appointment', href: appointments() },
+                            { label: 'NHIA guidance', href: home() },
+                            { label: 'Contact FMCA', href: contact() },
+                        ]}
+                    />
                     <div>
                         <h2 className="font-display text-base font-bold">Contact</h2>
                         <p className="mt-4 text-sm leading-6 text-white/70">
@@ -133,7 +153,7 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
                     <PhoneCall size={19} />
                     <span>SOS</span>
                 </a>
-                <a href="#request" className="flex min-h-12 flex-col items-center justify-center gap-1 text-[11px] font-semibold text-slate-600 hover:text-fmca-green">
+                <a href={appointments().url} className="flex min-h-12 flex-col items-center justify-center gap-1 text-[11px] font-semibold text-slate-600 hover:text-fmca-green">
                     <CalendarPlus size={19} />
                     <span>Requests</span>
                 </a>
@@ -142,13 +162,22 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
     );
 }
 
-function FooterGroup({ title, links }: { title: string; links: string[] }) {
+type FooterLink = {
+    label: string;
+    href: ReturnType<typeof home>;
+};
+
+function FooterGroup({ title, links }: { title: string; links: FooterLink[] }) {
     return (
         <div>
             <h2 className="font-display text-base font-bold">{title}</h2>
             <ul className="mt-4 space-y-3 text-sm text-white/70">
                 {links.map((link) => (
-                    <li key={link}><a href="#content" className="hover:text-white">{link}</a></li>
+                    <li key={link.label}>
+                        <Link href={link.href} className="hover:text-white">
+                            {link.label}
+                        </Link>
+                    </li>
                 ))}
             </ul>
         </div>

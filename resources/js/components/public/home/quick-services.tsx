@@ -1,4 +1,5 @@
 import { ArrowRight, CalendarDays, Compass, FileText, HeartPulse, MapPin, ShieldCheck } from 'lucide-react';
+import { appointments } from '@/routes';
 
 export type ServiceItem = {
     title: string;
@@ -19,7 +20,7 @@ const defaultServices: ServiceItem[] = [
     {
         title: 'Request an appointment',
         description: 'Submit an outpatient clinic request for administrative follow-up.',
-        href: '#request',
+        href: appointments().url,
         icon: CalendarDays,
         isPrimary: true,
     },

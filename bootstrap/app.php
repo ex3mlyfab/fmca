@@ -7,6 +7,9 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
+use Inertia\ExceptionResponse;
+use Inertia\Inertia;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -27,4 +30,24 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+
+        Inertia::handleExceptionsUsing(function (ExceptionResponse $exceptionResponse): ?ExceptionResponse {
+            $exception = $exceptionResponse->exception;
+
+            if (! $exception instanceof HttpException) {
+                return null;
+            }
+
+            $request = $exceptionResponse->request;
+
+            if ($request->is('api/*') || $request->expectsJson()) {
+                return null;
+            }
+
+            return $exceptionResponse->withSharedData()->render('errors/404', [
+                'error' => [
+                    'status' => $exception->getStatusCode(),
+                ],
+            ]);
+        });
     })->create();

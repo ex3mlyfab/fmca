@@ -2,18 +2,9 @@ import { ArrowRight, Clock3, MapPin, Navigation, ShieldAlert } from 'lucide-reac
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
-export type VisitingHourSlot = {
-    dayRange: string;
-    morningSlot: string;
-    eveningSlot: string;
-    status: string;
-};
+import { campus, visitingPolicyNote, visitingSlots } from '@/lib/contact-info';
 
-const defaultSlots: VisitingHourSlot[] = [
-    { dayRange: 'Monday - Friday', morningSlot: '06:30 - 07:30', eveningSlot: '16:30 - 18:30', status: 'General wards' },
-    { dayRange: 'Weekends & Public Holidays', morningSlot: '11:00 - 13:00', eveningSlot: '16:00 - 18:30', status: 'General wards' },
-    { dayRange: 'Intensive Care & High Dependency', morningSlot: 'Restricted', eveningSlot: '17:00 - 18:00', status: 'Immediate family only' },
-];
+export type { VisitingHourSlot } from '@/lib/contact-info';
 
 export function CampusAccess() {
     return (
@@ -37,16 +28,16 @@ export function CampusAccess() {
                             <div className="mt-6 flex items-start gap-3 rounded-lg bg-white/10 p-4 backdrop-blur-xs">
                                 <MapPin size={22} className="mt-0.5 shrink-0 text-emerald-300" aria-hidden="true" />
                                 <div className="text-xs sm:text-sm">
-                                    <strong className="block font-bold">Federal Medical Centre, Abuja</strong>
-                                    <span className="text-white/80">Plot 1202, Cadastral Zone, FCT Abuja, Nigeria</span>
-                                    <span className="mt-1 block text-emerald-200">Main gate: 24/7 emergency vehicle corridor</span>
+                                    <strong className="block font-bold">{campus.name}</strong>
+                                    <span className="text-white/80">{campus.addressLine1}</span>
+                                    <span className="mt-1 block text-emerald-200">{campus.accessNote}</span>
                                 </div>
                             </div>
                         </div>
 
                         <div className="mt-8 flex flex-wrap gap-3">
                             <Button asChild className="h-12 bg-white px-5 font-bold text-fmca-green-dark shadow-sm hover:bg-emerald-50">
-                                <a href="https://maps.google.com" target="_blank" rel="noreferrer">
+                                <a href={campus.gpsUrl} target="_blank" rel="noreferrer">
                                     <span>Get GPS directions</span>
                                     <ArrowRight size={16} className="ml-1" aria-hidden="true" />
                                 </a>
@@ -67,7 +58,7 @@ export function CampusAccess() {
                         </p>
 
                         <div className="mt-6 divide-y divide-fmca-ink/10 text-xs sm:text-sm">
-                            {defaultSlots.map(({ dayRange, morningSlot, eveningSlot, status }) => (
+                            {visitingSlots.map(({ dayRange, morningSlot, eveningSlot, status }) => (
                                 <div key={dayRange} className="py-4 first:pt-0 last:pb-0">
                                     <div className="flex items-center justify-between font-semibold text-slate-800">
                                         <span>{dayRange}</span>
@@ -92,7 +83,7 @@ export function CampusAccess() {
                         <div className="mt-6 flex items-start gap-2 rounded-lg bg-amber-50/70 border border-amber-200/60 p-3.5 text-xs text-amber-900">
                             <ShieldAlert size={17} className="mt-0.5 shrink-0 text-fmca-gold" aria-hidden="true" />
                             <span>
-                                Maximum 2 visitors per patient bed at any one time. Children under 12 years are restricted from inpatient wards for clinical safety.
+                                {visitingPolicyNote}
                             </span>
                         </div>
                     </Card>

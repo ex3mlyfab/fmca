@@ -13,11 +13,13 @@ test('the public home page renders the controlled Inertia page', function () {
 });
 
 test('only approved CMS roles can access the homepage workspace', function () {
-    $editor = User::factory()->create(['role' => 'communications_editor']);
-    $auditor = User::factory()->create(['role' => 'auditor']);
+    $editor = User::factory()->withRole('communications_editor')->create();
+    $auditor = User::factory()->withRole('auditor')->create();
+    $noRole = User::factory()->create();
 
     $this->actingAs($editor)->get(route('cms.homepage.edit'))->assertOk();
-    $this->actingAs($auditor)->get(route('cms.homepage.edit'))->assertForbidden();
+    $this->actingAs($auditor)->get(route('cms.homepage.edit'))->assertOk();
+    $this->actingAs($noRole)->get(route('cms.homepage.edit'))->assertForbidden();
 });
 
 test('the public home only receives an active published configuration', function () {
@@ -38,7 +40,7 @@ test('the public home only receives an active published configuration', function
 });
 
 test('an editor can save a validated homepage draft', function () {
-    $editor = User::factory()->create(['role' => 'communications_editor']);
+    $editor = User::factory()->withRole('communications_editor')->create();
 
     $response = $this->actingAs($editor)->post(route('cms.homepage.store'), [
         'hero_title' => 'A reviewed demo title',
@@ -54,7 +56,7 @@ test('an editor can save a validated homepage draft', function () {
 });
 
 test('an editor can save emergency and status fields in a homepage draft', function () {
-    $editor = User::factory()->create(['role' => 'communications_editor']);
+    $editor = User::factory()->withRole('communications_editor')->create();
 
     $response = $this->actingAs($editor)->post(route('cms.homepage.store'), [
         'hero_title' => 'Emergency Response Title',
