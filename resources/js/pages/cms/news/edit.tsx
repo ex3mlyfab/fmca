@@ -1,10 +1,11 @@
 import { Form, Head, Link } from '@inertiajs/react';
-import { ArrowLeft, ArrowUpRight, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, CheckCircle2, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { StatusChip } from '@/pages/cms/departments';
 import cmsNews from '@/routes/cms/news';
+import cmsSeo from '@/routes/cms/seo';
 import publicNews from '@/routes/news';
 
 type CategoryOption = {
@@ -53,7 +54,19 @@ export default function NewsEditor({ post, categories }: Props) {
                             <ArrowLeft size={16} aria-hidden="true" />
                             News
                         </Link>
-                        {post && <StatusChip status={post.status} />}
+                        <div className="flex shrink-0 items-center gap-2">
+                            {post && <StatusChip status={post.status} />}
+                            {post?.id && (
+                                <Link
+                                    href={cmsSeo.edit.url({ content_type: 'post', content_id: post.id })}
+                                    as="button"
+                                    className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-md border border-fmca-ink/15 bg-white px-3 text-sm font-bold text-fmca-ink transition-colors hover:bg-fmca-mist focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fmca-sky"
+                                >
+                                    <Globe size={15} aria-hidden="true" />
+                                    <span>SEO</span>
+                                </Link>
+                            )}
+                        </div>
                     </div>
 
                     <h1 className="mt-4 font-display text-3xl font-bold text-fmca-green-dark">

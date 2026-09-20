@@ -20,6 +20,14 @@ class AppointmentsController extends Controller
                 ->values()
                 ->all(),
             'submitted' => session('appointmentSubmitted', false),
+            'seo' => [
+                'title' => 'Request an Appointment | Federal Medical Centre, Abuja',
+                'description' => 'Submit an appointment request to a department at the Federal Medical Centre, Abuja.',
+                'canonical' => url('appointments'),
+                'og_image' => null,
+                'robots' => 'index,follow',
+                'json_ld' => null,
+            ],
         ]);
     }
 

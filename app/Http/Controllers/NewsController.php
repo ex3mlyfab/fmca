@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Post;
+use App\Models\SeoMetadata;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -38,6 +39,14 @@ class NewsController extends Controller
             ])->values(),
             'categories' => Category::query()->orderBy('name')->get(['id', 'name', 'slug'])->values(),
             'activeCategory' => $categorySlug,
+            'seo' => SeoMetadata::forView('news', null, [
+                'title' => 'News & Updates | Federal Medical Centre, Abuja',
+                'description' => 'News, public notices, and health advisories from the Federal Medical Centre, Abuja.',
+                'canonical' => url('news'),
+                'og_image' => null,
+                'robots' => 'index,follow',
+                'json_ld' => null,
+            ]),
         ]);
     }
 
@@ -79,6 +88,31 @@ class NewsController extends Controller
                 ] : null,
             ],
             'related' => $related,
+            'seo' => SeoMetadata::forView('post', $post->id, [
+                'title' => $post->title.' | Federal Medical Centre, Abuja',
+                'description' => $post->summary,
+                'canonical' => url('news/'.$post->slug),
+                'og_image' => null,
+                'robots' => 'index,follow',
+                'json_ld' => [
+                    SeoMetadata::breadcrumbs([
+                        ['name' => 'Home', 'url' => url('/')],
+                        ['name' => 'News', 'url' => url('news')],
+                        ['name' => $post->title, 'url' => url('news/'.$post->slug)],
+                    ]),
+                    [
+                        '@context' => 'https://schema.org',
+                        '@type' => 'Article',
+                        'headline' => $post->title,
+                        'description' => $post->summary,
+                        'author' => ['@type' => 'Person', 'name' => $post->author],
+                        'datePublished' => $post->publish_date?->toDateString(),
+                        'dateModified' => $post->updated_at?->toDateString(),
+                        'publisher' => ['@type' => 'Organization', 'name' => 'Federal Medical Centre, Abuja'],
+                        'mainEntityOfPage' => url('news/'.$post->slug),
+                    ],
+                ],
+            ]),
         ]);
     }
 }

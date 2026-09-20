@@ -83,6 +83,14 @@ class SearchController extends Controller
             'query' => $query,
             'results' => $results,
             'total' => array_sum(array_map('count', $results)),
+            'seo' => [
+                'title' => 'Search | Federal Medical Centre, Abuja',
+                'description' => null,
+                'canonical' => null,
+                'og_image' => null,
+                'robots' => 'noindex,follow',
+                'json_ld' => null,
+            ],
         ]);
     }
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Campaign;
 use App\Models\HomeConfiguration;
+use App\Models\SeoMetadata;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -14,8 +15,7 @@ class HomeController extends Controller
         $configuration = HomeConfiguration::query()->published()->latest('published_at')->first();
 
         return Inertia::render('home', [
-            'configuration' => $configuration?->sections ?? [],
-            'campaigns' => Campaign::query()
+            'configuration' => $configuration?->sections ?? [],            'campaigns' => Campaign::query()
                 ->active()
                 ->get()
                 ->map(fn (Campaign $campaign): array => [
@@ -38,6 +38,14 @@ class HomeController extends Controller
                     'startDate' => $campaign->start_date?->toDateString(),
                     'endDate' => $campaign->end_date?->toDateString(),
                 ]),
+            'seo' => SeoMetadata::forView('home', null, [
+                'title' => 'Federal Medical Centre, Abuja',
+                'description' => 'Official website of the Federal Medical Centre, Abuja — clinical services, departments, news, and patient information.',
+                'canonical' => url('/'),
+                'og_image' => null,
+                'robots' => 'index,follow',
+                'json_ld' => null,
+            ]),
         ]);
     }
 }

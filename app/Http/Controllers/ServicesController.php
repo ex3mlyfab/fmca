@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\SeoMetadata;
 use App\Models\Service;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -22,6 +23,14 @@ class ServicesController extends Controller
                     'summary' => $service->summary,
                     'department' => $service->department?->name,
                 ]),
+            'seo' => SeoMetadata::forView('services', null, [
+                'title' => 'Services | Federal Medical Centre, Abuja',
+                'description' => 'Clinical services and departments at the Federal Medical Centre, Abuja.',
+                'canonical' => url('services'),
+                'og_image' => null,
+                'robots' => 'index,follow',
+                'json_ld' => null,
+            ]),
         ]);
     }
 
@@ -63,6 +72,18 @@ class ServicesController extends Controller
                 ] : null,
             ],
             'related' => $related,
+            'seo' => SeoMetadata::forView('service', $service->id, [
+                'title' => $service->name.' | Federal Medical Centre, Abuja',
+                'description' => $service->summary,
+                'canonical' => url('services/'.$service->slug),
+                'og_image' => null,
+                'robots' => 'index,follow',
+                'json_ld' => SeoMetadata::breadcrumbs([
+                    ['name' => 'Home', 'url' => url('/')],
+                    ['name' => 'Services', 'url' => url('services')],
+                    ['name' => $service->name, 'url' => url('services/'.$service->slug)],
+                ]),
+            ]),
         ]);
     }
 }

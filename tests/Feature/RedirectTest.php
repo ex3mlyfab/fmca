@@ -1,0 +1,43 @@
+<?php
+
+use App\Models\Redirect;
+
+test('an active redirect sends visitors to the new address', function () {
+    Redirect::factory()->create([
+        'from_path' => '/cardiology',
+        'to_path' => '/services/cardiology',
+    ]);
+
+    $this->get('/cardiology')
+        ->assertRedirect('/services/cardiology')
+        ->assertStatus(301);
+});
+
+test('a temporary redirect returns a 302', function () {
+    Redirect::factory()->temporary()->create([
+        'from_path' => '/old-notice',
+        'to_path' => '/news/old-notice',
+    ]);
+
+    $this->get('/old-notice')
+        ->assertRedirect('/news/old-notice')
+        ->assertStatus(302);
+});
+
+test('an inactive redirect does not apply', function () {
+    Redirect::factory()->inactive()->create([
+        'from_path' => '/cardiology',
+        'to_path' => '/services/cardiology',
+    ]);
+
+    $this->get('/cardiology')->assertNotFound();
+});
+
+test('redirect lookup ignores the letter case of the visited path', function () {
+    Redirect::factory()->create([
+        'from_path' => '/cardiology',
+        'to_path' => '/services/cardiology',
+    ]);
+
+    $this->get('/CARDIOLOGY')->assertRedirect('/services/cardiology');
+});

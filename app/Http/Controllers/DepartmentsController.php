@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Department;
+use App\Models\SeoMetadata;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -22,6 +23,14 @@ class DepartmentsController extends Controller
                     'summary' => $department->summary,
                     'servicesCount' => $department->services_count,
                 ]),
+            'seo' => SeoMetadata::forView('departments', null, [
+                'title' => 'Departments | Federal Medical Centre, Abuja',
+                'description' => 'Clinical and support departments at the Federal Medical Centre, Abuja.',
+                'canonical' => url('departments'),
+                'og_image' => null,
+                'robots' => 'index,follow',
+                'json_ld' => null,
+            ]),
         ]);
     }
 
@@ -49,6 +58,18 @@ class DepartmentsController extends Controller
                 'name' => $service->name,
                 'slug' => $service->slug,
                 'summary' => $service->summary,
+            ]),
+            'seo' => SeoMetadata::forView('department', $department->id, [
+                'title' => $department->name.' | Federal Medical Centre, Abuja',
+                'description' => $department->summary,
+                'canonical' => url('departments/'.$department->slug),
+                'og_image' => null,
+                'robots' => 'index,follow',
+                'json_ld' => SeoMetadata::breadcrumbs([
+                    ['name' => 'Home', 'url' => url('/')],
+                    ['name' => 'Departments', 'url' => url('departments')],
+                    ['name' => $department->name, 'url' => url('departments/'.$department->slug)],
+                ]),
             ]),
         ]);
     }

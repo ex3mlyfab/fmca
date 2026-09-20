@@ -1,10 +1,11 @@
 import { Form, Head, Link } from '@inertiajs/react';
-import { ArrowLeft, ArrowUpRight, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, CheckCircle2, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { StatusChip } from '@/pages/cms/departments';
 import cmsDepartments from '@/routes/cms/departments';
+import cmsSeo from '@/routes/cms/seo';
 import publicDepartments from '@/routes/departments';
 
 type Department = {
@@ -44,7 +45,19 @@ export default function DepartmentEditor({ department }: Props) {
                             <ArrowLeft size={16} aria-hidden="true" />
                             Departments
                         </Link>
-                        {department && <StatusChip status={department.status} />}
+                        <div className="flex shrink-0 items-center gap-2">
+                            {department && <StatusChip status={department.status} />}
+                            {department?.id && (
+                                <Link
+                                    href={cmsSeo.edit.url({ content_type: 'department', content_id: department.id })}
+                                    as="button"
+                                    className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-md border border-fmca-ink/15 bg-white px-3 text-sm font-bold text-fmca-ink transition-colors hover:bg-fmca-mist focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fmca-sky"
+                                >
+                                    <Globe size={15} aria-hidden="true" />
+                                    <span>SEO</span>
+                                </Link>
+                            )}
+                        </div>
                     </div>
 
                     <h1 className="mt-4 font-display text-3xl font-bold text-fmca-green-dark">

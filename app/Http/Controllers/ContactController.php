@@ -14,6 +14,14 @@ class ContactController extends Controller
     {
         return Inertia::render('contact', [
             'submitted' => session('contactSubmitted', false),
+            'seo' => [
+                'title' => 'Contact & Directions | Federal Medical Centre, Abuja',
+                'description' => 'Campus address, operating contacts, and the feedback form for the Federal Medical Centre, Abuja website.',
+                'canonical' => url('contact'),
+                'og_image' => null,
+                'robots' => 'index,follow',
+                'json_ld' => null,
+            ],
         ]);
     }
 

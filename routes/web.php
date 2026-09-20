@@ -7,6 +7,8 @@ use App\Http\Controllers\Cms\DepartmentController;
 use App\Http\Controllers\Cms\HomepageController;
 use App\Http\Controllers\Cms\PageController as CmsPageController;
 use App\Http\Controllers\Cms\PostController;
+use App\Http\Controllers\Cms\RedirectController;
+use App\Http\Controllers\Cms\SeoMetadataController;
 use App\Http\Controllers\Cms\ServiceController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DepartmentsController;
@@ -15,12 +17,14 @@ use App\Http\Controllers\NewsController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\ServicesController;
+use App\Http\Controllers\SitemapController;
 use App\Models\Campaign;
 use App\Models\Category;
 use App\Models\Department;
 use App\Models\HomeConfiguration;
 use App\Models\Page;
 use App\Models\Post;
+use App\Models\Redirect;
 use App\Models\Service;
 use Database\Seeders\PageTemplateSeeder;
 use Illuminate\Support\Facades\Route;
@@ -36,6 +40,14 @@ Route::get('news/{slug}', [NewsController::class, 'show'])->name('news.show');
 Route::get('patients', [PageController::class, 'patientGuides'])->name('patients');
 Route::get('legal', [PageController::class, 'legalStatements'])->name('legal');
 Route::get('search', [SearchController::class, 'index'])->name('search');
+
+// XML sitemaps (one per public content type, plus the index) and robots.txt.
+Route::get('sitemap.xml', [SitemapController::class, 'index'])->name('sitemap.index');
+Route::get('sitemap-services.xml', [SitemapController::class, 'services'])->name('sitemap.services');
+Route::get('sitemap-departments.xml', [SitemapController::class, 'departments'])->name('sitemap.departments');
+Route::get('sitemap-news.xml', [SitemapController::class, 'news'])->name('sitemap.news');
+Route::get('sitemap-pages.xml', [SitemapController::class, 'pages'])->name('sitemap.pages');
+Route::get('robots.txt', [SitemapController::class, 'robots'])->name('robots');
 
 // Public page routes — one per routable page template (registry-driven, read
 // from the code definitions so boot never depends on the database).
@@ -117,6 +129,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('cms/pages/{page}', [CmsPageController::class, 'edit'])->name('cms.pages.edit');
         Route::put('cms/pages/{page}', [CmsPageController::class, 'update'])->name('cms.pages.update');
     });
+
+    Route::middleware('can:viewAny,'.Redirect::class)->group(function (): void {
+        Route::get('cms/redirects', [RedirectController::class, 'index'])->name('cms.redirects.index');
+        Route::get('cms/redirects/create', [RedirectController::class, 'create'])->name('cms.redirects.create');
+        Route::post('cms/redirects', [RedirectController::class, 'store'])->name('cms.redirects.store');
+        Route::get('cms/redirects/{redirect}', [RedirectController::class, 'edit'])->name('cms.redirects.edit');
+        Route::put('cms/redirects/{redirect}', [RedirectController::class, 'update'])->name('cms.redirects.update');
+    });
+
+    // Generic per-content SEO editor; the controller gates each content type
+    // on its own edit permission. Listing-page types omit the content id.
+    Route::get('cms/seo/{content_type}/{content_id?}', [SeoMetadataController::class, 'edit'])->name('cms.seo.edit');
+    Route::put('cms/seo/{content_type}/{content_id?}', [SeoMetadataController::class, 'update'])->name('cms.seo.update');
 });
 
 require __DIR__.'/settings.php';

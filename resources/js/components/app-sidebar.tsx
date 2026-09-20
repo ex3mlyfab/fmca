@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, Building2, FolderGit2, LayoutGrid, LayoutTemplate, Megaphone, Newspaper, Stethoscope } from 'lucide-react';
+import { ArrowLeftRight, BookOpen, Building2, FolderGit2, LayoutGrid, LayoutTemplate, Megaphone, Newspaper, Stethoscope } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -47,6 +47,11 @@ const mainNavItems: NavItem[] = [
         title: 'Pages',
         href: cms.pages.index(),
         icon: LayoutTemplate,
+    },
+    {
+        title: 'URL Redirects',
+        href: cms.redirects.index(),
+        icon: ArrowLeftRight,
     },
 ];
 

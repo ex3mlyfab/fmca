@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Page;
 use App\Models\PageTemplate;
+use App\Models\SeoMetadata;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -14,7 +15,17 @@ class PageController extends Controller
      */
     public function patientGuides(): Response
     {
-        return Inertia::render('patient-guides', ['guides' => $this->statementsFor('patient_guide')]);
+        return Inertia::render('patient-guides', [
+            'guides' => $this->statementsFor('patient_guide'),
+            'seo' => SeoMetadata::forView('patient_guides', null, [
+                'title' => 'Patient Guides | Federal Medical Centre, Abuja',
+                'description' => 'Patient guides and informational statements from the Federal Medical Centre, Abuja.',
+                'canonical' => url('patients'),
+                'og_image' => null,
+                'robots' => 'index,follow',
+                'json_ld' => null,
+            ]),
+        ]);
     }
 
     /**
@@ -22,7 +33,17 @@ class PageController extends Controller
      */
     public function legalStatements(): Response
     {
-        return Inertia::render('legal', ['statements' => $this->statementsFor('legal')]);
+        return Inertia::render('legal', [
+            'statements' => $this->statementsFor('legal'),
+            'seo' => SeoMetadata::forView('legal_statements', null, [
+                'title' => 'Legal & Policies | Federal Medical Centre, Abuja',
+                'description' => 'Legal statements and policies of the Federal Medical Centre, Abuja.',
+                'canonical' => url('legal'),
+                'og_image' => null,
+                'robots' => 'index,follow',
+                'json_ld' => null,
+            ]),
+        ]);
     }
 
     /**
@@ -82,6 +103,18 @@ class PageController extends Controller
                     'sort_order' => $block->sort_order,
                 ])->all(),
             ],
+            'seo' => SeoMetadata::forView('page', $page->id, [
+                'title' => $page->title.' | Federal Medical Centre, Abuja',
+                'description' => $page->summary,
+                'canonical' => url($template->url_prefix.'/'.$page->slug),
+                'og_image' => null,
+                'robots' => 'index,follow',
+                'json_ld' => SeoMetadata::breadcrumbs([
+                    ['name' => 'Home', 'url' => url('/')],
+                    ['name' => $template->name, 'url' => url($template->url_prefix)],
+                    ['name' => $page->title, 'url' => url($template->url_prefix.'/'.$page->slug)],
+                ]),
+            ]),
         ]);
     }
 }

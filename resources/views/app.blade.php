@@ -38,8 +38,37 @@
 
         @viteReactRefresh
         @vite(['resources/css/app.css', 'resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])
+        @php
+            $seo = $page['props']['seo'] ?? null;
+            $seoTitle = ($seo['title'] ?? null) ?: config('app.name', 'Laravel');
+        @endphp
         <x-inertia::head>
-            <title>{{ config('app.name', 'Laravel') }}</title>
+            <title>{{ $seoTitle }}</title>
+            @if ($seo !== null)
+                @if (isset($seo['description']))
+                    <meta name="description" content="{{ $seo['description'] }}">
+                @endif
+                @if (isset($seo['robots']))
+                    <meta name="robots" content="{{ $seo['robots'] }}">
+                @endif
+                @if (isset($seo['canonical']))
+                    <link rel="canonical" href="{{ $seo['canonical'] }}">
+                @endif
+                <meta property="og:title" content="{{ $seoTitle }}">
+                @if (isset($seo['description']))
+                    <meta property="og:description" content="{{ $seo['description'] }}">
+                @endif
+                <meta property="og:type" content="website">
+                <meta property="og:url" content="{{ $seo['canonical'] ?? url()->current() }}">
+                @if (isset($seo['og_image']))
+                    <meta property="og:image" content="{{ $seo['og_image'] }}">
+                @endif
+                @if (isset($seo['json_ld']))
+                    @foreach ((array) $seo['json_ld'] as $jsonLd)
+                        <script type="application/ld+json">{!! json_encode($jsonLd, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>
+                    @endforeach
+                @endif
+            @endif
         </x-inertia::head>
     </head>
     <body class="font-sans antialiased">
