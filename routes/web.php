@@ -5,19 +5,23 @@ use App\Http\Controllers\Cms\CampaignController;
 use App\Http\Controllers\Cms\CategoryController;
 use App\Http\Controllers\Cms\DepartmentController;
 use App\Http\Controllers\Cms\HomepageController;
+use App\Http\Controllers\Cms\PageController as CmsPageController;
 use App\Http\Controllers\Cms\PostController;
 use App\Http\Controllers\Cms\ServiceController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DepartmentsController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NewsController;
+use App\Http\Controllers\PageController;
 use App\Http\Controllers\ServicesController;
 use App\Models\Campaign;
 use App\Models\Category;
 use App\Models\Department;
 use App\Models\HomeConfiguration;
+use App\Models\Page;
 use App\Models\Post;
 use App\Models\Service;
+use Database\Seeders\PageTemplateSeeder;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
@@ -28,6 +32,18 @@ Route::get('departments', [DepartmentsController::class, 'index'])->name('depart
 Route::get('departments/{slug}', [DepartmentsController::class, 'show'])->name('departments.show');
 Route::get('news', [NewsController::class, 'index'])->name('news');
 Route::get('news/{slug}', [NewsController::class, 'show'])->name('news.show');
+
+// Public page routes — one per routable page template (registry-driven, read
+// from the code definitions so boot never depends on the database).
+foreach (PageTemplateSeeder::TEMPLATES as $template) {
+    if (! $template['routable'] || $template['url_prefix'] === null) {
+        continue;
+    }
+
+    Route::get($template['url_prefix'].'/{slug}', [PageController::class, 'show'])
+        ->defaults('templateKey', $template['key'])
+        ->name('page.'.$template['key']);
+}
 
 Route::get('appointments', AppointmentsController::class)->name('appointments');
 Route::post('appointments', [AppointmentsController::class, 'store'])
@@ -87,6 +103,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('cms/campaigns', [CampaignController::class, 'store'])->name('cms.campaigns.store');
         Route::get('cms/campaigns/{campaign}', [CampaignController::class, 'edit'])->name('cms.campaigns.edit');
         Route::put('cms/campaigns/{campaign}', [CampaignController::class, 'update'])->name('cms.campaigns.update');
+    });
+
+    Route::middleware('can:viewAny,'.Page::class)->group(function (): void {
+        Route::get('cms/pages', [CmsPageController::class, 'index'])->name('cms.pages.index');
+        Route::get('cms/pages/create', [CmsPageController::class, 'create'])->name('cms.pages.create');
+        Route::get('cms/pages/start', [CmsPageController::class, 'start'])->name('cms.pages.start');
+        Route::post('cms/pages', [CmsPageController::class, 'store'])->name('cms.pages.store');
+        Route::get('cms/pages/{page}', [CmsPageController::class, 'edit'])->name('cms.pages.edit');
+        Route::put('cms/pages/{page}', [CmsPageController::class, 'update'])->name('cms.pages.update');
     });
 });
 

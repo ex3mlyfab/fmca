@@ -77,6 +77,9 @@ class RolePermissionSeeder extends Seeder
             'view_homepage',
             'edit_homepage',
             'publish_homepage',
+            'view_pages',
+            'edit_pages',
+            'publish_pages',
             'view_news',
             'create_news',
             'edit_news',
@@ -91,6 +94,9 @@ class RolePermissionSeeder extends Seeder
 
         'clinical_content_approver' => [
             'view_homepage',
+            'view_pages',
+            'edit_pages',
+            'publish_pages',
             'view_departments',
             'edit_departments',
             'approve_department_content',
@@ -121,6 +127,8 @@ class RolePermissionSeeder extends Seeder
 
         'media_officer' => [
             'view_homepage',
+            'view_pages',
+            'edit_pages',
             'view_news',
             'edit_news',
             'view_campaigns',
