@@ -10,6 +10,31 @@ use Inertia\Response;
 class PageController extends Controller
 {
     /**
+     * List the published patient guides at /patients.
+     */
+    public function index(): Response
+    {
+        $template = PageTemplate::query()->where('key', 'patient_guide')->firstOrFail();
+
+        $guides = Page::query()
+            ->published()
+            ->where('template_id', $template->id)
+            ->orderBy('title')
+            ->get()
+            ->map(fn (Page $page): array => [
+                'id' => $page->id,
+                'title' => $page->title,
+                'slug' => $page->slug,
+                'summary' => $page->summary,
+                'owner' => $page->owner,
+                'reviewed_at' => $page->reviewed_at?->format('j M Y'),
+            ])
+            ->all();
+
+        return Inertia::render('patient-guides', ['guides' => $guides]);
+    }
+
+    /**
      * Render a published page of the given template at its public slug.
      */
     public function show(string $slug, string $templateKey): Response
