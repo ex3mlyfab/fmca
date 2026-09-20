@@ -3,7 +3,7 @@ import { CalendarPlus, Home, Menu, PhoneCall, Search, Stethoscope, X } from 'luc
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { appointments, contact, home, legal, news, patients, services } from '@/routes';
+import { appointments, contact, home, legal, news, patients, search, services } from '@/routes';
 
 const navigation = [
     ['About FMCA', '#about'],
@@ -55,7 +55,11 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
                         ))}
                     </nav>
                     <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="icon" className="size-12" aria-label="Search"><Search /></Button>
+                        <Button asChild variant="ghost" size="icon" className="size-12" aria-label="Search">
+                            <Link href={search().url}>
+                                <Search />
+                            </Link>
+                        </Button>
                         <Button asChild className="hidden h-12 bg-fmca-green px-5 hover:bg-fmca-green-dark sm:inline-flex">
                             <Link href={appointments()}>Request an appointment</Link>
                         </Button>

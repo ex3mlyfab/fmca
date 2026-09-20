@@ -13,6 +13,7 @@ use App\Http\Controllers\DepartmentsController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\ServicesController;
 use App\Models\Campaign;
 use App\Models\Category;
@@ -34,6 +35,7 @@ Route::get('news', [NewsController::class, 'index'])->name('news');
 Route::get('news/{slug}', [NewsController::class, 'show'])->name('news.show');
 Route::get('patients', [PageController::class, 'patientGuides'])->name('patients');
 Route::get('legal', [PageController::class, 'legalStatements'])->name('legal');
+Route::get('search', [SearchController::class, 'index'])->name('search');
 
 // Public page routes — one per routable page template (registry-driven, read
 // from the code definitions so boot never depends on the database).
