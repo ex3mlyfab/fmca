@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Consultant;
 use App\Models\Department;
 use App\Models\Page;
 use App\Models\Post;
@@ -15,7 +16,7 @@ class SitemapController extends Controller
      */
     private function typeSitemapNames(): array
     {
-        return ['services', 'departments', 'news', 'pages'];
+        return ['services', 'departments', 'consultants', 'news', 'pages'];
     }
 
     public function index(): Response
@@ -49,6 +50,19 @@ class SitemapController extends Controller
             ->map(fn (Department $department) => [
                 'loc' => url('departments/'.$department->slug),
                 'lastmod' => $department->updated_at?->toAtomString(),
+            ])->all();
+
+        return $this->xmlResponse($this->sitemapXml($urls));
+    }
+
+    public function consultants(): Response
+    {
+        $urls = Consultant::published()
+            ->orderBy('slug')
+            ->get(['slug', 'updated_at'])
+            ->map(fn (Consultant $consultant) => [
+                'loc' => url('consultants/'.$consultant->slug),
+                'lastmod' => $consultant->updated_at?->toAtomString(),
             ])->all();
 
         return $this->xmlResponse($this->sitemapXml($urls));

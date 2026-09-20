@@ -4,6 +4,8 @@ use App\Http\Controllers\AppointmentsController;
 use App\Http\Controllers\Cms\AuditLogController;
 use App\Http\Controllers\Cms\CampaignController;
 use App\Http\Controllers\Cms\CategoryController;
+use App\Http\Controllers\Cms\ClinicController;
+use App\Http\Controllers\Cms\ConsultantController;
 use App\Http\Controllers\Cms\DepartmentController;
 use App\Http\Controllers\Cms\DocumentController;
 use App\Http\Controllers\Cms\HomepageController;
@@ -13,6 +15,7 @@ use App\Http\Controllers\Cms\PostController;
 use App\Http\Controllers\Cms\RedirectController;
 use App\Http\Controllers\Cms\SeoMetadataController;
 use App\Http\Controllers\Cms\ServiceController;
+use App\Http\Controllers\ConsultantsController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DepartmentsController;
 use App\Http\Controllers\DocumentsController;
@@ -25,6 +28,8 @@ use App\Http\Controllers\SitemapController;
 use App\Models\AuditLog;
 use App\Models\Campaign;
 use App\Models\Category;
+use App\Models\Clinic;
+use App\Models\Consultant;
 use App\Models\Department;
 use App\Models\Document;
 use App\Models\HomeConfiguration;
@@ -42,6 +47,8 @@ Route::get('services', [ServicesController::class, 'index'])->name('services');
 Route::get('services/{slug}', [ServicesController::class, 'show'])->name('services.show');
 Route::get('departments', [DepartmentsController::class, 'index'])->name('departments');
 Route::get('departments/{slug}', [DepartmentsController::class, 'show'])->name('departments.show');
+Route::get('consultants', [ConsultantsController::class, 'index'])->name('consultants');
+Route::get('consultants/{slug}', [ConsultantsController::class, 'show'])->name('consultants.show');
 Route::get('news', [NewsController::class, 'index'])->name('news');
 Route::get('news/{slug}', [NewsController::class, 'show'])->name('news.show');
 Route::get('patients', [PageController::class, 'patientGuides'])->name('patients');
@@ -53,6 +60,7 @@ Route::get('documents/{document}', [DocumentsController::class, 'download'])->na
 Route::get('sitemap.xml', [SitemapController::class, 'index'])->name('sitemap.index');
 Route::get('sitemap-services.xml', [SitemapController::class, 'services'])->name('sitemap.services');
 Route::get('sitemap-departments.xml', [SitemapController::class, 'departments'])->name('sitemap.departments');
+Route::get('sitemap-consultants.xml', [SitemapController::class, 'consultants'])->name('sitemap.consultants');
 Route::get('sitemap-news.xml', [SitemapController::class, 'news'])->name('sitemap.news');
 Route::get('sitemap-pages.xml', [SitemapController::class, 'pages'])->name('sitemap.pages');
 Route::get('robots.txt', [SitemapController::class, 'robots'])->name('robots');
@@ -123,6 +131,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('cms/departments', [DepartmentController::class, 'store'])->name('cms.departments.store');
         Route::get('cms/departments/{department}', [DepartmentController::class, 'edit'])->name('cms.departments.edit');
         Route::put('cms/departments/{department}', [DepartmentController::class, 'update'])->name('cms.departments.update');
+    });
+
+    Route::middleware('can:viewAny,'.Clinic::class)->group(function (): void {
+        Route::get('cms/clinics', [ClinicController::class, 'index'])->name('cms.clinics.index');
+        Route::get('cms/clinics/create', [ClinicController::class, 'create'])->name('cms.clinics.create');
+        Route::post('cms/clinics', [ClinicController::class, 'store'])->name('cms.clinics.store');
+        Route::get('cms/clinics/{clinic}', [ClinicController::class, 'edit'])->name('cms.clinics.edit');
+        Route::put('cms/clinics/{clinic}', [ClinicController::class, 'update'])->name('cms.clinics.update');
+    });
+
+    Route::middleware('can:viewAny,'.Consultant::class)->group(function (): void {
+        Route::get('cms/consultants', [ConsultantController::class, 'index'])->name('cms.consultants.index');
+        Route::get('cms/consultants/create', [ConsultantController::class, 'create'])->name('cms.consultants.create');
+        Route::post('cms/consultants', [ConsultantController::class, 'store'])->name('cms.consultants.store');
+        Route::get('cms/consultants/{consultant}', [ConsultantController::class, 'edit'])->name('cms.consultants.edit');
+        Route::put('cms/consultants/{consultant}', [ConsultantController::class, 'update'])->name('cms.consultants.update');
     });
 
     Route::middleware('can:viewAny,'.Service::class)->group(function (): void {

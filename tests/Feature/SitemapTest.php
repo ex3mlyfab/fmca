@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Consultant;
 use App\Models\Department;
 use App\Models\Page;
 use App\Models\PageTemplate;
@@ -19,6 +20,7 @@ test('the sitemap index lists one sitemap per content type', function () {
     expect($content)->toContain('<sitemapindex')
         ->and($content)->toContain(url('sitemap-services.xml'))
         ->and($content)->toContain(url('sitemap-departments.xml'))
+        ->and($content)->toContain(url('sitemap-consultants.xml'))
         ->and($content)->toContain(url('sitemap-news.xml'))
         ->and($content)->toContain(url('sitemap-pages.xml'));
 });
@@ -41,6 +43,16 @@ test('the departments sitemap lists only published departments', function () {
 
     expect($content)->toContain(url('departments/cardiology'))
         ->and($content)->not->toContain(url('departments/draft-department'));
+});
+
+test('the consultants sitemap lists only published consultants', function () {
+    Consultant::factory()->published()->create(['slug' => 'cardiology-consultant']);
+    Consultant::factory()->create(['slug' => 'draft-consultant']);
+
+    $content = $this->get('/sitemap-consultants.xml')->assertOk()->getContent();
+
+    expect($content)->toContain(url('consultants/cardiology-consultant'))
+        ->and($content)->not->toContain(url('consultants/draft-consultant'));
 });
 
 test('the news sitemap uses the publish date as the last-modified date', function () {

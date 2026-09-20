@@ -3,7 +3,7 @@ import { CalendarPlus, Home, Menu, PhoneCall, Search, Stethoscope, X } from 'luc
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { appointments, contact, home, legal, news, patients, search, services } from '@/routes';
+import { appointments, contact, consultants, home, legal, news, patients, search, services } from '@/routes';
 
 const navigation = [
     ['About FMCA', '#about'],
@@ -111,6 +111,7 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
                         links={[
                             { label: 'About FMCA', href: home() },
                             { label: 'Services', href: services() },
+                            { label: 'Consultants', href: consultants() },
                             { label: 'Patients & Visitors', href: patients() },
                             { label: 'News & Updates', href: news() },
                         ]}

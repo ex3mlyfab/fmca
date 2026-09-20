@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Cms;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateSeoMetadataRequest;
+use App\Models\Consultant;
 use App\Models\Department;
 use App\Models\Page;
 use App\Models\Post;
@@ -28,6 +29,8 @@ class SeoMetadataController extends Controller
         'services' => ['model' => Service::class, 'permission' => 'edit_services'],
         'department' => ['model' => Department::class, 'permission' => 'edit_departments'],
         'departments' => ['model' => Department::class, 'permission' => 'edit_departments'],
+        'consultant' => ['model' => Consultant::class, 'permission' => 'edit_consultants'],
+        'consultants' => ['model' => Consultant::class, 'permission' => 'edit_consultants'],
         'post' => ['model' => Post::class, 'permission' => 'edit_news'],
         'news' => ['model' => Post::class, 'permission' => 'edit_news'],
         'page' => ['model' => Page::class, 'permission' => 'edit_pages'],
@@ -38,7 +41,7 @@ class SeoMetadataController extends Controller
     /**
      * @return array<int, string>
      */
-    private const LISTING_TYPES = ['services', 'departments', 'news', 'patient_guides', 'legal_statements'];
+    private const LISTING_TYPES = ['services', 'departments', 'consultants', 'news', 'patient_guides', 'legal_statements'];
 
     public function edit(Request $request, string $contentType, ?int $contentId = null): Response
     {
@@ -134,6 +137,7 @@ class SeoMetadataController extends Controller
             return match (true) {
                 $content instanceof Service => $content->name,
                 $content instanceof Department => $content->name,
+                $content instanceof Consultant => $content->name,
                 $content instanceof Post => $content->title,
                 $content instanceof Page => $content->title,
                 default => (string) $content->id,
@@ -143,6 +147,7 @@ class SeoMetadataController extends Controller
         return match ($contentType) {
             'services' => 'Services index page',
             'departments' => 'Departments index page',
+            'consultants' => 'Consultants index page',
             'news' => 'News index page',
             'patient_guides' => 'Patient guides index page',
             'legal_statements' => 'Legal statements index page',
@@ -155,12 +160,14 @@ class SeoMetadataController extends Controller
         return match (true) {
             $content instanceof Service => url('services/'.$content->slug),
             $content instanceof Department => url('departments/'.$content->slug),
+            $content instanceof Consultant => url('consultants/'.$content->slug),
             $content instanceof Post => url('news/'.$content->slug),
             $content instanceof Page => $content->template?->url_prefix !== null
                 ? url($content->template->url_prefix.'/'.$content->slug)
                 : null,
             $contentType === 'services' => url('services'),
             $contentType === 'departments' => url('departments'),
+            $contentType === 'consultants' => url('consultants'),
             $contentType === 'news' => url('news'),
             $contentType === 'patient_guides' => url('patients'),
             $contentType === 'legal_statements' => url('legal'),
