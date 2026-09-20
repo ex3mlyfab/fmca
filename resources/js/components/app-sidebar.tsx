@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, Building2, FolderGit2, LayoutGrid, Newspaper, Stethoscope } from 'lucide-react';
+import { BookOpen, Building2, FolderGit2, LayoutGrid, Megaphone, Newspaper, Stethoscope } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -37,6 +37,11 @@ const mainNavItems: NavItem[] = [
         title: 'News',
         href: cms.news.index(),
         icon: Newspaper,
+    },
+    {
+        title: 'Campaigns',
+        href: cms.campaigns.index(),
+        icon: Megaphone,
     },
 ];
 

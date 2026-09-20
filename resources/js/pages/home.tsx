@@ -14,11 +14,6 @@ import {
 } from '@/components/public/home';
 
 type HomeConfigurationData = {
-    hero?: {
-        title?: string;
-        summary?: string;
-        image?: string;
-    };
     emergency?: {
         message?: string;
         phone?: string;
@@ -29,40 +24,35 @@ type HomeConfigurationData = {
         serviceDesk?: string;
         reviewStatus?: string;
     };
-    campaigns?: Array<{
-        eyebrow?: string;
-        title: string;
-        copy: string;
-        image?: string;
-        primaryCtaLabel?: string;
-        primaryCtaHref?: string;
-    }>;
+};
+
+type CampaignSlide = {
+    id: number;
+    title: string;
+    copy: string;
+    eyebrow?: string | null;
+    image?: string | null;
+    mobileImage?: string | null;
+    imageAlt?: string | null;
+    focalPoint?: string | null;
+    videoPoster?: string | null;
+    primaryCtaLabel?: string | null;
+    primaryCtaHref?: string | null;
+    secondaryCtaLabel?: string | null;
+    secondaryCtaHref?: string | null;
+    owner?: string | null;
+    advisory?: boolean;
+    overlayIntensity?: number | null;
 };
 
 type HomeProps = {
     configuration?: HomeConfigurationData;
+    campaigns?: CampaignSlide[];
 };
 
-export default function Home({ configuration }: HomeProps) {
-    const heroConfig = configuration?.hero;
+export default function Home({ configuration, campaigns = [] }: HomeProps) {
     const emergencyConfig = configuration?.emergency;
     const statusConfig = configuration?.status;
-
-    // Construct campaign slides, incorporating CMS hero draft if present
-    const slides = configuration?.campaigns ?? (heroConfig?.title
-        ? [
-            {
-                eyebrow: 'Institutional Care & Public Service',
-                title: heroConfig.title,
-                copy: heroConfig.summary ?? 'Clear clinical guidance for patients, families and referring clinical teams.',
-                image: heroConfig.image ?? 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1800&q=80',
-                primaryCtaLabel: 'Find patient services',
-                primaryCtaHref: '#services',
-                secondaryCtaLabel: 'About FMCA',
-                secondaryCtaHref: '#about',
-            },
-        ]
-        : undefined);
 
     return (
         <SiteShell>
@@ -84,8 +74,8 @@ export default function Home({ configuration }: HomeProps) {
                     reviewStatus={statusConfig?.reviewStatus}
                 />
 
-                {/* 5: Campaign Hero Carousel */}
-                <CampaignCarousel slides={slides} />
+                {/* 5: Campaign Hero Carousel (CMS-managed content module) */}
+                <CampaignCarousel slides={campaigns} />
 
                 {/* 6: Immediate Patient Services (Two-Tier Asymmetric Layout) */}
                 <QuickServices />

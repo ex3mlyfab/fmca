@@ -1,5 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
-import { ArrowUpRight, Building2, CheckCircle2, Clock3, Inbox, PencilLine, Plus } from 'lucide-react';
+import { ArrowUpRight, Building2, CheckCircle2, Clock3, Hourglass, Inbox, PencilLine, Plus } from 'lucide-react';
 import cmsDepartments from '@/routes/cms/departments';
 import publicDepartments from '@/routes/departments';
 
@@ -123,6 +123,15 @@ export function StatusChip({ status }: { status: string }) {
             <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700">
                 <CheckCircle2 size={13} aria-hidden="true" />
                 Published
+            </span>
+        );
+    }
+
+    if (status === 'review') {
+        return (
+            <span className="inline-flex items-center gap-1 rounded-md bg-sky-50 px-2 py-0.5 text-[11px] font-bold text-sky-700">
+                <Hourglass size={13} aria-hidden="true" />
+                In review
             </span>
         );
     }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AppointmentsController;
+use App\Http\Controllers\Cms\CampaignController;
 use App\Http\Controllers\Cms\CategoryController;
 use App\Http\Controllers\Cms\DepartmentController;
 use App\Http\Controllers\Cms\HomepageController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\DepartmentsController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\ServicesController;
+use App\Models\Campaign;
 use App\Models\Category;
 use App\Models\Department;
 use App\Models\HomeConfiguration;
@@ -77,6 +79,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('cms/categories', [CategoryController::class, 'store'])->name('cms.categories.store');
         Route::get('cms/categories/{category}', [CategoryController::class, 'edit'])->name('cms.categories.edit');
         Route::put('cms/categories/{category}', [CategoryController::class, 'update'])->name('cms.categories.update');
+    });
+
+    Route::middleware('can:viewAny,'.Campaign::class)->group(function (): void {
+        Route::get('cms/campaigns', [CampaignController::class, 'index'])->name('cms.campaigns.index');
+        Route::get('cms/campaigns/create', [CampaignController::class, 'create'])->name('cms.campaigns.create');
+        Route::post('cms/campaigns', [CampaignController::class, 'store'])->name('cms.campaigns.store');
+        Route::get('cms/campaigns/{campaign}', [CampaignController::class, 'edit'])->name('cms.campaigns.edit');
+        Route::put('cms/campaigns/{campaign}', [CampaignController::class, 'update'])->name('cms.campaigns.update');
     });
 });
 

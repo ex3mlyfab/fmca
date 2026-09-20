@@ -85,4 +85,9 @@ class User extends Authenticatable implements PasskeyUser
     {
         return $this->hasPermission('edit_news');
     }
+
+    public function canManageCampaigns(): bool
+    {
+        return $this->hasPermission('edit_campaigns');
+    }
 }
