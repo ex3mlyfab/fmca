@@ -12,7 +12,9 @@ class RolePermissionSeeder extends Seeder
         // Homepage
         ['name' => 'view_homepage',           'guard_name' => 'web'],
         ['name' => 'edit_homepage',           'guard_name' => 'web'],
+        ['name' => 'approve_homepage',        'guard_name' => 'web'],
         ['name' => 'publish_homepage',        'guard_name' => 'web'],
+        ['name' => 'archive_homepage',        'guard_name' => 'web'],
         // Pages
         ['name' => 'view_pages',              'guard_name' => 'web'],
         ['name' => 'create_pages',            'guard_name' => 'web'],
@@ -64,7 +66,7 @@ class RolePermissionSeeder extends Seeder
 
     private const ROLE_PERMISSIONS = [
         'super_admin' => [
-            'view_homepage', 'edit_homepage', 'publish_homepage',
+            'view_homepage', 'edit_homepage', 'approve_homepage', 'publish_homepage', 'archive_homepage',
             'view_pages', 'create_pages', 'edit_pages', 'delete_pages', 'publish_pages',
             'view_departments', 'edit_departments', 'approve_department_content',
             'view_services', 'edit_services',
@@ -81,6 +83,7 @@ class RolePermissionSeeder extends Seeder
             'view_homepage',
             'edit_homepage',
             'publish_homepage',
+            'archive_homepage',
             'view_pages',
             'edit_pages',
             'publish_pages',
@@ -100,6 +103,7 @@ class RolePermissionSeeder extends Seeder
 
         'clinical_content_approver' => [
             'view_homepage',
+            'approve_homepage',
             'view_pages',
             'edit_pages',
             'publish_pages',

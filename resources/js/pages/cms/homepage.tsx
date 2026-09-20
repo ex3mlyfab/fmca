@@ -1,12 +1,33 @@
 import { Form, Head, Link } from '@inertiajs/react';
-import { ArrowUpRight, CheckCircle2, Clock3, FileClock, HeartPulse, PhoneCall, ShieldAlert, ShieldCheck } from 'lucide-react';
+import {
+    Archive,
+    ArrowUpRight,
+    CheckCircle2,
+    Clock3,
+    FileClock,
+    HeartPulse,
+    History,
+    MessageSquareWarning,
+    PhoneCall,
+    Rocket,
+    ShieldAlert,
+    ShieldCheck,
+} from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { home } from '@/routes';
-import { store as storeHomepage, submitForReview } from '@/actions/App/Http/Controllers/Cms/HomepageController';
+import cms from '@/routes/cms';
+import {
+    archive,
+    approve,
+    publish,
+    requestChanges,
+    store as storeHomepage,
+    submitForReview,
+} from '@/actions/App/Http/Controllers/Cms/HomepageController';
 
 type Configuration = {
     id?: number;
@@ -21,9 +42,12 @@ type Configuration = {
 type Props = {
     configuration: Configuration;
     sections: string[];
+    canApprove: boolean;
+    canPublish: boolean;
+    canArchive: boolean;
 };
 
-export default function HomepageWorkspace({ configuration, sections }: Props) {
+export default function HomepageWorkspace({ configuration, sections, canApprove, canPublish, canArchive }: Props) {
     const status = configuration?.status ?? 'draft';
     const [heroTitle, setHeroTitle] = useState(configuration?.sections?.hero?.title ?? 'Care information you can trust');
     const [heroSummary, setHeroSummary] = useState(
@@ -70,6 +94,58 @@ export default function HomepageWorkspace({ configuration, sections }: Props) {
                                     <span>Submit for clinical review</span>
                                 </Link>
                             )}
+                            {status === 'in_review' && canApprove && configuration && (
+                                <>
+                                    <Link
+                                        href={approve.url(configuration.id!)}
+                                        method="post"
+                                        as="button"
+                                        className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-fmca-green px-5 text-sm font-bold text-white shadow-sm hover:bg-fmca-green-dark"
+                                    >
+                                        <CheckCircle2 size={16} aria-hidden="true" />
+                                        <span>Approve content</span>
+                                    </Link>
+                                    <Link
+                                        href={requestChanges.url(configuration.id!)}
+                                        method="post"
+                                        as="button"
+                                        className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-fmca-crimson/30 bg-white px-5 text-sm font-bold text-fmca-crimson shadow-xs hover:bg-rose-50"
+                                    >
+                                        <MessageSquareWarning size={16} aria-hidden="true" />
+                                        <span>Request changes</span>
+                                    </Link>
+                                </>
+                            )}
+                            {status === 'approved' && canPublish && configuration && (
+                                <Link
+                                    href={publish.url(configuration.id!)}
+                                    method="post"
+                                    as="button"
+                                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-fmca-green px-5 text-sm font-bold text-white shadow-sm hover:bg-fmca-green-dark"
+                                >
+                                    <Rocket size={16} aria-hidden="true" />
+                                    <span>Publish to public home</span>
+                                </Link>
+                            )}
+                            {status === 'published' && canArchive && configuration && (
+                                <Link
+                                    href={archive.url(configuration.id!)}
+                                    method="post"
+                                    as="button"
+                                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-fmca-ink/15 bg-white px-5 text-sm font-bold text-fmca-ink shadow-xs hover:bg-fmca-mist"
+                                >
+                                    <Archive size={16} aria-hidden="true" />
+                                    <span>Archive</span>
+                                </Link>
+                            )}
+                            <Link
+                                href={cms.homepage.revisions()}
+                                as="button"
+                                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-fmca-ink/15 bg-white px-4 text-sm font-bold text-fmca-ink shadow-xs hover:bg-fmca-mist"
+                            >
+                                <History size={16} aria-hidden="true" />
+                                <span>Revision history</span>
+                            </Link>
                         </div>
                     </header>
 
@@ -79,9 +155,30 @@ export default function HomepageWorkspace({ configuration, sections }: Props) {
                         <StatusCard
                             icon={ShieldCheck}
                             label="Clinical governance"
-                            value={status === 'in_review' ? 'Awaiting approver sign-off' : 'Clinical review required'}
+                            value={
+                                status === 'in_review'
+                                    ? 'Awaiting approver sign-off'
+                                    : status === 'approved'
+                                        ? 'Approved — ready to publish'
+                                        : status === 'published'
+                                            ? 'Live on public home'
+                                            : status === 'archived'
+                                                ? 'Taken offline'
+                                                : 'Clinical review required'
+                            }
                         />
-                        <StatusCard icon={FileClock} label="Audit trail" value="Immutable change log active" />
+                        <Card className="border border-fmca-ink/10 bg-white p-5 shadow-xs">
+                            <FileClock className="text-fmca-teal" size={22} aria-hidden="true" />
+                            <p className="mt-4 text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Audit trail</p>
+                            <Link
+                                href={cms.audit.index()}
+                                as="button"
+                                className="mt-1 inline-flex items-center gap-1.5 font-display text-lg font-bold text-fmca-green-dark hover:underline"
+                            >
+                                Immutable log
+                                <ArrowUpRight size={15} aria-hidden="true" />
+                            </Link>
+                        </Card>
                     </section>
 
                     {/* Section Configuration Form */}

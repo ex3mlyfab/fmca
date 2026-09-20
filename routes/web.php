@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AppointmentsController;
+use App\Http\Controllers\Cms\AuditLogController;
 use App\Http\Controllers\Cms\CampaignController;
 use App\Http\Controllers\Cms\CategoryController;
 use App\Http\Controllers\Cms\DepartmentController;
@@ -18,6 +19,7 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\ServicesController;
 use App\Http\Controllers\SitemapController;
+use App\Models\AuditLog;
 use App\Models\Campaign;
 use App\Models\Category;
 use App\Models\Department;
@@ -76,9 +78,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('can:viewAny,'.HomeConfiguration::class)->group(function (): void {
         Route::get('cms/homepage', [HomepageController::class, 'edit'])->name('cms.homepage.edit');
         Route::post('cms/homepage', [HomepageController::class, 'store'])->name('cms.homepage.store');
+        Route::get('cms/homepage/revisions', [HomepageController::class, 'revisions'])->name('cms.homepage.revisions');
+        Route::post('cms/homepage/revisions/{revision}/restore', [HomepageController::class, 'restoreRevision'])
+            ->name('cms.homepage.restore');
         Route::post('cms/homepage/{homeConfiguration}/review', [HomepageController::class, 'submitForReview'])
             ->middleware('can:update,homeConfiguration')
             ->name('cms.homepage.review');
+        Route::post('cms/homepage/{homeConfiguration}/approve', [HomepageController::class, 'approve'])->name('cms.homepage.approve');
+        Route::post('cms/homepage/{homeConfiguration}/changes', [HomepageController::class, 'requestChanges'])->name('cms.homepage.changes');
+        Route::post('cms/homepage/{homeConfiguration}/publish', [HomepageController::class, 'publish'])->name('cms.homepage.publish');
+        Route::post('cms/homepage/{homeConfiguration}/archive', [HomepageController::class, 'archive'])->name('cms.homepage.archive');
+        Route::delete('cms/homepage/{homeConfiguration}', [HomepageController::class, 'destroy'])->name('cms.homepage.destroy');
+    });
+
+    Route::middleware('can:viewAny,'.AuditLog::class)->group(function (): void {
+        Route::get('cms/audit', [AuditLogController::class, 'index'])->name('cms.audit.index');
     });
 
     Route::middleware('can:viewAny,'.Department::class)->group(function (): void {

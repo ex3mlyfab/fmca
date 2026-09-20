@@ -71,6 +71,16 @@ class User extends Authenticatable implements PasskeyUser
         return $this->hasPermission('view_homepage');
     }
 
+    public function canApproveHomepage(): bool
+    {
+        return $this->hasPermission('approve_homepage');
+    }
+
+    public function canArchiveHomepage(): bool
+    {
+        return $this->hasPermission('archive_homepage');
+    }
+
     public function canManageDepartments(): bool
     {
         return $this->hasPermission('edit_departments');
