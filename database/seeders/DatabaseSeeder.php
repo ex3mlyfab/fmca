@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
         $this->call(CampaignSeeder::class);
         $this->call(PageSeeder::class);
         $this->call(PatientGuideSeeder::class);
+        $this->call(LegalPagesSeeder::class);
 
         // User::factory(10)->create();
 

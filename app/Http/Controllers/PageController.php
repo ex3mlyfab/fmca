@@ -12,11 +12,29 @@ class PageController extends Controller
     /**
      * List the published patient guides at /patients.
      */
-    public function index(): Response
+    public function patientGuides(): Response
     {
-        $template = PageTemplate::query()->where('key', 'patient_guide')->firstOrFail();
+        return Inertia::render('patient-guides', ['guides' => $this->statementsFor('patient_guide')]);
+    }
 
-        $guides = Page::query()
+    /**
+     * List the published legal statements at /legal.
+     */
+    public function legalStatements(): Response
+    {
+        return Inertia::render('legal', ['statements' => $this->statementsFor('legal')]);
+    }
+
+    /**
+     * Published pages of a template, ordered by title, mapped to plain arrays.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function statementsFor(string $templateKey): array
+    {
+        $template = PageTemplate::query()->where('key', $templateKey)->firstOrFail();
+
+        return Page::query()
             ->published()
             ->where('template_id', $template->id)
             ->orderBy('title')
@@ -30,8 +48,6 @@ class PageController extends Controller
                 'reviewed_at' => $page->reviewed_at?->format('j M Y'),
             ])
             ->all();
-
-        return Inertia::render('patient-guides', ['guides' => $guides]);
     }
 
     /**

@@ -32,7 +32,8 @@ Route::get('departments', [DepartmentsController::class, 'index'])->name('depart
 Route::get('departments/{slug}', [DepartmentsController::class, 'show'])->name('departments.show');
 Route::get('news', [NewsController::class, 'index'])->name('news');
 Route::get('news/{slug}', [NewsController::class, 'show'])->name('news.show');
-Route::get('patients', [PageController::class, 'index'])->name('patients');
+Route::get('patients', [PageController::class, 'patientGuides'])->name('patients');
+Route::get('legal', [PageController::class, 'legalStatements'])->name('legal');
 
 // Public page routes — one per routable page template (registry-driven, read
 // from the code definitions so boot never depends on the database).
