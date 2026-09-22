@@ -6,6 +6,7 @@ use App\Http\Controllers\Cms\CampaignController;
 use App\Http\Controllers\Cms\CategoryController;
 use App\Http\Controllers\Cms\ClinicController;
 use App\Http\Controllers\Cms\ConsultantController;
+use App\Http\Controllers\Cms\DashboardController;
 use App\Http\Controllers\Cms\DepartmentController;
 use App\Http\Controllers\Cms\DocumentController;
 use App\Http\Controllers\Cms\HomepageController;
@@ -87,7 +88,7 @@ Route::post('contact/feedback', [ContactController::class, 'storeFeedback'])
     ->name('contact.feedback.store');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'dashboard')->name('dashboard');
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::middleware('can:viewAny,'.HomeConfiguration::class)->group(function (): void {
         Route::get('cms/homepage', [HomepageController::class, 'edit'])->name('cms.homepage.edit');
