@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { appointments, contact, consultants, home, legal, news, patients, search, services } from '@/routes';
+import about from '@/routes/about';
 
 const navigation = [
     ['About FMCA', '#about'],
@@ -112,6 +113,7 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
                             { label: 'About FMCA', href: home() },
                             { label: 'Services', href: services() },
                             { label: 'Consultants', href: consultants() },
+                            { label: 'Top Management Committee', href: about.leadership() },
                             { label: 'Patients & Visitors', href: patients() },
                             { label: 'News & Updates', href: news() },
                         ]}

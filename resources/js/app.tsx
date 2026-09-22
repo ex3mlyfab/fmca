@@ -20,6 +20,15 @@ void createInertiaApp({
                 name === 'department' ||
                 name === 'appointments' ||
                 name === 'contact' ||
+                name === 'consultants' ||
+                name === 'consultant' ||
+                name === 'committee' ||
+                name === 'patient-guides' ||
+                name === 'news' ||
+                name === 'article' ||
+                name === 'legal' ||
+                name === 'search' ||
+                name === 'page' ||
                 name === 'errors/404':
                 return null;
             case name.startsWith('auth/'):

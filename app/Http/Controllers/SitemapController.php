@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CommitteeMember;
 use App\Models\Consultant;
 use App\Models\Department;
 use App\Models\Page;
@@ -16,7 +17,7 @@ class SitemapController extends Controller
      */
     private function typeSitemapNames(): array
     {
-        return ['services', 'departments', 'consultants', 'news', 'pages'];
+        return ['services', 'departments', 'consultants', 'committees', 'news', 'pages'];
     }
 
     public function index(): Response
@@ -64,6 +65,22 @@ class SitemapController extends Controller
                 'loc' => url('consultants/'.$consultant->slug),
                 'lastmod' => $consultant->updated_at?->toAtomString(),
             ])->all();
+
+        return $this->xmlResponse($this->sitemapXml($urls));
+    }
+
+    public function committees(): Response
+    {
+        $members = CommitteeMember::published()->get(['updated_at']);
+
+        // The committee page is a single public route; it only earns a
+        // sitemap URL once at least one member is published.
+        $urls = $members->isNotEmpty()
+            ? [[
+                'loc' => url('about/leadership'),
+                'lastmod' => $members->max('updated_at')?->toAtomString(),
+            ]]
+            : [];
 
         return $this->xmlResponse($this->sitemapXml($urls));
     }

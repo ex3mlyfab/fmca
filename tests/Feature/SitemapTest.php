@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\CommitteeMember;
 use App\Models\Consultant;
 use App\Models\Department;
 use App\Models\Page;
@@ -21,6 +22,7 @@ test('the sitemap index lists one sitemap per content type', function () {
         ->and($content)->toContain(url('sitemap-services.xml'))
         ->and($content)->toContain(url('sitemap-departments.xml'))
         ->and($content)->toContain(url('sitemap-consultants.xml'))
+        ->and($content)->toContain(url('sitemap-committees.xml'))
         ->and($content)->toContain(url('sitemap-news.xml'))
         ->and($content)->toContain(url('sitemap-pages.xml'));
 });
@@ -53,6 +55,18 @@ test('the consultants sitemap lists only published consultants', function () {
 
     expect($content)->toContain(url('consultants/cardiology-consultant'))
         ->and($content)->not->toContain(url('consultants/draft-consultant'));
+});
+
+test('the committees sitemap lists the committee page only when a member is published', function () {
+    CommitteeMember::factory()->create(['slug' => 'draft-member']);
+
+    $empty = $this->get('/sitemap-committees.xml')->assertOk()->getContent();
+    expect($empty)->not->toContain(url('about/leadership'));
+
+    CommitteeMember::factory()->published()->create(['slug' => 'published-member']);
+
+    $content = $this->get('/sitemap-committees.xml')->assertOk()->getContent();
+    expect($content)->toContain(url('about/leadership'));
 });
 
 test('the news sitemap uses the publish date as the last-modified date', function () {

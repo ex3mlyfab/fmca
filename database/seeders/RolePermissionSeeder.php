@@ -36,6 +36,10 @@ class RolePermissionSeeder extends Seeder
         ['name' => 'view_consultants',        'guard_name' => 'web'],
         ['name' => 'edit_consultants',        'guard_name' => 'web'],
         ['name' => 'publish_consultants',    'guard_name' => 'web'],
+        // Top Management Committee
+        ['name' => 'view_committees',         'guard_name' => 'web'],
+        ['name' => 'edit_committees',         'guard_name' => 'web'],
+        ['name' => 'publish_committees',      'guard_name' => 'web'],
         // News / Content
         ['name' => 'view_news',               'guard_name' => 'web'],
         ['name' => 'create_news',             'guard_name' => 'web'],
@@ -81,6 +85,7 @@ class RolePermissionSeeder extends Seeder
             'view_services', 'edit_services',
             'view_clinics', 'edit_clinics', 'publish_clinics',
             'view_consultants', 'edit_consultants', 'publish_consultants',
+            'view_committees', 'edit_committees', 'publish_committees',
             'view_news', 'create_news', 'edit_news', 'publish_news',
             'view_campaigns', 'edit_campaigns', 'publish_campaigns',
             'view_media', 'upload_media', 'delete_media',
@@ -111,6 +116,9 @@ class RolePermissionSeeder extends Seeder
             'edit_documents',
             'view_redirects',
             'edit_redirects',
+            'view_committees',
+            'edit_committees',
+            'publish_committees',
             'view_audit_logs',
         ],
 

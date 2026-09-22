@@ -130,4 +130,9 @@ class User extends Authenticatable implements PasskeyUser
     {
         return $this->hasPermission('edit_consultants');
     }
+
+    public function canManageCommittees(): bool
+    {
+        return $this->hasPermission('edit_committees');
+    }
 }

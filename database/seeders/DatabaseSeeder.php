@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
         $this->call(PageTemplateSeeder::class);
         $this->call(DepartmentServiceSeeder::class);
         $this->call(ClinicsConsultantsSeeder::class);
+        $this->call(CommitteeMemberSeeder::class);
         $this->call(NewsSeeder::class);
         $this->call(CampaignSeeder::class);
         $this->call(PageSeeder::class);

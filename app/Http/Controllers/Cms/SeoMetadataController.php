@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Cms;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateSeoMetadataRequest;
+use App\Models\CommitteeMember;
 use App\Models\Consultant;
 use App\Models\Department;
 use App\Models\Page;
@@ -31,6 +32,7 @@ class SeoMetadataController extends Controller
         'departments' => ['model' => Department::class, 'permission' => 'edit_departments'],
         'consultant' => ['model' => Consultant::class, 'permission' => 'edit_consultants'],
         'consultants' => ['model' => Consultant::class, 'permission' => 'edit_consultants'],
+        'committees' => ['model' => CommitteeMember::class, 'permission' => 'edit_committees'],
         'post' => ['model' => Post::class, 'permission' => 'edit_news'],
         'news' => ['model' => Post::class, 'permission' => 'edit_news'],
         'page' => ['model' => Page::class, 'permission' => 'edit_pages'],
@@ -41,7 +43,7 @@ class SeoMetadataController extends Controller
     /**
      * @return array<int, string>
      */
-    private const LISTING_TYPES = ['services', 'departments', 'consultants', 'news', 'patient_guides', 'legal_statements'];
+    private const LISTING_TYPES = ['services', 'departments', 'consultants', 'committees', 'news', 'patient_guides', 'legal_statements'];
 
     public function edit(Request $request, string $contentType, ?int $contentId = null): Response
     {
@@ -148,6 +150,7 @@ class SeoMetadataController extends Controller
             'services' => 'Services index page',
             'departments' => 'Departments index page',
             'consultants' => 'Consultants index page',
+            'committees' => 'Top Management Committee page',
             'news' => 'News index page',
             'patient_guides' => 'Patient guides index page',
             'legal_statements' => 'Legal statements index page',
@@ -168,6 +171,7 @@ class SeoMetadataController extends Controller
             $contentType === 'services' => url('services'),
             $contentType === 'departments' => url('departments'),
             $contentType === 'consultants' => url('consultants'),
+            $contentType === 'committees' => url('about/leadership'),
             $contentType === 'news' => url('news'),
             $contentType === 'patient_guides' => url('patients'),
             $contentType === 'legal_statements' => url('legal'),

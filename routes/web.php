@@ -5,6 +5,7 @@ use App\Http\Controllers\Cms\AuditLogController;
 use App\Http\Controllers\Cms\CampaignController;
 use App\Http\Controllers\Cms\CategoryController;
 use App\Http\Controllers\Cms\ClinicController;
+use App\Http\Controllers\Cms\CommitteeMemberController;
 use App\Http\Controllers\Cms\ConsultantController;
 use App\Http\Controllers\Cms\DashboardController;
 use App\Http\Controllers\Cms\DepartmentController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\Cms\PostController;
 use App\Http\Controllers\Cms\RedirectController;
 use App\Http\Controllers\Cms\SeoMetadataController;
 use App\Http\Controllers\Cms\ServiceController;
+use App\Http\Controllers\CommitteesController;
 use App\Http\Controllers\ConsultantsController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DepartmentsController;
@@ -30,6 +32,7 @@ use App\Models\AuditLog;
 use App\Models\Campaign;
 use App\Models\Category;
 use App\Models\Clinic;
+use App\Models\CommitteeMember;
 use App\Models\Consultant;
 use App\Models\Department;
 use App\Models\Document;
@@ -50,6 +53,9 @@ Route::get('departments', [DepartmentsController::class, 'index'])->name('depart
 Route::get('departments/{slug}', [DepartmentsController::class, 'show'])->name('departments.show');
 Route::get('consultants', [ConsultantsController::class, 'index'])->name('consultants');
 Route::get('consultants/{slug}', [ConsultantsController::class, 'show'])->name('consultants.show');
+// Static institutional page: registered ahead of the template-driven
+// `about/{slug}` loop so the literal always wins.
+Route::get('about/leadership', [CommitteesController::class, 'index'])->name('about.leadership');
 Route::get('news', [NewsController::class, 'index'])->name('news');
 Route::get('news/{slug}', [NewsController::class, 'show'])->name('news.show');
 Route::get('patients', [PageController::class, 'patientGuides'])->name('patients');
@@ -62,6 +68,7 @@ Route::get('sitemap.xml', [SitemapController::class, 'index'])->name('sitemap.in
 Route::get('sitemap-services.xml', [SitemapController::class, 'services'])->name('sitemap.services');
 Route::get('sitemap-departments.xml', [SitemapController::class, 'departments'])->name('sitemap.departments');
 Route::get('sitemap-consultants.xml', [SitemapController::class, 'consultants'])->name('sitemap.consultants');
+Route::get('sitemap-committees.xml', [SitemapController::class, 'committees'])->name('sitemap.committees');
 Route::get('sitemap-news.xml', [SitemapController::class, 'news'])->name('sitemap.news');
 Route::get('sitemap-pages.xml', [SitemapController::class, 'pages'])->name('sitemap.pages');
 Route::get('robots.txt', [SitemapController::class, 'robots'])->name('robots');
@@ -148,6 +155,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('cms/consultants', [ConsultantController::class, 'store'])->name('cms.consultants.store');
         Route::get('cms/consultants/{consultant}', [ConsultantController::class, 'edit'])->name('cms.consultants.edit');
         Route::put('cms/consultants/{consultant}', [ConsultantController::class, 'update'])->name('cms.consultants.update');
+    });
+
+    Route::middleware('can:viewAny,'.CommitteeMember::class)->group(function (): void {
+        Route::get('cms/committees', [CommitteeMemberController::class, 'index'])->name('cms.committees.index');
+        Route::get('cms/committees/create', [CommitteeMemberController::class, 'create'])->name('cms.committees.create');
+        Route::post('cms/committees', [CommitteeMemberController::class, 'store'])->name('cms.committees.store');
+        Route::get('cms/committees/{committeeMember}', [CommitteeMemberController::class, 'edit'])->name('cms.committees.edit');
+        Route::put('cms/committees/{committeeMember}', [CommitteeMemberController::class, 'update'])->name('cms.committees.update');
     });
 
     Route::middleware('can:viewAny,'.Service::class)->group(function (): void {

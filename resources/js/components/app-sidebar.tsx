@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { ArrowLeftRight, BookOpen, Building2, FileText, FolderGit2, Hospital, Image as ImageIcon, LayoutGrid, LayoutTemplate, Megaphone, Newspaper, ScrollText, Stethoscope, UserRound } from 'lucide-react';
+import { ArrowLeftRight, BookOpen, Building2, FileText, FolderGit2, Hospital, Image as ImageIcon, Landmark, LayoutGrid, LayoutTemplate, Megaphone, Newspaper, ScrollText, Stethoscope, UserRound } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -42,6 +42,11 @@ const mainNavItems: NavItem[] = [
         title: 'Consultants',
         href: cms.consultants.index(),
         icon: UserRound,
+    },
+    {
+        title: 'Committees',
+        href: cms.committees.index(),
+        icon: Landmark,
     },
     {
         title: 'News',
