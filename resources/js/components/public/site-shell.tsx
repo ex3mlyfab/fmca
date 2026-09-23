@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { CalendarPlus, Home, Menu, PhoneCall, Search, Stethoscope, X } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -6,12 +6,12 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/s
 import { appointments, contact, consultants, home, legal, news, patients, search, services } from '@/routes';
 import about from '@/routes/about';
 
-const navigation = [
-    ['About FMCA', '#about'],
-    ['Services', '#services'],
-    ['Patients & Visitors', '#visiting'],
-    ['News & Updates', '#updates'],
-];
+// The header navigation is content-managed: editors add, reorder, edit and
+// unpublish entries in the Content Studio "Site Menu" workspace. Only
+// published items reach the public site, arriving as the shared `siteMenu`
+// prop already ordered by sort order. An empty list is an editorial choice,
+// not an error — the emblem, search, appointment and SOS actions still carry
+// the header.
 
 export function FmcaEmblem({ className = 'size-11' }: { className?: string }) {
     return (
@@ -27,6 +27,7 @@ export function FmcaEmblem({ className = 'size-11' }: { className?: string }) {
 
 export function SiteShell({ children }: { children: React.ReactNode }) {
     const [open, setOpen] = useState(false);
+    const navigation = usePage().props.siteMenu ?? [];
 
     return (
         <div className="min-h-screen bg-white text-fmca-ink">
@@ -49,9 +50,9 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
                         </span>
                     </Link>
                     <nav className="hidden items-center gap-7 lg:flex" aria-label="Primary navigation">
-                        {navigation.map(([label, href]) => (
-                            <a key={label} href={href} className="flex min-h-12 items-center text-sm font-semibold text-slate-700 transition-colors hover:text-fmca-green">
-                                {label}
+                        {navigation.map((item) => (
+                            <a key={`${item.label} ${item.href}`} href={item.href} className="flex min-h-12 items-center text-sm font-semibold text-slate-700 transition-colors hover:text-fmca-green">
+                                {item.label}
                             </a>
                         ))}
                     </nav>
@@ -74,9 +75,9 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
                             <SheetContent side="right" className="w-[min(88vw,380px)] bg-fmca-mist p-6">
                                 <SheetTitle className="font-display text-fmca-green-dark">FMCA navigation</SheetTitle>
                                 <div className="mt-8 flex flex-col gap-2">
-                                    {navigation.map(([label, href]) => (
-                                        <a key={label} href={href} onClick={() => setOpen(false)} className="flex min-h-14 items-center border-b border-fmca-ink/10 font-semibold text-fmca-ink">
-                                            {label}
+                                    {navigation.map((item) => (
+                                        <a key={`${item.label} ${item.href}`} href={item.href} onClick={() => setOpen(false)} className="flex min-h-14 items-center border-b border-fmca-ink/10 font-semibold text-fmca-ink">
+                                            {item.label}
                                         </a>
                                     ))}
                                     <a href="tel:+2340000000000" className="mt-5 flex min-h-14 items-center justify-center gap-2 rounded-md bg-fmca-crimson font-bold text-white">

@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\SiteMenuItem;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -42,6 +43,13 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            // The public header navigation. Only approved, published items are
+            // surfaced; editors reorder, add and remove entries from the CMS.
+            'siteMenu' => SiteMenuItem::query()
+                ->published()
+                ->orderBy('sort_order')
+                ->orderBy('label')
+                ->get(['label', 'href', 'sort_order']),
         ];
     }
 }

@@ -17,6 +17,7 @@ use App\Http\Controllers\Cms\PostController;
 use App\Http\Controllers\Cms\RedirectController;
 use App\Http\Controllers\Cms\SeoMetadataController;
 use App\Http\Controllers\Cms\ServiceController;
+use App\Http\Controllers\Cms\SiteMenuItemController;
 use App\Http\Controllers\CommitteesController;
 use App\Http\Controllers\ConsultantsController;
 use App\Http\Controllers\ContactController;
@@ -42,6 +43,7 @@ use App\Models\Page;
 use App\Models\Post;
 use App\Models\Redirect;
 use App\Models\Service;
+use App\Models\SiteMenuItem;
 use Database\Seeders\PageTemplateSeeder;
 use Illuminate\Support\Facades\Route;
 
@@ -212,6 +214,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('cms/redirects', [RedirectController::class, 'store'])->name('cms.redirects.store');
         Route::get('cms/redirects/{redirect}', [RedirectController::class, 'edit'])->name('cms.redirects.edit');
         Route::put('cms/redirects/{redirect}', [RedirectController::class, 'update'])->name('cms.redirects.update');
+    });
+
+    Route::middleware('can:viewAny,'.SiteMenuItem::class)->group(function (): void {
+        Route::get('cms/site-menu', [SiteMenuItemController::class, 'index'])->name('cms.site-menu.index');
+        Route::get('cms/site-menu/create', [SiteMenuItemController::class, 'create'])->name('cms.site-menu.create');
+        Route::post('cms/site-menu', [SiteMenuItemController::class, 'store'])->name('cms.site-menu.store');
+        Route::get('cms/site-menu/{item}', [SiteMenuItemController::class, 'edit'])->name('cms.site-menu.edit');
+        Route::put('cms/site-menu/{item}', [SiteMenuItemController::class, 'update'])->name('cms.site-menu.update');
     });
 
     // Generic per-content SEO editor; the controller gates each content type

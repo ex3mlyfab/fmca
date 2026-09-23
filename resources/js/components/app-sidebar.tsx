@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { ArrowLeftRight, BookOpen, Building2, FileText, FolderGit2, Hospital, Image as ImageIcon, Landmark, LayoutGrid, LayoutTemplate, Megaphone, Newspaper, ScrollText, Stethoscope, UserRound } from 'lucide-react';
+import { ArrowLeftRight, BookOpen, Building2, FileText, FolderGit2, Hospital, Image as ImageIcon, Landmark, LayoutGrid, LayoutTemplate, Megaphone, Navigation, Newspaper, ScrollText, Stethoscope, UserRound } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -72,6 +72,11 @@ const mainNavItems: NavItem[] = [
         title: 'Pages',
         href: cms.pages.index(),
         icon: LayoutTemplate,
+    },
+    {
+        title: 'Site Menu',
+        href: cms.siteMenu.index(),
+        icon: Navigation,
     },
     {
         title: 'URL Redirects',

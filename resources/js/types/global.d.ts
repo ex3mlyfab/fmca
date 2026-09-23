@@ -12,7 +12,14 @@ declare module '@inertiajs/core' {
             name: string;
             auth: Auth;
             sidebarOpen: boolean;
+            siteMenu: SiteMenuEntry[];
             [key: string]: unknown;
         };
+    }
+
+    export interface SiteMenuEntry {
+        label: string;
+        href: string;
+        sort_order: number;
     }
 }

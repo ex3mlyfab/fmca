@@ -135,4 +135,9 @@ class User extends Authenticatable implements PasskeyUser
     {
         return $this->hasPermission('edit_committees');
     }
+
+    public function canManageSiteMenu(): bool
+    {
+        return $this->hasPermission('edit_site_menu');
+    }
 }

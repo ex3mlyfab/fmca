@@ -60,6 +60,10 @@ class RolePermissionSeeder extends Seeder
         // Redirects
         ['name' => 'view_redirects',          'guard_name' => 'web'],
         ['name' => 'edit_redirects',          'guard_name' => 'web'],
+        // Site menu (public header navigation)
+        ['name' => 'view_site_menu',          'guard_name' => 'web'],
+        ['name' => 'edit_site_menu',          'guard_name' => 'web'],
+        ['name' => 'publish_site_menu',       'guard_name' => 'web'],
         // Users / Roles
         ['name' => 'view_users',              'guard_name' => 'web'],
         ['name' => 'edit_users',              'guard_name' => 'web'],
@@ -91,6 +95,7 @@ class RolePermissionSeeder extends Seeder
             'view_media', 'upload_media', 'delete_media',
             'view_documents', 'edit_documents', 'publish_documents',
             'view_redirects', 'edit_redirects',
+            'view_site_menu', 'edit_site_menu', 'publish_site_menu',
             'view_users', 'edit_users', 'manage_roles',
             'view_audit_logs',
         ],
@@ -119,6 +124,9 @@ class RolePermissionSeeder extends Seeder
             'view_committees',
             'edit_committees',
             'publish_committees',
+            'view_site_menu',
+            'edit_site_menu',
+            'publish_site_menu',
             'view_audit_logs',
         ],
 
