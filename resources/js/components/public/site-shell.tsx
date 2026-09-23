@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { CalendarPlus, Home, Menu, PhoneCall, Search, Stethoscope, X } from 'lucide-react';
+import { CalendarPlus, Home, MapPin, Menu, PhoneCall, Search, Stethoscope, X } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -84,6 +84,13 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
                                         <PhoneCall size={18} /> Emergency contact
                                     </a>
                                     <Link
+                                        href={contact()}
+                                        onClick={() => setOpen(false)}
+                                        className="flex min-h-14 items-center justify-center gap-2 rounded-md bg-white font-bold text-fmca-ink"
+                                    >
+                                        <MapPin size={18} aria-hidden="true" /> Directions & contact
+                                    </Link>
+                                    <Link
                                         href={appointments()}
                                         onClick={() => setOpen(false)}
                                         className="flex min-h-14 items-center justify-center rounded-md bg-fmca-green font-bold text-white"
@@ -154,7 +161,7 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
                     <Home size={19} />
                     <span>Home</span>
                 </a>
-                <a href="#services" className="flex min-h-12 flex-col items-center justify-center gap-1 text-[11px] font-semibold text-slate-600 hover:text-fmca-green">
+                <a href={services().url} className="flex min-h-12 flex-col items-center justify-center gap-1 text-[11px] font-semibold text-slate-600 hover:text-fmca-green">
                     <Stethoscope size={19} />
                     <span>Services</span>
                 </a>
