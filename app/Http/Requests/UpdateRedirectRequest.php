@@ -42,7 +42,10 @@ class UpdateRedirectRequest extends FormRequest
                 'regex:#^/\\S+$#',
                 Rule::unique('redirects', 'from_path')->ignore($redirect?->id),
             ],
-            'to_path' => ['required', 'string', 'max:2048'],
+            // Targets must stay inside the application: an absolute URL or a
+            // protocol-relative path (//evil.com) would turn this into a
+            // stored open redirect on the hospital domain.
+            'to_path' => ['required', 'string', 'max:2048', 'starts_with:/', 'not_regex:#^//#'],
             'status_code' => ['sometimes', 'integer', Rule::in([301, 302])],
             'is_active' => ['sometimes', 'boolean'],
         ];

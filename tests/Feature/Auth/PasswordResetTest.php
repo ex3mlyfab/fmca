@@ -76,3 +76,36 @@ test('password cannot be reset with invalid token', function () {
 
     $response->assertSessionHasErrors('email');
 });
+
+test('forgot password requests are throttled after the hourly limit', function () {
+    Notification::fake();
+
+    $user = User::factory()->create();
+
+    for ($i = 0; $i < 5; $i++) {
+        $this->post(route('password.email'), ['email' => $user->email]);
+    }
+
+    $this->postJson(route('password.email'), ['email' => $user->email])
+        ->assertStatus(429);
+});
+
+test('password reset attempts are throttled after the hourly limit', function () {
+    $user = User::factory()->create();
+
+    for ($i = 0; $i < 5; $i++) {
+        $this->post(route('password.update'), [
+            'token' => 'same-token',
+            'email' => $user->email,
+            'password' => 'newpassword123',
+            'password_confirmation' => 'newpassword123',
+        ]);
+    }
+
+    $this->postJson(route('password.update'), [
+        'token' => 'same-token',
+        'email' => $user->email,
+        'password' => 'newpassword123',
+        'password_confirmation' => 'newpassword123',
+    ])->assertStatus(429);
+});

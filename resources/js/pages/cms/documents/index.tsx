@@ -13,7 +13,7 @@ type DocumentItem = {
     issueDate?: string | null;
     owner?: string | null;
     reviewedAt?: string | null;
-    publicUrl?: string | null;
+    downloadUrl?: string | null;
 };
 
 type Props = {
@@ -90,9 +90,9 @@ export default function DocumentsIndex({ documents, canCreate, canPublish }: Pro
                                         </div>
                                     </div>
                                     <div className="flex shrink-0 items-center gap-2">
-                                        {document.publicUrl && (
+                                        {document.downloadUrl && (
                                             <a
-                                                href={document.publicUrl}
+                                                href={document.downloadUrl}
                                                 target="_blank"
                                                 rel="noreferrer"
                                                 className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-md px-3 text-sm font-bold text-fmca-green transition-colors hover:bg-fmca-mist focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fmca-sky"

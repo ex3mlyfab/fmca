@@ -91,6 +91,22 @@ test('the redirect type must be a supported status code', function () {
         ->assertSessionHasErrors('status_code');
 });
 
+test('a to path must stay inside the application', function () {
+    $editor = User::factory()->withRole('communications_editor')->create();
+
+    // An absolute URL would let an editor point the hospital domain at an
+    // external site; the rule rejects anything that is not a local path.
+    $this->actingAs($editor)
+        ->post(route('cms.redirects.store'), array_merge(redirectPayload(), ['to_path' => 'https://evil.com/steal']))
+        ->assertSessionHasErrors('to_path');
+
+    $this->actingAs($editor)
+        ->post(route('cms.redirects.store'), array_merge(redirectPayload(), ['to_path' => '//evil.com/steal']))
+        ->assertSessionHasErrors('to_path');
+
+    expect(Redirect::query()->where('to_path', 'like', '%evil.com%')->exists())->toBeFalse();
+});
+
 test('a user without redirect permissions cannot store redirects', function () {
     $auditor = User::factory()->withRole('auditor')->create();
 

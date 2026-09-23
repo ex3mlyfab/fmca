@@ -63,6 +63,24 @@ test('an editor creates a draft campaign', function () {
     ]);
 });
 
+test('campaign link fields must be internal or http(s) targets', function () {
+    $editor = User::factory()->withRole('communications_editor')->create();
+
+    // A `javascript:` href in a CTA would run on click (stored XSS); media
+    // sources with such a scheme would too. Both are rejected.
+    $this->actingAs($editor)->post(route('cms.campaigns.store'), [
+        ...campaignPayload(),
+        'primary_cta_href' => 'javascript:alert(1)',
+    ])->assertSessionHasErrors('primary_cta_href');
+
+    $this->actingAs($editor)->post(route('cms.campaigns.store'), [
+        ...campaignPayload(),
+        'desktop_media' => 'javascript:alert(1)',
+    ])->assertSessionHasErrors('desktop_media');
+
+    expect(Campaign::query()->count())->toBe(0);
+});
+
 test('an editor with publish rights can create a published campaign', function () {
     $editor = User::factory()->withRole('communications_editor')->create();
 

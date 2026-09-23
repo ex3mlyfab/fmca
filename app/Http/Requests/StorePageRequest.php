@@ -2,13 +2,17 @@
 
 namespace App\Http\Requests;
 
+use App\Concerns\ValidatesSafeHrefs;
 use App\Models\PageTemplate;
+use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class StorePageRequest extends FormRequest
 {
+    use ValidatesSafeHrefs;
+
     public function authorize(): bool
     {
         return $this->user()?->canManagePages() ?? false;
@@ -49,6 +53,14 @@ class StorePageRequest extends FormRequest
             'blocks.*.block_key' => ['required', 'string', Rule::in($this->permittedBlockKeys($template))],
             'blocks.*.content' => ['required', 'json'],
         ];
+    }
+
+    /**
+     * Block content link targets must be safe (internal or http(s) only).
+     */
+    public function after(): ?Closure
+    {
+        return $this->safeHrefAfter();
     }
 
     /**

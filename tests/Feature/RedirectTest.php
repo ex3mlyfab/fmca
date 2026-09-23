@@ -41,3 +41,23 @@ test('redirect lookup ignores the letter case of the visited path', function () 
 
     $this->get('/CARDIOLOGY')->assertRedirect('/services/cardiology');
 });
+
+test('a stored redirect to a protocol-relative target is not applied', function () {
+    Redirect::factory()->create([
+        'from_path' => '/legacy',
+        'to_path' => '//evil.com/steal',
+    ]);
+
+    // The middleware refuses to send visitors off the host; the visited path
+    // that matches no real route 404s instead of open-redirecting.
+    $this->get('/legacy')->assertNotFound();
+});
+
+test('a stored redirect to an absolute external target is not applied', function () {
+    Redirect::factory()->create([
+        'from_path' => '/external',
+        'to_path' => 'https://evil.com/steal',
+    ]);
+
+    $this->get('/external')->assertNotFound();
+});

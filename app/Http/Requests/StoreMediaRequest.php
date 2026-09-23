@@ -8,6 +8,14 @@ use Illuminate\Validation\Rule;
 
 class StoreMediaRequest extends FormRequest
 {
+    /**
+     * Content-based MIME allow-lists. The `mimes` rule only checks the
+     * detected extension, so `mimetypes` verifies the actual file bytes.
+     */
+    public const IMAGE_MIME_TYPES = 'image/jpeg,image/png,image/webp,image/gif';
+
+    public const VIDEO_MIME_TYPES = 'video/mp4,video/webm,video/quicktime';
+
     public function authorize(): bool
     {
         return $this->user()?->canManageMedia() ?? false;
@@ -39,9 +47,9 @@ class StoreMediaRequest extends FormRequest
     protected function fileRule(): array
     {
         if ($this->input('kind') === 'video') {
-            return ['required', 'file', 'mimes:mp4,webm,mov', 'max:51200'];
+            return ['required', 'file', 'mimes:mp4,webm,mov', 'mimetypes:'.self::VIDEO_MIME_TYPES, 'max:51200'];
         }
 
-        return ['required', 'file', 'mimes:jpg,jpeg,png,webp,gif', 'max:4096'];
+        return ['required', 'file', 'mimes:jpg,jpeg,png,webp,gif', 'mimetypes:'.self::IMAGE_MIME_TYPES, 'max:4096'];
     }
 }

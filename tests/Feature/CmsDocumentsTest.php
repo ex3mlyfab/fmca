@@ -39,7 +39,7 @@ test('document managers can open the workspace, others cannot', function () {
 });
 
 test('an editor creates a draft document', function () {
-    Storage::fake('public');
+    Storage::fake('local');
     $editor = User::factory()->withRole('communications_editor')->create();
 
     $response = $this->actingAs($editor)->post(route('cms.documents.store'), documentPayload());
@@ -54,7 +54,7 @@ test('an editor creates a draft document', function () {
 });
 
 test('a document editor cannot publish a new document', function () {
-    Storage::fake('public');
+    Storage::fake('local');
     $editor = User::factory()->withRole('communications_editor')->create();
 
     $this->actingAs($editor)->post(route('cms.documents.store'), [...documentPayload(), 'status' => 'published'])
@@ -66,7 +66,7 @@ test('a document editor cannot publish a new document', function () {
 });
 
 test('a media officer can create and publish a document', function () {
-    Storage::fake('public');
+    Storage::fake('local');
     $officer = User::factory()->withRole('media_officer')->create();
 
     $this->actingAs($officer)->post(route('cms.documents.store'), [...documentPayload(), 'status' => 'published'])
@@ -75,7 +75,7 @@ test('a media officer can create and publish a document', function () {
 });
 
 test('only staff with edit rights can add documents', function () {
-    Storage::fake('public');
+    Storage::fake('local');
     $auditor = User::factory()->withRole('auditor')->create();
 
     $this->actingAs($auditor)->post(route('cms.documents.store'), documentPayload())->assertForbidden();
@@ -118,9 +118,9 @@ test('an editor updates document metadata', function () {
 });
 
 test('published documents are publicly downloadable, drafts are not', function () {
-    Storage::fake('public');
+    Storage::fake('local');
     $published = Document::factory()->published()->create(['title' => 'Public policy']);
-    Storage::disk('public')->put($published->file_path, 'pdf-bytes');
+    Storage::disk('local')->put($published->file_path, 'pdf-bytes');
     $draft = Document::factory()->create(['title' => 'Draft policy']);
 
     $this->get(route('documents.download', ['document' => $published->id]))
@@ -128,4 +128,38 @@ test('published documents are publicly downloadable, drafts are not', function (
         ->assertDownload($published->file_name);
 
     $this->get(route('documents.download', ['document' => $draft->id]))->assertNotFound();
+});
+
+test('a document whose file is missing on disk is not downloadable', function () {
+    Storage::fake('local');
+    $published = Document::factory()->published()->create(['title' => 'Orphan policy']);
+
+    $this->get(route('documents.download', ['document' => $published->id]))->assertNotFound();
+});
+
+test('a document file whose content does not match an allowed type is rejected', function () {
+    Storage::fake('local');
+    $editor = User::factory()->withRole('communications_editor')->create();
+
+    // The .pdf extension passes `mimes`, but the content MIME type is not
+    // in the document allow-list, so `mimetypes` rejects it.
+    $this->actingAs($editor)->post(route('cms.documents.store'), [
+        'title' => 'Spoofed upload',
+        'file' => UploadedFile::fake()->create('policy.pdf', 10, 'text/html'),
+    ])->assertSessionHasErrors('file');
+
+    expect(Document::query()->where('title', 'Spoofed upload')->exists())->toBeFalse();
+});
+
+test('uploaded document file names are sanitized of path separators', function () {
+    Storage::fake('local');
+    $editor = User::factory()->withRole('communications_editor')->create();
+
+    $this->actingAs($editor)->post(route('cms.documents.store'), [
+        'title' => 'Sanitized name',
+        'file' => UploadedFile::fake()->create('../../evil.pdf', 10, 'application/pdf'),
+    ])->assertRedirect();
+
+    $created = Document::query()->where('title', 'Sanitized name')->first();
+    expect($created->file_name)->toBe('evil.pdf');
 });

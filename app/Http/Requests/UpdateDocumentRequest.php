@@ -27,7 +27,7 @@ class UpdateDocumentRequest extends FormRequest
         return [
             'title' => ['required', 'string', 'max:160'],
             'summary' => ['nullable', 'string', 'max:500'],
-            'file' => ['nullable', 'file', 'mimes:pdf,doc,docx,txt', 'max:10240'],
+            'file' => ['nullable', 'file', 'mimes:pdf,doc,docx,txt', 'mimetypes:'.StoreDocumentRequest::DOCUMENT_MIME_TYPES, 'max:10240'],
             'issuing_unit' => ['nullable', 'string', 'max:120'],
             'issue_date' => ['nullable', 'date'],
             'owner' => ['nullable', 'string', 'max:120'],

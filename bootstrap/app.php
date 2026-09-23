@@ -7,6 +7,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
+use Illuminate\Http\Middleware\FrameGuard;
 use Illuminate\Http\Request;
 use Inertia\ExceptionResponse;
 use Inertia\Inertia;
@@ -29,6 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleAppearance::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
+            FrameGuard::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

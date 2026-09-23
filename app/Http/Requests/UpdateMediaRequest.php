@@ -38,9 +38,9 @@ class UpdateMediaRequest extends FormRequest
     protected function fileRule(): array
     {
         if ($this->input('kind') === 'video') {
-            return ['nullable', 'file', 'mimes:mp4,webm,mov', 'max:51200'];
+            return ['nullable', 'file', 'mimes:mp4,webm,mov', 'mimetypes:'.StoreMediaRequest::VIDEO_MIME_TYPES, 'max:51200'];
         }
 
-        return ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,gif', 'max:4096'];
+        return ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,gif', 'mimetypes:'.StoreMediaRequest::IMAGE_MIME_TYPES, 'max:4096'];
     }
 }

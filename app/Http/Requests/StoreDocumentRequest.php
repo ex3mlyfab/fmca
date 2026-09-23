@@ -13,6 +13,8 @@ class StoreDocumentRequest extends FormRequest
         return $this->user()?->canManageDocuments() ?? false;
     }
 
+    public const DOCUMENT_MIME_TYPES = 'application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain';
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -23,7 +25,7 @@ class StoreDocumentRequest extends FormRequest
         return [
             'title' => ['required', 'string', 'max:160'],
             'summary' => ['nullable', 'string', 'max:500'],
-            'file' => ['required', 'file', 'mimes:pdf,doc,docx,txt', 'max:10240'],
+            'file' => ['required', 'file', 'mimes:pdf,doc,docx,txt', 'mimetypes:'.self::DOCUMENT_MIME_TYPES, 'max:10240'],
             'issuing_unit' => ['nullable', 'string', 'max:120'],
             'issue_date' => ['nullable', 'date'],
             'owner' => ['nullable', 'string', 'max:120'],

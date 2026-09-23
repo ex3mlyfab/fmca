@@ -23,11 +23,22 @@ class HandlePublicRedirects
         if ($path !== '/') {
             $match = Redirect::findFor($path);
 
-            if ($match !== null) {
+            if ($match !== null && $this->isSafeInternalTarget($match['redirect']->to_path)) {
                 return redirect($match['redirect']->to_path, $match['status']);
             }
         }
 
         return $next($request);
+    }
+
+    /**
+     * Defense in depth: rows created before the internal-target validation
+     * landed must never send visitors off the domain.
+     */
+    protected function isSafeInternalTarget(string $target): bool
+    {
+        return str_starts_with($target, '/')
+            && ! str_starts_with($target, '//')
+            && ! str_contains($target, '://');
     }
 }

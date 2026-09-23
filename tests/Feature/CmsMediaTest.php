@@ -59,6 +59,22 @@ test('a user without upload rights cannot add media', function () {
     $this->actingAs($department)->post(route('cms.media.store'), mediaPayload())->assertForbidden();
 });
 
+test('a media file whose content does not match an allowed type is rejected', function () {
+    Storage::fake('public');
+    $officer = User::factory()->withRole('media_officer')->create();
+
+    // The .jpg extension passes `mimes`, but the content MIME type is not an
+    // allowed image type, so `mimetypes` rejects it.
+    $this->actingAs($officer)->post(route('cms.media.store'), [
+        'label' => 'Spoofed image',
+        'kind' => 'image',
+        'file' => UploadedFile::fake()->create('hero.jpg', 10, 'text/plain'),
+        'alt_text' => 'Not actually an image',
+    ])->assertSessionHasErrors('file');
+
+    expect(Media::query()->where('label', 'Spoofed image')->exists())->toBeFalse();
+});
+
 test('video uploads accept video formats and reject images', function () {
     Storage::fake('public');
     $officer = User::factory()->withRole('media_officer')->create();

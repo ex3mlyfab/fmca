@@ -27,7 +27,7 @@ class DocumentController extends Controller
                 'issueDate' => $document->issue_date?->format('j M Y'),
                 'owner' => $document->owner,
                 'reviewedAt' => $document->reviewed_at?->format('j M Y'),
-                'publicUrl' => $document->status === 'published' ? route('documents.download', $document->id) : null,
+                'downloadUrl' => $document->status === 'published' ? route('documents.download', $document->id) : null,
             ])->values(),
             'canCreate' => Gate::allows('create', Document::class),
             'canPublish' => $this->user()?->hasPermission('publish_documents') ?? false,
@@ -47,12 +47,12 @@ class DocumentController extends Controller
     public function store(StoreDocumentRequest $request): RedirectResponse
     {
         $file = $request->file('file');
-        $path = $file->store('documents/'.now()->format('Y/m'), 'public');
+        $path = $file->store('documents/'.now()->format('Y/m'), 'local');
 
         $document = Document::query()->create([
             'title' => $request->string('title')->toString(),
             'summary' => $request->filled('summary') ? $request->string('summary')->toString() : null,
-            'file_name' => $file->getClientOriginalName(),
+            'file_name' => basename($file->getClientOriginalName()),
             'file_path' => $path,
             'mime_type' => $file->getMimeType(),
             'size_bytes' => $file->getSize(),
@@ -88,13 +88,13 @@ class DocumentController extends Controller
     public function update(UpdateDocumentRequest $request, Document $document): RedirectResponse
     {
         if ($request->hasFile('file')) {
-            Storage::disk('public')->delete($document->file_path);
+            Storage::disk('local')->delete($document->file_path);
 
             $file = $request->file('file');
-            $path = $file->store('documents/'.now()->format('Y/m'), 'public');
+            $path = $file->store('documents/'.now()->format('Y/m'), 'local');
 
             $document->fill([
-                'file_name' => $file->getClientOriginalName(),
+                'file_name' => basename($file->getClientOriginalName()),
                 'file_path' => $path,
                 'mime_type' => $file->getMimeType(),
                 'size_bytes' => $file->getSize(),

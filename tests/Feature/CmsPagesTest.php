@@ -174,6 +174,25 @@ test('invalid block JSON is rejected', function () {
     ])->assertSessionHasErrors('blocks.0.content');
 });
 
+test('block link targets must be internal or http(s)', function () {
+    $editor = User::factory()->withRole('communications_editor')->create();
+
+    $this->actingAs($editor)->post(route('cms.pages.store'), [
+        ...pagePayload(),
+        'blocks' => [['block_key' => 'cta', 'content' => json_encode(['label' => 'Go', 'href' => 'javascript:alert(1)'])]],
+    ])->assertSessionHasErrors('blocks.0.content');
+
+    $this->actingAs($editor)->post(route('cms.pages.store'), [
+        ...pagePayload(),
+        'blocks' => [
+            [
+                'block_key' => 'document_list',
+                'content' => json_encode(['title' => 'Downloads', 'documents' => [['label' => 'X', 'href' => 'javascript:alert(1)']]]),
+            ],
+        ],
+    ])->assertSessionHasErrors('blocks.0.content');
+});
+
 test('a page requires at least one content block', function () {
     $editor = User::factory()->withRole('communications_editor')->create();
 
