@@ -8,6 +8,7 @@ use App\Http\Requests\UpdatePageRequest;
 use App\Models\Page;
 use App\Models\PageBlock;
 use App\Models\PageTemplate;
+use App\Support\BlockContentSanitizer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -157,9 +158,14 @@ class PageController extends Controller
     private function storeBlocks(Page $page, array $blocks): void
     {
         foreach ($blocks as $index => $block) {
+            $content = json_decode($block['content'] ?? '', true);
+
             $page->blocks()->create([
                 'block_key' => $block['block_key'],
-                'content' => json_decode($block['content'], true),
+                'content' => BlockContentSanitizer::content(
+                    $block['block_key'],
+                    is_array($content) ? $content : [],
+                ),
                 'sort_order' => $index,
             ]);
         }

@@ -21,7 +21,7 @@ class PageBlock extends Model
     public const CATALOG = [
         'rich_text' => [
             'label' => 'Rich text',
-            'placeholder' => '{"heading": "Optional heading", "body": "Plain text. Use blank lines to separate paragraphs."}',
+            'placeholder' => '{"heading": "Optional heading", "body": "<p>Rich text HTML, formatted in the visual editor.</p>"}',
         ],
         'steps' => [
             'label' => 'Patient steps',

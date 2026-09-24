@@ -1,0 +1,130 @@
+/* Component-level styles that Tailwind utilities can't express cleanly:
+   the rich-text document surface (.fmca-prose, shared by the TipTap editor in
+   the CMS and public block rendering) and the editor's empty-state hint. */
+
+@layer components {
+    .fmca-prose {
+        color: var(--color-fmca-ink);
+        font-size: 1rem;
+        line-height: 1.75;
+    }
+
+    .fmca-prose > :first-child {
+        margin-top: 0;
+    }
+
+    .fmca-prose > :last-child {
+        margin-bottom: 0;
+    }
+
+    .fmca-prose p {
+        margin: 0.75rem 0;
+    }
+
+    .fmca-prose h2 {
+        font-family: var(--font-display);
+        font-size: 1.5rem;
+        font-weight: 700;
+        line-height: 1.25;
+        color: var(--color-fmca-green-dark);
+        margin: 1.5rem 0 0.5rem;
+    }
+
+    .fmca-prose h3 {
+        font-family: var(--font-display);
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--color-fmca-ink);
+        margin: 1.25rem 0 0.5rem;
+    }
+
+    .fmca-prose ul,
+    .fmca-prose ol {
+        margin: 0.75rem 0;
+        padding-left: 1.5rem;
+    }
+
+    .fmca-prose ul {
+        list-style: disc;
+    }
+
+    .fmca-prose ol {
+        list-style: decimal;
+    }
+
+    .fmca-prose li {
+        margin: 0.25rem 0;
+    }
+
+    .fmca-prose li > ul,
+    .fmca-prose li > ol {
+        margin: 0.25rem 0;
+    }
+
+    .fmca-prose blockquote {
+        margin: 1rem 0;
+        padding: 0.5rem 1rem;
+        border-left: 3px solid var(--color-fmca-teal);
+        border-radius: 0 0.5rem 0.5rem 0;
+        background: var(--color-fmca-mist);
+        color: var(--color-slate-600);
+        font-style: italic;
+    }
+
+    .fmca-prose code {
+        font-family: var(--font-mono);
+        font-size: 0.8125rem;
+        border: 1px solid rgb(24 48 42 / 0.08);
+        border-radius: 0.375rem;
+        background: var(--color-fmca-mist);
+        padding: 0.125rem 0.375rem;
+    }
+
+    .fmca-prose pre {
+        margin: 1rem 0;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        background: var(--color-fmca-ink);
+        color: #f4f8f6;
+        overflow-x: auto;
+    }
+
+    .fmca-prose pre code {
+        border: 0;
+        padding: 0;
+        background: transparent;
+        color: inherit;
+    }
+
+    .fmca-prose a {
+        color: var(--color-fmca-green);
+        font-weight: 600;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+    }
+
+    .fmca-prose a:hover {
+        color: var(--color-fmca-green-dark);
+    }
+
+    .fmca-prose hr {
+        margin: 1.5rem 0;
+        border: 0;
+        border-top: 2px solid var(--color-fmca-mist);
+    }
+
+    .fmca-prose strong {
+        font-weight: 700;
+    }
+
+    /* TipTap's placeholder extension decorates the empty paragraph node with
+       the is-empty class and carries the hint in data-placeholder, so pure
+       CSS can paint it without JS. */
+    .fmca-prose p.is-empty::before {
+        content: attr(data-placeholder);
+        float: left;
+        height: 0;
+        color: var(--color-slate-500);
+        pointer-events: none;
+    }
+}

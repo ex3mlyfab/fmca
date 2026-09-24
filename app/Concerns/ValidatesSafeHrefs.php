@@ -2,6 +2,7 @@
 
 namespace App\Concerns;
 
+use App\Support\SafeHrefs;
 use Closure;
 use Illuminate\Validation\Validator;
 
@@ -14,7 +15,7 @@ use Illuminate\Validation\Validator;
  */
 trait ValidatesSafeHrefs
 {
-    public const SAFE_HREF = '~^(/(?!/)|#|\\.{1,2}/|https?://)~';
+    public const SAFE_HREF = SafeHrefs::PATTERN;
 
     /**
      * The validation-rule string for a single href or media-URL field.

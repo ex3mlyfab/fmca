@@ -18,7 +18,7 @@ class PageBlockFactory extends Factory
             'block_key' => 'rich_text',
             'content' => [
                 'heading' => fake()->sentence(3),
-                'body' => fake()->paragraph(),
+                'body' => '<p>'.fake()->paragraph().'</p>',
             ],
             'sort_order' => 0,
         ];
@@ -30,7 +30,7 @@ class PageBlockFactory extends Factory
             'block_key' => 'rich_text',
             'content' => [
                 'heading' => fake()->sentence(3),
-                'body' => fake()->paragraph(),
+                'body' => '<p>'.fake()->paragraph().'</p>',
             ],
         ]);
     }

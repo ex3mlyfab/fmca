@@ -1,9 +1,10 @@
 import { Form, Head, Link } from '@inertiajs/react';
-import { useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 import { ArrowLeft, CheckCircle2, Globe, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { StatusChip } from '@/pages/cms/departments';
 import cmsPages from '@/routes/cms/pages';
 import cmsSeo from '@/routes/cms/seo';
@@ -76,6 +77,55 @@ const selectClass =
     'h-11 w-full rounded-md border border-input bg-white px-3 text-sm text-fmca-ink outline-none focus-visible:border-fmca-sky focus-visible:ring-[3px] focus-visible:ring-fmca-sky/40';
 const textareaClass =
     'w-full rounded-md border border-input bg-white px-3 py-2 font-mono text-xs leading-relaxed text-fmca-ink outline-none focus-visible:border-fmca-sky focus-visible:ring-[3px] focus-visible:ring-fmca-sky/40';
+
+/**
+ * Form editor for a rich_text block: a heading field plus the visual rich text
+ * editor. The two fields serialise into the block's JSON `content` through a
+ * hidden input, so the server contract (blocks.N.content = JSON string) is
+ * unchanged.
+ */
+function RichTextBlockEditor({ index, initialJson, error }: { index: number; initialJson: string; error?: string }) {
+    const parsed = useMemo(() => {
+        try {
+            return JSON.parse(initialJson) as { heading?: unknown; body?: unknown };
+        } catch {
+            return {};
+        }
+    }, [initialJson]);
+    const [heading, setHeading] = useState(String(parsed.heading ?? ''));
+    const [body, setBody] = useState(String(parsed.body ?? ''));
+    const headingId = useId();
+
+    return (
+        <div className="mt-3 grid gap-4">
+            <div className="grid gap-1.5">
+                <Label htmlFor={headingId}>Heading</Label>
+                <Input
+                    id={headingId}
+                    value={heading}
+                    onChange={(event) => setHeading(event.target.value)}
+                    maxLength={120}
+                    placeholder="Optional block heading"
+                />
+            </div>
+            <div className="grid gap-1.5">
+                <Label>Body</Label>
+                <RichTextEditor
+                    value={body}
+                    onContentChange={setBody}
+                    label="Rich text body"
+                    placeholder="Write the block content. Use the toolbar to format it."
+                />
+            </div>
+            <input type="hidden" name={`blocks.${index}.content`} value={JSON.stringify({ heading, body })} />
+            <p className="text-xs leading-relaxed text-slate-500">
+                Body is formatted with the visual editor and stored as HTML. Links must be internal paths or http(s)
+                URLs.
+            </p>
+            {error && <p className={`mt-2 ${fieldErrorClass}`}>{error}</p>}
+        </div>
+    );
+}
 
 export default function PageEditor({ page, templates, blockCatalog, templateKey }: Props) {
     const isEditing = Boolean(page?.id);
@@ -236,8 +286,9 @@ export default function PageEditor({ page, templates, blockCatalog, templateKey 
                                             <div>
                                                 <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Content blocks</p>
                                                 <p className="mt-1 text-xs text-slate-500">
-                                                    Blocks are written as JSON and only rendered by the public page when
-                                                    published. At least one block is required.
+                                                    Blocks are written as JSON — rich text blocks use the visual
+                                                    editor — and only rendered by the public page when published. At
+                                                    least one block is required.
                                                 </p>
                                             </div>
                                             <div className="flex shrink-0 items-center gap-2">
@@ -298,23 +349,33 @@ export default function PageEditor({ page, templates, blockCatalog, templateKey 
                                                             </p>
                                                         )}
                                                         <input type="hidden" name={`blocks.${index}.block_key`} value={block.key} />
-                                                        <textarea
-                                                            name={`blocks.${index}.content`}
-                                                            defaultValue={block.json}
-                                                            rows={6}
-                                                            aria-invalid={Boolean(contentError || keyError)}
-                                                            className={`mt-3 ${textareaClass} ${contentError || keyError ? 'border-fmca-crimson' : ''}`}
-                                                        />
-                                                        <details className="mt-2">
-                                                            <summary className="cursor-pointer text-xs font-bold text-slate-500 hover:text-slate-700">
-                                                                Expected JSON shape
-                                                            </summary>
-                                                            <pre className="mt-2 overflow-x-auto rounded-md bg-fmca-mist p-3 font-mono text-xs text-slate-700">
-                                                                {blockCatalog.find((entry) => entry.key === block.key)?.placeholder ?? '{}'}
-                                                            </pre>
-                                                        </details>
-                                                        {keyError && <p className={`mt-2 ${fieldErrorClass}`}>{keyError}</p>}
-                                                        {contentError && <p className={`mt-2 ${fieldErrorClass}`}>{contentError}</p>}
+                                                        {block.key === 'rich_text' ? (
+                                                            <RichTextBlockEditor
+                                                                index={index}
+                                                                initialJson={block.json}
+                                                                error={contentError || keyError}
+                                                            />
+                                                        ) : (
+                                                            <>
+                                                                <textarea
+                                                                    name={`blocks.${index}.content`}
+                                                                    defaultValue={block.json}
+                                                                    rows={6}
+                                                                    aria-invalid={Boolean(contentError || keyError)}
+                                                                    className={`mt-3 ${textareaClass} ${contentError || keyError ? 'border-fmca-crimson' : ''}`}
+                                                                />
+                                                                <details className="mt-2">
+                                                                    <summary className="cursor-pointer text-xs font-bold text-slate-500 hover:text-slate-700">
+                                                                        Expected JSON shape
+                                                                    </summary>
+                                                                    <pre className="mt-2 overflow-x-auto rounded-md bg-fmca-mist p-3 font-mono text-xs text-slate-700">
+                                                                        {blockCatalog.find((entry) => entry.key === block.key)?.placeholder ?? '{}'}
+                                                                    </pre>
+                                                                </details>
+                                                                {keyError && <p className={`mt-2 ${fieldErrorClass}`}>{keyError}</p>}
+                                                                {contentError && <p className={`mt-2 ${fieldErrorClass}`}>{contentError}</p>}
+                                                            </>
+                                                        )}
                                                     </div>
                                                 );
                                             })}

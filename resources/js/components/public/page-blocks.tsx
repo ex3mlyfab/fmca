@@ -47,18 +47,31 @@ function RichTextBlock({ content }: { content: PageBlockContent | null }) {
         return null;
     }
 
-    const paragraphs = (content?.body ?? '').split('\n').filter((line) => line.trim() !== '');
+    const body = (content?.body ?? '').trim();
+    const isHtml = /^<[^>\s]/.test(body);
 
     return (
         <section className="space-y-4">
             {content?.heading && (
                 <h2 className="font-display text-2xl font-bold text-fmca-green-dark">{content.heading}</h2>
             )}
-            {paragraphs.map((paragraph, index) => (
-                <p key={index} className="max-w-[65ch] text-base leading-relaxed text-slate-700">
-                    {paragraph}
-                </p>
-            ))}
+            {isHtml ? (
+                // Stored HTML is sanitized server-side (App\Support\BlockContentSanitizer)
+                // before it reaches the database; the editor's SafeLink extension keeps
+                // link targets internal or http(s) on the way in as well.
+                <div className="fmca-prose max-w-[65ch]" dangerouslySetInnerHTML={{ __html: body }} />
+            ) : body ? (
+                <div className="max-w-[65ch]">
+                    {body
+                        .split('\n')
+                        .filter((line) => line.trim() !== '')
+                        .map((paragraph, index) => (
+                            <p key={index} className="mb-3 text-base leading-relaxed text-slate-700 last:mb-0">
+                                {paragraph}
+                            </p>
+                        ))}
+                </div>
+            ) : null}
         </section>
     );
 }
