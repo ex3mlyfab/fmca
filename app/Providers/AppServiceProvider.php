@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
+use App\View\Components\InertiaApp;
 use Carbon\CarbonImmutable;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
@@ -28,6 +30,12 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
         $this->configureRateLimiting();
+
+        // Replace the Inertia v3 `<x-inertia::app />` payload script with a nonce-aware
+        // rendering (see App\View\Components\InertiaApp) so the inline page-props
+        // script survives the Content-Security-Policy emitted by SecurityHeaders.
+        // Resolved before Inertia's `inertia` namespace fallback wins the alias.
+        Blade::component('inertia::app', InertiaApp::class);
     }
 
     /**

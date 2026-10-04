@@ -15,7 +15,6 @@ class SiteMenuSeeder extends Seeder
     public function run(): void
     {
         $items = [
-            ['label' => 'About FMCA', 'href' => '/', 'sort_order' => 1],
             ['label' => 'Services', 'href' => '/services', 'sort_order' => 2],
             ['label' => 'Patients & Visitors', 'href' => '/patients', 'sort_order' => 3],
             ['label' => 'News & Updates', 'href' => '/news', 'sort_order' => 4],
@@ -31,5 +30,15 @@ class SiteMenuSeeder extends Seeder
                 ],
             );
         }
+
+        // "About FMCA" used to point at home, so this entry matches on label
+        // alone. Matching on label and href together would leave the historical
+        // row pointing at "/" sitting beside a new twin.
+        SiteMenuItem::updateOrCreate(['label' => 'About FMCA'], [
+            'href' => '/about',
+            'sort_order' => 1,
+            'owner' => 'FMCA Corporate Communications',
+            'status' => 'published',
+        ]);
     }
 }

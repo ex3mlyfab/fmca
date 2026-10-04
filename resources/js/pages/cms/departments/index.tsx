@@ -14,6 +14,7 @@ type Department = {
 type Props = {
     departments: Department[];
     canCreate: boolean;
+    canPublish: boolean;
 };
 
 export default function DepartmentsIndex({ departments, canCreate }: Props) {

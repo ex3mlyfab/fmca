@@ -17,6 +17,7 @@ type Service = {
 type Props = {
     services: Service[];
     canCreate: boolean;
+    canPublish: boolean;
 };
 
 export default function ServicesIndex({ services, canCreate }: Props) {

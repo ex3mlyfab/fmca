@@ -14,7 +14,7 @@ type MenuEntry = {
 // default public site. Tests may override them to simulate CMS changes.
 const { publishedMenu, setPublishedMenu } = vi.hoisted(() => {
     const menu: MenuEntry[] = [
-        { label: 'About FMCA', href: '/', sort_order: 1 },
+        { label: 'About FMCA', href: '/about', sort_order: 1 },
         { label: 'Services', href: '/services', sort_order: 2 },
         { label: 'Patients & Visitors', href: '/patients', sort_order: 3 },
         { label: 'News & Updates', href: '/news', sort_order: 4 },
@@ -24,17 +24,23 @@ const { publishedMenu, setPublishedMenu } = vi.hoisted(() => {
 });
 
 // The shell links are Inertia <Link>s; in a unit test we only care about the
-// resulting <a href>, so swap the router link for a plain anchor.
+// resulting <a href>, so swap the router link for a plain anchor. Wayfinder
+// links arrive as route-definition objects ({ url, method }); the mock reads
+// their url so assertions target the real target path.
 vi.mock('@inertiajs/react', () => ({
     Link: (props: {
-        href: string;
+        href: string | { url: string; method: string };
         className?: string;
         onClick?: () => void;
         children: React.ReactNode;
     }) =>
         React.createElement(
             'a',
-            { href: props.href, className: props.className, onClick: props.onClick },
+            {
+                href: typeof props.href === 'string' ? props.href : props.href.url,
+                className: props.className,
+                onClick: props.onClick,
+            },
             props.children,
         ),
     usePage: () => ({ props: { siteMenu: publishedMenu } }),
@@ -85,7 +91,7 @@ describe('site shell pathways (360px)', () => {
 describe('site shell primary navigation is menu-managed', () => {
     it('renders exactly the published menu items, in their sort order', () => {
         setPublishedMenu([
-            { label: 'About FMCA', href: '/', sort_order: 1 },
+            { label: 'About FMCA', href: '/about', sort_order: 1 },
             { label: 'Services', href: '/services', sort_order: 2 },
             { label: 'Patients & Visitors', href: '/patients', sort_order: 3 },
             { label: 'News & Updates', href: '/news', sort_order: 4 },
@@ -132,5 +138,21 @@ describe('site shell primary navigation is menu-managed', () => {
         trigger.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 
         expect(screen.getByRole('link', { name: 'Clinics' }).getAttribute('href')).toBe('/clinics');
+    });
+});
+
+describe('site shell footer legal links', () => {
+    it('points the Privacy and Accessibility bottom-bar links at the published statement routes', () => {
+        render(<SiteShell><main id="main-content">content</main></SiteShell>);
+
+        const privacy = screen.getByRole('link', { name: 'Privacy' }) as HTMLAnchorElement;
+        const accessibility = screen.getByRole('link', { name: 'Accessibility' }) as HTMLAnchorElement;
+
+        // No more dead "#privacy"/"#accessibility" fragment anchors.
+        expect(privacy.getAttribute('href')).not.toMatch(/^#/);
+        expect(accessibility.getAttribute('href')).not.toMatch(/^#/);
+
+        expect(privacy.getAttribute('href')).toContain('/legal/privacy-statement');
+        expect(accessibility.getAttribute('href')).toContain('/legal/accessibility-statement');
     });
 });

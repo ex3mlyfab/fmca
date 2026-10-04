@@ -1,4 +1,5 @@
 import { AlertOctagon, PhoneCall } from 'lucide-react';
+import { useSiteInfo } from '@/lib/site-info';
 
 export type EmergencyBannerProps = {
     title?: string;
@@ -10,9 +11,12 @@ export type EmergencyBannerProps = {
 export function EmergencyBanner({
     title = 'Need immediate emergency medical intervention?',
     description = 'The FMCA accident, emergency and trauma centre operates continuous 24-hour consultant and clinical team coverage.',
-    phone = '+2340000000000',
+    phone,
     phoneLabel = 'Call emergency dispatch',
 }: EmergencyBannerProps) {
+    const siteInfo = useSiteInfo();
+    const resolvedPhone = phone ?? siteInfo.emergencyPhone;
+
     return (
         <section id="request" className="bg-fmca-crimson px-4 py-12 text-white sm:px-6" aria-labelledby="emergency-banner-heading">
             <div className="mx-auto flex max-w-7xl flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
@@ -30,7 +34,7 @@ export function EmergencyBanner({
                 </div>
 
                 <a
-                    href={`tel:${phone}`}
+                    href={`tel:${resolvedPhone}`}
                     className="inline-flex min-h-14 shrink-0 items-center justify-center gap-3 rounded-md bg-white px-7 text-base font-bold text-fmca-crimson shadow-md transition-colors hover:bg-red-50 focus-visible:ring-2 focus-visible:ring-white"
                 >
                     <PhoneCall size={20} aria-hidden="true" />

@@ -1,10 +1,11 @@
 import { Form, Head, Link } from '@inertiajs/react';
-import { ArrowLeft, ArrowUpRight, CheckCircle2, Globe } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, CheckCircle2, Globe, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { StatusChip } from '@/pages/cms/departments';
 import cmsNews from '@/routes/cms/news';
+import cmsMedia from '@/routes/cms/media';
 import cmsSeo from '@/routes/cms/seo';
 import publicNews from '@/routes/news';
 
@@ -20,6 +21,8 @@ type Post = {
     slug: string;
     summary: string;
     body: string;
+    feature_image?: string | null;
+    feature_image_alt?: string | null;
     category_id?: number | null;
     author: string;
     publish_date: string;
@@ -168,6 +171,54 @@ export default function NewsEditor({ post, categories }: Props) {
                                         />
                                         {errors.body && <p className={fieldErrorClass}>{errors.body}</p>}
                                         <p className="text-xs text-slate-500">Plain text with line breaks. Do not state fees, availability or clinical advice.</p>
+                                    </div>
+
+                                    <div className="border-t border-fmca-ink/10 pt-5">
+                                        <div className="flex items-center gap-2">
+                                            <ImageIcon size={20} className="text-fmca-green" aria-hidden="true" />
+                                            <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Feature image</p>
+                                        </div>
+                                        <p className="mt-1 text-xs text-slate-500">
+                                            Shown on the news card and at the top of the article. Upload an approved image in the
+                                            <Link href={cmsMedia.index()} as="button" className="font-bold text-fmca-green hover:underline">
+                                                media library
+                                            </Link>
+                                            and paste the asset URL. Leave it blank and the card falls back to a neutral placeholder.
+                                        </p>
+                                        <div className="mt-4 grid gap-5 sm:grid-cols-2">
+                                            <div className="grid gap-1.5">
+                                                <Label htmlFor="feature_image">Feature image URL</Label>
+                                                <Input
+                                                    id="feature_image"
+                                                    name="feature_image"
+                                                    defaultValue={post?.feature_image ?? ''}
+                                                    maxLength={255}
+                                                    className="h-11"
+                                                    aria-invalid={Boolean(errors.feature_image)}
+                                                />
+                                                {errors.feature_image && <p className={fieldErrorClass}>{errors.feature_image}</p>}
+                                            </div>
+                                            <div className="grid gap-1.5">
+                                                <Label htmlFor="feature_image_alt">Feature image alt text</Label>
+                                                <Input
+                                                    id="feature_image_alt"
+                                                    name="feature_image_alt"
+                                                    defaultValue={post?.feature_image_alt ?? ''}
+                                                    maxLength={255}
+                                                    className="h-11"
+                                                    aria-invalid={Boolean(errors.feature_image_alt)}
+                                                />
+                                                {errors.feature_image_alt && <p className={fieldErrorClass}>{errors.feature_image_alt}</p>}
+                                                <p className="text-xs text-slate-500">Describe what the image shows. Used for accessible rendering.</p>
+                                            </div>
+                                        </div>
+                                        {post?.feature_image && (
+                                            <img
+                                                src={post.feature_image}
+                                                alt={post.feature_image_alt ?? post.title}
+                                                className="mt-4 h-40 w-full rounded-lg border border-fmca-ink/10 object-cover sm:h-56"
+                                            />
+                                        )}
                                     </div>
 
                                     <div className="grid gap-5 sm:grid-cols-2">

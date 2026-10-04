@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\AboutController;
 use App\Http\Controllers\AppointmentsController;
 use App\Http\Controllers\Cms\AuditLogController;
+use App\Http\Controllers\Cms\BrandIdentityController;
 use App\Http\Controllers\Cms\CampaignController;
 use App\Http\Controllers\Cms\CategoryController;
 use App\Http\Controllers\Cms\ClinicController;
@@ -11,8 +13,10 @@ use App\Http\Controllers\Cms\DashboardController;
 use App\Http\Controllers\Cms\DepartmentController;
 use App\Http\Controllers\Cms\DocumentController;
 use App\Http\Controllers\Cms\HomepageController;
+use App\Http\Controllers\Cms\InstituteProfileController as CmsInstituteProfileController;
 use App\Http\Controllers\Cms\MediaController;
 use App\Http\Controllers\Cms\PageController as CmsPageController;
+use App\Http\Controllers\Cms\PartnerController;
 use App\Http\Controllers\Cms\PostController;
 use App\Http\Controllers\Cms\RedirectController;
 use App\Http\Controllers\Cms\SeoMetadataController;
@@ -30,6 +34,7 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\ServicesController;
 use App\Http\Controllers\SitemapController;
 use App\Models\AuditLog;
+use App\Models\BrandAsset;
 use App\Models\Campaign;
 use App\Models\Category;
 use App\Models\Clinic;
@@ -38,8 +43,10 @@ use App\Models\Consultant;
 use App\Models\Department;
 use App\Models\Document;
 use App\Models\HomeConfiguration;
+use App\Models\InstituteProfile;
 use App\Models\Media;
 use App\Models\Page;
+use App\Models\Partner;
 use App\Models\Post;
 use App\Models\Redirect;
 use App\Models\Service;
@@ -55,8 +62,9 @@ Route::get('departments', [DepartmentsController::class, 'index'])->name('depart
 Route::get('departments/{slug}', [DepartmentsController::class, 'show'])->name('departments.show');
 Route::get('consultants', [ConsultantsController::class, 'index'])->name('consultants');
 Route::get('consultants/{slug}', [ConsultantsController::class, 'show'])->name('consultants.show');
-// Static institutional page: registered ahead of the template-driven
+// Static institutional pages: registered ahead of the template-driven
 // `about/{slug}` loop so the literal always wins.
+Route::get('about', [AboutController::class, 'index'])->name('about');
 Route::get('about/leadership', [CommitteesController::class, 'index'])->name('about.leadership');
 Route::get('news', [NewsController::class, 'index'])->name('news');
 Route::get('news/{slug}', [NewsController::class, 'show'])->name('news.show');
@@ -73,6 +81,7 @@ Route::get('sitemap-consultants.xml', [SitemapController::class, 'consultants'])
 Route::get('sitemap-committees.xml', [SitemapController::class, 'committees'])->name('sitemap.committees');
 Route::get('sitemap-news.xml', [SitemapController::class, 'news'])->name('sitemap.news');
 Route::get('sitemap-pages.xml', [SitemapController::class, 'pages'])->name('sitemap.pages');
+Route::get('sitemap-about.xml', [SitemapController::class, 'about'])->name('sitemap.about');
 Route::get('robots.txt', [SitemapController::class, 'robots'])->name('robots');
 
 // Public page routes — one per routable page template (registry-driven, read
@@ -167,6 +176,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('cms/committees/{committeeMember}', [CommitteeMemberController::class, 'update'])->name('cms.committees.update');
     });
 
+    Route::middleware('can:viewAny,'.Partner::class)->group(function (): void {
+        Route::get('cms/partners', [PartnerController::class, 'index'])->name('cms.partners.index');
+        Route::get('cms/partners/create', [PartnerController::class, 'create'])->name('cms.partners.create');
+        Route::post('cms/partners', [PartnerController::class, 'store'])->name('cms.partners.store');
+        Route::get('cms/partners/{partner}', [PartnerController::class, 'edit'])->name('cms.partners.edit');
+        Route::put('cms/partners/{partner}', [PartnerController::class, 'update'])->name('cms.partners.update');
+        Route::delete('cms/partners/{partner}', [PartnerController::class, 'destroy'])->name('cms.partners.destroy');
+    });
+
     Route::middleware('can:viewAny,'.Service::class)->group(function (): void {
         Route::get('cms/services', [ServiceController::class, 'index'])->name('cms.services.index');
         Route::get('cms/services/create', [ServiceController::class, 'create'])->name('cms.services.create');
@@ -222,6 +240,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('cms/site-menu', [SiteMenuItemController::class, 'store'])->name('cms.site-menu.store');
         Route::get('cms/site-menu/{item}', [SiteMenuItemController::class, 'edit'])->name('cms.site-menu.edit');
         Route::put('cms/site-menu/{item}', [SiteMenuItemController::class, 'update'])->name('cms.site-menu.update');
+    });
+
+    // One form for every public-facing brand mark; deleting a slot restores
+    // the built-in emblem and the static public/ icon files.
+    Route::middleware('can:viewAny,'.BrandAsset::class)->group(function (): void {
+        Route::get('cms/brand-identity', [BrandIdentityController::class, 'index'])->name('cms.brand-identity.index');
+        Route::put('cms/brand-identity', [BrandIdentityController::class, 'update'])->name('cms.brand-identity.update');
+        Route::delete('cms/brand-identity/{asset}', [BrandIdentityController::class, 'destroy'])->name('cms.brand-identity.destroy');
+    });
+
+    // One form for the about page: institute history, contacts and the campus
+    // map, also the source of the emergency line shown site-wide.
+    Route::middleware('can:viewAny,'.InstituteProfile::class)->group(function (): void {
+        Route::get('cms/institute-profile', [CmsInstituteProfileController::class, 'index'])->name('cms.institute-profile.index');
+        Route::put('cms/institute-profile', [CmsInstituteProfileController::class, 'update'])->name('cms.institute-profile.update');
     });
 
     // Generic per-content SEO editor; the controller gates each content type

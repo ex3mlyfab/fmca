@@ -136,8 +136,23 @@ class User extends Authenticatable implements PasskeyUser
         return $this->hasPermission('edit_committees');
     }
 
+    public function canManagePartners(): bool
+    {
+        return $this->hasPermission('edit_partners');
+    }
+
     public function canManageSiteMenu(): bool
     {
         return $this->hasPermission('edit_site_menu');
+    }
+
+    public function canManageBrandIdentity(): bool
+    {
+        return $this->hasPermission('edit_brand_identity');
+    }
+
+    public function canManageInstituteProfile(): bool
+    {
+        return $this->hasPermission('edit_institute_profile');
     }
 }

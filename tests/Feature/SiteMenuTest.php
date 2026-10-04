@@ -36,7 +36,7 @@ test('the public menu carries label, destination and position for each item', fu
 test('the seeder publishes the four default public header entries', function () {
     (new SiteMenuSeeder)->run();
 
-    $this->assertDatabaseHas('site_menu_items', ['label' => 'About FMCA', 'href' => '/', 'status' => 'published']);
+    $this->assertDatabaseHas('site_menu_items', ['label' => 'About FMCA', 'href' => '/about', 'status' => 'published']);
     $this->assertDatabaseHas('site_menu_items', ['label' => 'Services', 'href' => '/services', 'status' => 'published']);
     $this->assertDatabaseHas('site_menu_items', ['label' => 'Patients & Visitors', 'href' => '/patients', 'status' => 'published']);
     $this->assertDatabaseHas('site_menu_items', ['label' => 'News & Updates', 'href' => '/news', 'status' => 'published']);

@@ -24,10 +24,11 @@ class RolePermissionSeeder extends Seeder
         // Departments
         ['name' => 'view_departments',        'guard_name' => 'web'],
         ['name' => 'edit_departments',        'guard_name' => 'web'],
-        ['name' => 'approve_department_content', 'guard_name' => 'web'],
+        ['name' => 'publish_departments',     'guard_name' => 'web'],
         // Services
         ['name' => 'view_services',           'guard_name' => 'web'],
         ['name' => 'edit_services',           'guard_name' => 'web'],
+        ['name' => 'publish_services',        'guard_name' => 'web'],
         // Clinics
         ['name' => 'view_clinics',            'guard_name' => 'web'],
         ['name' => 'edit_clinics',            'guard_name' => 'web'],
@@ -40,6 +41,10 @@ class RolePermissionSeeder extends Seeder
         ['name' => 'view_committees',         'guard_name' => 'web'],
         ['name' => 'edit_committees',         'guard_name' => 'web'],
         ['name' => 'publish_committees',      'guard_name' => 'web'],
+        // Partners (home page logo wall)
+        ['name' => 'view_partners',           'guard_name' => 'web'],
+        ['name' => 'edit_partners',           'guard_name' => 'web'],
+        ['name' => 'publish_partners',        'guard_name' => 'web'],
         // News / Content
         ['name' => 'view_news',               'guard_name' => 'web'],
         ['name' => 'create_news',             'guard_name' => 'web'],
@@ -64,6 +69,14 @@ class RolePermissionSeeder extends Seeder
         ['name' => 'view_site_menu',          'guard_name' => 'web'],
         ['name' => 'edit_site_menu',          'guard_name' => 'web'],
         ['name' => 'publish_site_menu',       'guard_name' => 'web'],
+        // Brand identity (public site logos and browser icons)
+        ['name' => 'view_brand_identity',     'guard_name' => 'web'],
+        ['name' => 'edit_brand_identity',     'guard_name' => 'web'],
+        ['name' => 'publish_brand_identity',  'guard_name' => 'web'],
+        // Institute profile (about page, contacts and campus location)
+        ['name' => 'view_institute_profile',  'guard_name' => 'web'],
+        ['name' => 'edit_institute_profile',  'guard_name' => 'web'],
+        ['name' => 'publish_institute_profile', 'guard_name' => 'web'],
         // Users / Roles
         ['name' => 'view_users',              'guard_name' => 'web'],
         ['name' => 'edit_users',              'guard_name' => 'web'],
@@ -85,17 +98,20 @@ class RolePermissionSeeder extends Seeder
         'super_admin' => [
             'view_homepage', 'edit_homepage', 'approve_homepage', 'publish_homepage', 'archive_homepage',
             'view_pages', 'create_pages', 'edit_pages', 'delete_pages', 'publish_pages',
-            'view_departments', 'edit_departments', 'approve_department_content',
-            'view_services', 'edit_services',
+            'view_departments', 'edit_departments', 'publish_departments',
+            'view_services', 'edit_services', 'publish_services',
             'view_clinics', 'edit_clinics', 'publish_clinics',
             'view_consultants', 'edit_consultants', 'publish_consultants',
             'view_committees', 'edit_committees', 'publish_committees',
+            'view_partners', 'edit_partners', 'publish_partners',
             'view_news', 'create_news', 'edit_news', 'publish_news',
             'view_campaigns', 'edit_campaigns', 'publish_campaigns',
             'view_media', 'upload_media', 'delete_media',
             'view_documents', 'edit_documents', 'publish_documents',
             'view_redirects', 'edit_redirects',
             'view_site_menu', 'edit_site_menu', 'publish_site_menu',
+            'view_brand_identity', 'edit_brand_identity', 'publish_brand_identity',
+            'view_institute_profile', 'edit_institute_profile', 'publish_institute_profile',
             'view_users', 'edit_users', 'manage_roles',
             'view_audit_logs',
         ],
@@ -124,9 +140,18 @@ class RolePermissionSeeder extends Seeder
             'view_committees',
             'edit_committees',
             'publish_committees',
+            'view_partners',
+            'edit_partners',
+            'publish_partners',
             'view_site_menu',
             'edit_site_menu',
             'publish_site_menu',
+            'view_brand_identity',
+            'edit_brand_identity',
+            'publish_brand_identity',
+            'view_institute_profile',
+            'edit_institute_profile',
+            'publish_institute_profile',
             'view_audit_logs',
         ],
 
@@ -138,9 +163,10 @@ class RolePermissionSeeder extends Seeder
             'publish_pages',
             'view_departments',
             'edit_departments',
-            'approve_department_content',
+            'publish_departments',
             'view_services',
             'edit_services',
+            'publish_services',
             'view_clinics',
             'edit_clinics',
             'publish_clinics',
@@ -198,6 +224,12 @@ class RolePermissionSeeder extends Seeder
      */
     public function run(): void
     {
+        Permission::query()
+            ->where('guard_name', 'web')
+            ->whereNotIn('name', array_column(self::PERMISSIONS, 'name'))
+            ->get()
+            ->each->delete();
+
         foreach (self::PERMISSIONS as $perm) {
             Permission::firstOrCreate($perm);
         }

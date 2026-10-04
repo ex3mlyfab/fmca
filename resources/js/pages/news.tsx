@@ -11,6 +11,8 @@ type PostSummary = {
     slug: string;
     summary: string;
     author: string;
+    featureImage: string | null;
+    featureImageAlt: string | null;
     publishDate: string | null;
     category: { name: string; slug: string } | null;
 };
@@ -96,9 +98,21 @@ export default function News({ posts, categories, activeCategory }: Props) {
                                 <li key={post.id}>
                                     <a
                                         href={newsRoutes.show.url(post.slug)}
-                                        className="group flex flex-col gap-3 p-6 transition-colors hover:bg-fmca-mist focus-visible:outline-none focus-visible:ring-inset focus-visible:ring-[3px] focus-visible:ring-fmca-sky sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:p-8"
+                                        className="group flex flex-col gap-4 p-6 transition-colors hover:bg-fmca-mist focus-visible:outline-none focus-visible:ring-inset focus-visible:ring-[3px] focus-visible:ring-fmca-sky sm:flex-row sm:items-center sm:gap-6 sm:p-8"
                                     >
-                                        <div className="min-w-0">
+                                        {post.featureImage ? (
+                                            <img
+                                                src={post.featureImage}
+                                                alt={post.featureImageAlt ?? ''}
+                                                loading="lazy"
+                                                className="size-24 shrink-0 rounded-lg border border-fmca-ink/10 object-cover sm:size-28"
+                                            />
+                                        ) : (
+                                            <span className="flex size-24 shrink-0 items-center justify-center rounded-lg border border-fmca-ink/10 bg-fmca-mist text-fmca-teal sm:size-28" aria-hidden="true">
+                                                <Newspaper size={22} />
+                                            </span>
+                                        )}
+                                        <div className="min-w-0 flex-1">
                                             <div className="flex flex-wrap items-center gap-3">
                                                 {post.category && (
                                                     <Badge variant="outline" className="border-fmca-green/30 text-fmca-green">

@@ -11,6 +11,8 @@ type Post = {
     slug: string;
     summary: string;
     body: string;
+    featureImage: string | null;
+    featureImageAlt: string | null;
     author: string;
     publishDate: string | null;
     owner: string | null;
@@ -80,6 +82,20 @@ export default function Article({ post, related }: Props) {
                 </section>
 
                 <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:py-16">
+                    {post.featureImage && (
+                        <figure className="mb-10">
+                            <img
+                                src={post.featureImage}
+                                alt={post.featureImageAlt ?? post.title}
+                                className="w-full rounded-xl border border-fmca-ink/10 object-cover shadow-xs sm:aspect-[21/9]"
+                            />
+                            {post.featureImageAlt && (
+                                <figcaption className="mt-3 text-xs leading-relaxed text-slate-500">
+                                    {post.featureImageAlt}
+                                </figcaption>
+                            )}
+                        </figure>
+                    )}
                     <div className="grid gap-8 lg:grid-cols-[2fr_1fr]">
                         <div>
                             <p className="max-w-[65ch] whitespace-pre-line text-base leading-relaxed text-slate-700">

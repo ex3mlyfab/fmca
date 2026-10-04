@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\HomeConfiguration;
+use App\Models\Partner;
+use App\Models\Post;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 
@@ -73,4 +75,58 @@ test('an editor can save emergency and status fields in a homepage draft', funct
         ->and($config->sections['emergency']['phone'])->toBe('+2348000000000')
         ->and($config->sections['status']['campusStatus'])->toBe('Surge capacity active')
         ->and($config->sections['status']['serviceDesk'])->toBe('Desk operating at station 2');
+});
+
+test('the home page surfaces the newest published news with feature images', function () {
+    $recent = Post::factory()->published()->create([
+        'slug' => 'recent-news',
+        'publish_date' => now()->toDateString(),
+        'feature_image' => '/media/2026/09/recent.jpg',
+        'feature_image_alt' => 'Recent announcement',
+    ]);
+    Post::factory()->published()->create([
+        'slug' => 'older-news',
+        'publish_date' => now()->subWeek()->toDateString(),
+    ]);
+    Post::factory()->create([
+        'slug' => 'draft-news',
+        'publish_date' => now()->toDateString(),
+    ]);
+
+    $this->get(route('home'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('home')
+            ->where('news.0.id', $recent->id)
+            ->where('news.0.featureImage', '/media/2026/09/recent.jpg')
+            ->where('news', fn ($news) => collect($news)->count() === 2
+                && ! collect($news)->pluck('slug')->contains('draft-news')));
+});
+
+test('the home page lists published partners by sort order', function () {
+    $second = Partner::factory()->published()->create(['name' => 'Second Partner', 'sort_order' => 2]);
+    $first = Partner::factory()->published()->withWebsite('https://example.org')->create([
+        'name' => 'First Partner',
+        'sort_order' => 1,
+    ]);
+    Partner::factory()->create(['name' => 'Draft Partner', 'sort_order' => 0]);
+
+    $this->get(route('home'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('home')
+            ->where('partners.0.id', $first->id)
+            ->where('partners.0.name', 'First Partner')
+            ->where('partners.0.websiteUrl', 'https://example.org')
+            ->where('partners.1.id', $second->id)
+            ->where('partners.1.websiteUrl', null)
+            ->where('partners', fn ($partners) => collect($partners)->count() === 2));
+});
+
+test('the home page gets an empty partner list when none is published', function () {
+    Partner::factory()->create(['name' => 'Draft Partner']);
+
+    $this->get(route('home'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->where('partners', []));
 });

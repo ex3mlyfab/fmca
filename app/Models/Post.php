@@ -16,6 +16,8 @@ class Post extends Model
         'slug',
         'summary',
         'body',
+        'feature_image',
+        'feature_image_alt',
         'category_id',
         'author',
         'publish_date',

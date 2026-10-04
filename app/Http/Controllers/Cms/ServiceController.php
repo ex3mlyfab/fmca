@@ -22,6 +22,7 @@ class ServiceController extends Controller
                 ->orderBy('name')
                 ->get(['id', 'name', 'slug', 'summary', 'status', 'department_id']),
             'canCreate' => Gate::allows('create', Service::class),
+            'canPublish' => $this->user()?->hasPermission('publish_services') ?? false,
         ]);
     }
 
@@ -32,6 +33,7 @@ class ServiceController extends Controller
         return Inertia::render('cms/services/edit', [
             'service' => null,
             'departments' => Department::query()->orderBy('name')->get(['id', 'name', 'slug']),
+            'canPublish' => $this->user()?->hasPermission('publish_services') ?? false,
         ]);
     }
 
@@ -47,6 +49,7 @@ class ServiceController extends Controller
         return Inertia::render('cms/services/edit', [
             'service' => $service,
             'departments' => Department::query()->orderBy('name')->get(['id', 'name', 'slug']),
+            'canPublish' => $this->user()?->hasPermission('publish_services') ?? false,
         ]);
     }
 
@@ -55,5 +58,10 @@ class ServiceController extends Controller
         $service->update($request->validated());
 
         return to_route('cms.services.index');
+    }
+
+    private function user()
+    {
+        return request()->user();
     }
 }

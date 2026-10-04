@@ -31,6 +31,8 @@ class NewsController extends Controller
                 'slug' => $post->slug,
                 'summary' => $post->summary,
                 'author' => $post->author,
+                'featureImage' => $post->feature_image,
+                'featureImageAlt' => $post->feature_image_alt,
                 'publishDate' => $post->publish_date?->format('j M Y'),
                 'category' => $post->category ? [
                     'name' => $post->category->name,
@@ -78,6 +80,8 @@ class NewsController extends Controller
                 'slug' => $post->slug,
                 'summary' => $post->summary,
                 'body' => $post->body,
+                'featureImage' => $post->feature_image,
+                'featureImageAlt' => $post->feature_image_alt,
                 'author' => $post->author,
                 'publishDate' => $post->publish_date?->format('j M Y'),
                 'owner' => $post->owner,
@@ -92,7 +96,7 @@ class NewsController extends Controller
                 'title' => $post->title.' | Federal Medical Centre, Abuja',
                 'description' => $post->summary,
                 'canonical' => url('news/'.$post->slug),
-                'og_image' => null,
+                'og_image' => $post->feature_image,
                 'robots' => 'index,follow',
                 'json_ld' => [
                     SeoMetadata::breadcrumbs([
@@ -110,6 +114,7 @@ class NewsController extends Controller
                         'dateModified' => $post->updated_at?->toDateString(),
                         'publisher' => ['@type' => 'Organization', 'name' => 'Federal Medical Centre, Abuja'],
                         'mainEntityOfPage' => url('news/'.$post->slug),
+                        ...(! empty($post->feature_image) ? ['image' => $post->feature_image] : []),
                     ],
                 ],
             ]),

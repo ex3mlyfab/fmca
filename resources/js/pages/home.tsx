@@ -6,11 +6,16 @@ import {
     CentresOfExcellence,
     EmergencyBanner,
     EmergencyHotbar,
+    InstituteOverview,
     InstitutionalStrength,
     InsuranceGuidance,
     MetricStrip,
     OperationalStatusStrip,
+    Partners,
     QuickServices,
+    RecentNews,
+    type PartnerItem,
+    type RecentNewsItem,
 } from '@/components/public/home';
 
 type HomeConfigurationData = {
@@ -48,9 +53,11 @@ type CampaignSlide = {
 type HomeProps = {
     configuration?: HomeConfigurationData;
     campaigns?: CampaignSlide[];
+    news?: RecentNewsItem[];
+    partners?: PartnerItem[];
 };
 
-export default function Home({ configuration, campaigns = [] }: HomeProps) {
+export default function Home({ configuration, campaigns = [], news = [], partners = [] }: HomeProps) {
     const emergencyConfig = configuration?.emergency;
     const statusConfig = configuration?.status;
 
@@ -60,47 +67,56 @@ export default function Home({ configuration, campaigns = [] }: HomeProps) {
             <main id="main-content">
                 {/* 1 & 2: Government Utility & Header are managed in SiteShell */}
 
-                {/* 3: Emergency Hotbar */}
+                {/* 3: Emergency Hotbar 
                 <EmergencyHotbar
                     message={emergencyConfig?.message}
                     phone={emergencyConfig?.phone}
                     phoneLabel={emergencyConfig?.phoneLabel}
-                />
+                />*/}
 
-                {/* 4: Operational Status Strip */}
+                {/* 4: Operational Status Strip 
                 <OperationalStatusStrip
                     campusStatus={statusConfig?.campusStatus}
                     serviceDesk={statusConfig?.serviceDesk}
                     reviewStatus={statusConfig?.reviewStatus}
                 />
-
+*/}
                 {/* 5: Campaign Hero Carousel (CMS-managed content module) */}
                 <CampaignCarousel slides={campaigns} />
 
-                {/* 6: Immediate Patient Services (Two-Tier Asymmetric Layout) */}
+                {/* 6: Institute Overview - History, Vision & Mission beside the Medical Director */}
+                <InstituteOverview />
+
+                {/* 7: Immediate Patient Services (Two-Tier Asymmetric Layout) */}
                 <QuickServices />
 
-                {/* 7: Institutional Capacity & Trust Metrics */}
+                {/* 8: Institutional Capacity & Trust Metrics */}
                 <MetricStrip />
 
-                {/* 8: Insurance Guidance & NHIA Support */}
+                {/* 9: Insurance Guidance & NHIA Support */}
                 <InsuranceGuidance />
 
-                {/* 9: Centres of Clinical Excellence */}
+                {/* 10: Centres of Clinical Excellence */}
                 <CentresOfExcellence />
 
-                {/* 10: Academic Mandate & Institutional Strength */}
+                {/* 11: Academic Mandate & Institutional Strength */}
                 <InstitutionalStrength />
 
-                {/* 11: Campus Access & Visiting Hours */}
+                {/* 12: Campus Access & Visiting Hours */}
                 <CampusAccess />
 
-                {/* 12: Final Emergency Dispatch Callout */}
+                {/* 13: Recent news & updates (CMS-managed news feed) */}
+                <RecentNews news={news} />
+
+                {/* 14: Partners & collaborations (CMS-managed partner logos) */}
+                <Partners partners={partners} />
+
+                {/* 15: Final Emergency Dispatch Callout */}
                 <EmergencyBanner
                     phone={emergencyConfig?.phone}
                 />
 
-                {/* 13: Footer is managed in SiteShell */}
+                {/* 14: Footer is managed in SiteShell */}
             </main>
         </SiteShell>
     );

@@ -133,3 +133,50 @@ test('a draft news slug is not reachable publicly', function () {
         ->assertNotFound()
         ->assertInertia(fn ($page) => $page->component('errors/404'));
 });
+
+test('the news list exposes each post feature image for the card', function () {
+    Post::factory()->published()->create([
+        'slug' => 'with-image',
+        'publish_date' => now()->toDateString(),
+        'feature_image' => '/media/2026/09/campus-aerial.jpg',
+        'feature_image_alt' => 'Aerial view of the FMCA campus',
+    ]);
+
+    $this->get(route('news'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('news')
+            ->where('posts.0.featureImage', '/media/2026/09/campus-aerial.jpg')
+            ->where('posts.0.featureImageAlt', 'Aerial view of the FMCA campus'));
+});
+
+test('a post without a feature image exposes null values', function () {
+    Post::factory()->published()->create([
+        'slug' => 'without-image',
+        'publish_date' => now()->toDateString(),
+    ]);
+
+    $this->get(route('news'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('news')
+            ->where('posts.0.featureImage', null)
+            ->where('posts.0.featureImageAlt', null));
+});
+
+test('the article page exposes the feature image and uses it as the og image', function () {
+    Post::factory()->published()->create([
+        'slug' => 'feature-story',
+        'publish_date' => '2026-09-01',
+        'feature_image' => '/media/2026/09/feature.jpg',
+        'feature_image_alt' => 'The featured announcement',
+    ]);
+
+    $this->get(route('news.show', ['slug' => 'feature-story']))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('article')
+            ->where('post.featureImage', '/media/2026/09/feature.jpg')
+            ->where('post.featureImageAlt', 'The featured announcement')
+            ->where('seo.og_image', '/media/2026/09/feature.jpg'));
+});

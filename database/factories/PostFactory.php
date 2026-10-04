@@ -18,6 +18,8 @@ class PostFactory extends Factory
             'slug' => fake()->unique()->slug(4),
             'summary' => fake()->sentence(),
             'body' => fake()->paragraph(),
+            'feature_image' => null,
+            'feature_image_alt' => null,
             'category_id' => null,
             'author' => fake()->name(),
             'publish_date' => now()->toDateString(),

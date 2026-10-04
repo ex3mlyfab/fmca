@@ -24,6 +24,31 @@ function postPayload(?Post $post = null): array
     ];
 }
 
+test('an editor can attach a feature image to a news item', function () {
+    $editor = User::factory()->withRole('communications_editor')->create();
+
+    $this->actingAs($editor)->post(route('cms.news.store'), [
+        ...postPayload(),
+        'feature_image' => '/media/2026/09/staff-meeting.jpg',
+        'feature_image_alt' => 'The FMCA staff meeting',
+    ])->assertRedirect();
+
+    $this->assertDatabaseHas('posts', [
+        'slug' => 'staff-meeting-notice',
+        'feature_image' => '/media/2026/09/staff-meeting.jpg',
+        'feature_image_alt' => 'The FMCA staff meeting',
+    ]);
+});
+
+test('a feature image URL must not use a javascript or data scheme', function () {
+    $editor = User::factory()->withRole('communications_editor')->create();
+
+    $this->actingAs($editor)->post(route('cms.news.store'), [
+        ...postPayload(),
+        'feature_image' => 'javascript:alert(1)',
+    ])->assertSessionHasErrors('feature_image');
+});
+
 test('news managers can open the news and category workspaces', function () {
     $editor = User::factory()->withRole('communications_editor')->create();
     $department = User::factory()->withRole('department_editor')->create();

@@ -133,6 +133,7 @@ const ACTION_META: Record<string, { icon: LucideIcon; tile: string; verb: string
 
 const CONTENT_TYPE_LABELS: Record<string, string> = {
     home: 'the homepage',
+    institute_profile: 'the about page',
     campaign: 'a campaign',
     department: 'a department',
     service: 'a service',
@@ -308,7 +309,7 @@ function ContentMix({ content, className }: { content: ContentRow[]; className?:
     const allEmpty = content.every((row) => row.total === 0);
 
     return (
-        <section className={`min-w-0 rounded-xl border border-fmca-ink/10 bg-white shadow-xs `}>
+        <section className={`min-w-0 rounded-xl border border-fmca-ink/10 bg-white shadow-xs ${className ?? ''}`}>
             <header className="flex flex-col gap-3 border-b border-fmca-ink/10 p-5 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h2 className="font-display text-lg font-bold text-fmca-green-dark">Content mix</h2>
@@ -479,7 +480,7 @@ function ReviewQueue({ items, reviewTotal }: { items: ReviewItem[]; reviewTotal:
 
 function ActivityFeed({ activity, className }: { activity: ActivityItem[]; className?: string }) {
     return (
-        <section className={`min-w-0 rounded-xl border border-fmca-ink/10 bg-white shadow-xs `}>
+        <section className={`min-w-0 rounded-xl border border-fmca-ink/10 bg-white shadow-xs ${className ?? ''}`}>
             <header className="flex items-center justify-between gap-3 border-b border-fmca-ink/10 p-5">
                 <div>
                     <h2 className="font-display text-lg font-bold text-fmca-green-dark">Recent activity</h2>

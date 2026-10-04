@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CommitteeMember;
 use App\Models\Consultant;
 use App\Models\Department;
+use App\Models\InstituteProfile;
 use App\Models\Page;
 use App\Models\Post;
 use App\Models\Service;
@@ -17,7 +18,7 @@ class SitemapController extends Controller
      */
     private function typeSitemapNames(): array
     {
-        return ['services', 'departments', 'consultants', 'committees', 'news', 'pages'];
+        return ['services', 'departments', 'consultants', 'committees', 'news', 'pages', 'about'];
     }
 
     public function index(): Response
@@ -79,6 +80,24 @@ class SitemapController extends Controller
             ? [[
                 'loc' => url('about/leadership'),
                 'lastmod' => $members->max('updated_at')?->toAtomString(),
+            ]]
+            : [];
+
+        return $this->xmlResponse($this->sitemapXml($urls));
+    }
+
+    /**
+     * The about page is a single public route; it only earns a sitemap URL
+     * once a published institute profile exists.
+     */
+    public function about(): Response
+    {
+        $profile = InstituteProfile::published()->first(['updated_at']);
+
+        $urls = $profile !== null
+            ? [[
+                'loc' => url('about'),
+                'lastmod' => $profile->updated_at?->toAtomString(),
             ]]
             : [];
 

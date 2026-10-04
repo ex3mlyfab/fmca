@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
         $this->call(ClinicsConsultantsSeeder::class);
         $this->call(CommitteeMemberSeeder::class);
         $this->call(SiteMenuSeeder::class);
+        $this->call(InstituteProfileSeeder::class);
         $this->call(NewsSeeder::class);
         $this->call(CampaignSeeder::class);
         $this->call(PageSeeder::class);

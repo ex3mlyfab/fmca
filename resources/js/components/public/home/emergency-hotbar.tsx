@@ -1,4 +1,5 @@
 import { AlertTriangle, PhoneCall } from 'lucide-react';
+import { useSiteInfo } from '@/lib/site-info';
 
 export type EmergencyHotbarProps = {
     message?: string;
@@ -8,9 +9,12 @@ export type EmergencyHotbarProps = {
 
 export function EmergencyHotbar({
     message = 'Clinical emergency triage is active. For life-threatening emergencies, dispatch or visit directly.',
-    phone = '+2340000000000',
+    phone,
     phoneLabel = 'Emergency dispatch call',
 }: EmergencyHotbarProps) {
+    const siteInfo = useSiteInfo();
+    const resolvedPhone = phone ?? siteInfo.emergencyPhone;
+
     return (
         <section className="border-b border-fmca-ink/10 bg-fmca-crimson px-4 py-3 text-white sm:px-6" aria-label="Emergency triage notification">
             <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 text-sm">
@@ -20,7 +24,7 @@ export function EmergencyHotbar({
                     <span>{message}</span>
                 </p>
                 <a
-                    href={`tel:${phone}`}
+                    href={`tel:${resolvedPhone}`}
                     className="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-md bg-white px-4 text-sm font-bold text-fmca-crimson shadow-sm transition-colors hover:bg-slate-100 focus-visible:ring-2 focus-visible:ring-white"
                 >
                     <PhoneCall size={16} aria-hidden="true" />

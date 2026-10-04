@@ -1,21 +1,17 @@
 import { Form, Head } from '@inertiajs/react';
-import { ArrowRight, CheckCircle2, Clock3, MapPin, MessageSquare, PhoneCall, ShieldAlert, Siren } from 'lucide-react';
+import { ArrowRight, CheckCircle2, MapPin, Siren } from 'lucide-react';
+import { ContactCards } from '@/components/public/contact-cards';
 import { SiteShell } from '@/components/public/site-shell';
+import { VisitingHoursTable } from '@/components/public/visiting-hours';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { campus, contactCards, contentOwner, emergency, reviewedAt, visitingPolicyNote, visitingSlots, type ContactCard } from '@/lib/contact-info';
+import { useSiteInfo } from '@/lib/site-info';
 import contactFeedback from '@/routes/contact/feedback';
 
 type Props = {
     submitted: boolean;
-};
-
-const cardIcons: Record<ContactCard['icon'], typeof MapPin> = {
-    pin: MapPin,
-    phone: PhoneCall,
-    message: MessageSquare,
 };
 
 const fieldErrorClass = 'text-xs font-medium text-fmca-crimson';
@@ -23,6 +19,8 @@ const textareaClass =
     'w-full rounded-md border border-input bg-white px-3 py-2 text-sm text-fmca-ink outline-none focus-visible:border-fmca-sky focus-visible:ring-[3px] focus-visible:ring-fmca-sky/40';
 
 export default function Contact({ submitted }: Props) {
+    const siteInfo = useSiteInfo();
+
     return (
         <SiteShell>
             <Head title="Contact & directions | Federal Medical Centre, Abuja" />
@@ -41,54 +39,16 @@ export default function Contact({ submitted }: Props) {
                     <div className="flex items-start gap-2 rounded-lg border border-fmca-crimson/20 bg-fmca-crimson/5 p-3.5 text-xs text-fmca-crimson sm:text-sm">
                         <Siren size={18} className="mt-0.5 shrink-0" aria-hidden="true" />
                         <span>
-                            For urgent medical assistance, use the {emergency.label.toLowerCase()}{' '}
-                            <a href={emergency.tel} className="font-bold underline underline-offset-2">
+                            For urgent medical assistance, use the {siteInfo.emergencyLabel.toLowerCase()}'{' '}
+                            <a href={siteInfo.emergencyTel} className="font-bold underline underline-offset-2">
                                 call now
                             </a>
                             .
                         </span>
                     </div>
 
-                    <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                        {contactCards.map((card) => {
-                            const Icon = cardIcons[card.icon];
-                            return (
-                                <Card key={card.title} className="flex flex-col justify-between rounded-2xl border border-fmca-ink/10 bg-white p-6 shadow-xs">
-                                    <div>
-                                        <span className="flex size-11 items-center justify-center rounded-lg bg-fmca-mist text-fmca-green">
-                                            <Icon size={22} aria-hidden="true" />
-                                        </span>
-                                        <h2 className="mt-4 font-display text-lg font-bold text-fmca-green-dark">{card.title}</h2>
-                                        <div className="mt-2 text-sm leading-relaxed text-slate-600">
-                                            {card.description.map((line) => (
-                                                <p key={line} className="leading-relaxed">
-                                                    {line}
-                                                </p>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    {card.external ? (
-                                        <a
-                                            href={card.href}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-fmca-green hover:text-fmca-green-dark"
-                                        >
-                                            <span>{card.hrefLabel}</span>
-                                            <ArrowRight size={16} aria-hidden="true" />
-                                        </a>
-                                    ) : (
-                                        <a
-                                            href={card.href}
-                                            className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-fmca-green hover:text-fmca-green-dark"
-                                        >
-                                            <span>{card.hrefLabel}</span>
-                                            <ArrowRight size={16} aria-hidden="true" />
-                                        </a>
-                                    )}
-                                </Card>
-                            );
-                        })}
+                    <div className="mt-6">
+                        <ContactCards cards={siteInfo.contactCards} />
                     </div>
 
                     <div className="mt-6 grid gap-6 lg:grid-cols-2">
@@ -98,12 +58,12 @@ export default function Contact({ submitted }: Props) {
                                 <h2 className="font-display text-xl font-bold text-fmca-green-dark">Directions</h2>
                             </div>
                             <div className="mt-4 rounded-lg bg-fmca-mist p-4">
-                                <strong className="block text-sm font-bold text-fmca-green-dark">{campus.name}</strong>
-                                <p className="mt-1 text-sm text-slate-700">{campus.addressLine1}</p>
-                                <p className="mt-2 text-xs text-slate-500">{campus.accessNote}</p>
+                                <strong className="block text-sm font-bold text-fmca-green-dark">{siteInfo.campusName}</strong>
+                                <p className="mt-1 text-sm text-slate-700">{siteInfo.addressLines.join(', ')}</p>
+                                <p className="mt-2 text-xs text-slate-500">{siteInfo.accessNote}</p>
                             </div>
                             <Button asChild className="mt-5 h-12 bg-fmca-green px-5 font-bold text-white shadow-sm hover:bg-fmca-green-dark">
-                                <a href={campus.gpsUrl} target="_blank" rel="noreferrer">
+                                <a href={siteInfo.directionsUrl} target="_blank" rel="noreferrer">
                                     <span>Get GPS directions</span>
                                     <ArrowRight size={16} className="ml-1" aria-hidden="true" />
                                 </a>
@@ -111,36 +71,9 @@ export default function Contact({ submitted }: Props) {
                         </Card>
 
                         <Card className="rounded-2xl border border-fmca-ink/10 bg-white p-6 shadow-xs sm:p-8">
-                            <div className="flex items-center gap-2.5 text-fmca-green">
-                                <Clock3 size={20} aria-hidden="true" />
-                                <h2 className="font-display text-xl font-bold text-fmca-green-dark">Ward visiting hours</h2>
-                            </div>
-                            <div className="mt-5 divide-y divide-fmca-ink/10 text-xs sm:text-sm">
-                                {visitingSlots.map(({ dayRange, morningSlot, eveningSlot, status }) => (
-                                    <div key={dayRange} className="py-3 first:pt-0 last:pb-0">
-                                        <div className="flex items-center justify-between font-semibold text-slate-800">
-                                            <span>{dayRange}</span>
-                                            <span className="rounded-sm bg-fmca-mist px-2 py-0.5 text-[11px] font-bold text-slate-600">{status}</span>
-                                        </div>
-                                        <div className="mt-1.5 grid grid-cols-2 gap-2 text-slate-600">
-                                            <div>
-                                                <span className="block text-[11px] text-slate-400">Morning:</span>
-                                                <span className="font-medium text-slate-700">{morningSlot}</span>
-                                            </div>
-                                            <div>
-                                                <span className="block text-[11px] text-slate-400">Evening:</span>
-                                                <span className="font-medium text-slate-700">{eveningSlot}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                            <div className="mt-5 flex items-start gap-2 rounded-lg border border-amber-200/60 bg-amber-50/70 p-3.5 text-xs text-amber-900">
-                                <ShieldAlert size={17} className="mt-0.5 shrink-0 text-fmca-gold" aria-hidden="true" />
-                                <span>{visitingPolicyNote}</span>
-                            </div>
+                            <VisitingHoursTable slots={siteInfo.visitingHours} note={siteInfo.visitingPolicyNote} />
                             <p className="mt-4 text-xs text-slate-500">
-                                Last reviewed by {contentOwner} · {reviewedAt}.
+                                Last reviewed by {siteInfo.contentOwner} · {siteInfo.reviewedAt}.
                             </p>
                         </Card>
                     </div>

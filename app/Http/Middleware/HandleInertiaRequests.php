@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\BrandAsset;
+use App\Models\InstituteProfile;
 use App\Models\SiteMenuItem;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -50,6 +52,14 @@ class HandleInertiaRequests extends Middleware
                 ->orderBy('sort_order')
                 ->orderBy('label')
                 ->get(['label', 'href', 'sort_order']),
+            // Published brand marks for the public site. A slot with no
+            // published asset stays null so the built-in emblem and the static
+            // public/ icon files take over.
+            'brandIdentity' => BrandAsset::publishedIdentity(),
+            // Published institute profile: the about page, contact details and
+            // campus location. Null until something is published, so the site
+            // keeps its built-in contact constants in the meantime.
+            'instituteProfile' => InstituteProfile::publishedSiteInfo(),
         ];
     }
 }

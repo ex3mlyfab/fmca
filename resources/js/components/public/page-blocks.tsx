@@ -1,6 +1,8 @@
-import { ArrowUpRight, FileText, Info, MapPin, MessageSquare, Phone, ShieldAlert } from 'lucide-react';
+import { ArrowUpRight, FileText, Info, ShieldAlert } from 'lucide-react';
 
-import { contactCards, visitingPolicyNote, visitingSlots, type ContactCard } from '@/lib/contact-info';
+import { ContactCards } from '@/components/public/contact-cards';
+import { VisitingHoursTable } from '@/components/public/visiting-hours';
+import { useSiteInfo } from '@/lib/site-info';
 
 export type PageBlockContent = {
     heading?: string;
@@ -42,36 +44,19 @@ export function PageBlockView({ block }: { block: PageBlockData }) {
     }
 }
 
+import { RichBody } from '@/components/public/rich-body';
+
 function RichTextBlock({ content }: { content: PageBlockContent | null }) {
     if (!content?.body && !content?.heading) {
         return null;
     }
-
-    const body = (content?.body ?? '').trim();
-    const isHtml = /^<[^>\s]/.test(body);
 
     return (
         <section className="space-y-4">
             {content?.heading && (
                 <h2 className="font-display text-2xl font-bold text-fmca-green-dark">{content.heading}</h2>
             )}
-            {isHtml ? (
-                // Stored HTML is sanitized server-side (App\Support\BlockContentSanitizer)
-                // before it reaches the database; the editor's SafeLink extension keeps
-                // link targets internal or http(s) on the way in as well.
-                <div className="fmca-prose max-w-[65ch]" dangerouslySetInnerHTML={{ __html: body }} />
-            ) : body ? (
-                <div className="max-w-[65ch]">
-                    {body
-                        .split('\n')
-                        .filter((line) => line.trim() !== '')
-                        .map((paragraph, index) => (
-                            <p key={index} className="mb-3 text-base leading-relaxed text-slate-700 last:mb-0">
-                                {paragraph}
-                            </p>
-                        ))}
-                </div>
-            ) : null}
+            <RichBody body={content?.body ?? ''} className="max-w-[65ch]" />
         </section>
     );
 }
@@ -232,13 +217,9 @@ function CtaBlock({ content }: { content: PageBlockContent | null }) {
     );
 }
 
-const contactIcons: Record<ContactCard['icon'], typeof MapPin> = {
-    pin: MapPin,
-    phone: Phone,
-    message: MessageSquare,
-};
-
 function ContactPanelBlock({ content }: { content: PageBlockContent | null }) {
+    const siteInfo = useSiteInfo();
+
     return (
         <section className="rounded-xl border border-fmca-ink/10 bg-white p-6 shadow-xs">
             <h2 className="font-display text-xl font-bold text-fmca-green-dark">{content?.title ?? 'How to reach us'}</h2>
@@ -246,55 +227,12 @@ function ContactPanelBlock({ content }: { content: PageBlockContent | null }) {
                 <p className="mt-2 text-sm leading-relaxed text-slate-600">{content.note}</p>
             )}
 
-            <div className="mt-5 grid gap-3 sm:grid-cols-1">
-                {contactCards.map((card) => {
-                    const Icon = contactIcons[card.icon];
-                    return (
-                        <div key={card.title} className="rounded-lg border border-fmca-ink/10 bg-fmca-mist/50 p-4">
-                            <div className="flex items-center gap-2.5">
-                                <Icon size={18} className="text-fmca-teal" aria-hidden="true" />
-                                <h3 className="text-sm font-bold text-fmca-ink">{card.title}</h3>
-                            </div>
-                            <p className="mt-1.5 text-xs leading-relaxed text-slate-600">
-                                {card.description.join(' ')}
-                            </p>
-                            <a
-                                href={card.href}
-                                {...(card.external ? { target: '_blank', rel: 'noreferrer' } : {})}
-                                className="mt-2 inline-block text-xs font-bold text-fmca-green hover:text-fmca-green-dark"
-                            >
-                                {card.hrefLabel}
-                            </a>
-                        </div>
-                    );
-                })}
+            <div className="mt-5">
+                <ContactCards cards={siteInfo.contactCards} variant="row" />
             </div>
 
             <div className="mt-5 rounded-lg border border-fmca-ink/10 p-4">
-                <h3 className="text-sm font-bold text-fmca-ink">Ward visiting schedule</h3>
-                <div className="mt-3 divide-y divide-fmca-ink/10 text-xs sm:text-sm">
-                    {visitingSlots.map((slot) => (
-                        <div key={slot.dayRange} className="py-3 first:pt-0 last:pb-0">
-                            <div className="flex items-center justify-between font-semibold text-slate-800">
-                                <span>{slot.dayRange}</span>
-                                <span className="rounded-sm bg-fmca-mist px-2 py-0.5 text-[11px] font-bold text-slate-600">
-                                    {slot.status}
-                                </span>
-                            </div>
-                            <div className="mt-1.5 grid grid-cols-2 gap-2 text-slate-600">
-                                <div>
-                                    <span className="block text-[11px] text-slate-400">Morning:</span>
-                                    <span className="font-medium text-slate-700">{slot.morningSlot}</span>
-                                </div>
-                                <div>
-                                    <span className="block text-[11px] text-slate-400">Evening:</span>
-                                    <span className="font-medium text-slate-700">{slot.eveningSlot}</span>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-                <p className="mt-3 text-xs leading-relaxed text-slate-500">{visitingPolicyNote}</p>
+                <VisitingHoursTable slots={siteInfo.visitingHours} note={siteInfo.visitingPolicyNote} compact />
             </div>
         </section>
     );

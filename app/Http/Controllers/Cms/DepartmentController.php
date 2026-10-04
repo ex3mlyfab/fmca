@@ -18,6 +18,7 @@ class DepartmentController extends Controller
         return Inertia::render('cms/departments/index', [
             'departments' => Department::query()->orderBy('name')->get(['id', 'name', 'slug', 'summary', 'status']),
             'canCreate' => Gate::allows('create', Department::class),
+            'canPublish' => $this->user()?->hasPermission('publish_departments') ?? false,
         ]);
     }
 
@@ -27,6 +28,7 @@ class DepartmentController extends Controller
 
         return Inertia::render('cms/departments/edit', [
             'department' => null,
+            'canPublish' => $this->user()?->hasPermission('publish_departments') ?? false,
         ]);
     }
 
@@ -41,6 +43,7 @@ class DepartmentController extends Controller
     {
         return Inertia::render('cms/departments/edit', [
             'department' => $department,
+            'canPublish' => $this->user()?->hasPermission('publish_departments') ?? false,
         ]);
     }
 
@@ -49,5 +52,10 @@ class DepartmentController extends Controller
         $department->update($request->validated());
 
         return to_route('cms.departments.index');
+    }
+
+    private function user()
+    {
+        return request()->user();
     }
 }

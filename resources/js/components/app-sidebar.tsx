@@ -1,7 +1,6 @@
 import { Link } from '@inertiajs/react';
-import { ArrowLeftRight, BookOpen, Building2, FileText, FolderGit2, Hospital, Image as ImageIcon, Landmark, LayoutGrid, LayoutTemplate, Megaphone, Navigation, Newspaper, ScrollText, Stethoscope, UserRound } from 'lucide-react';
+import { ArrowLeftRight, Building2, FileText, Handshake, Hospital, Image as ImageIcon, Landmark, LayoutGrid, LayoutTemplate, MapPin, Megaphone, Navigation, Newspaper, Palette, ScrollText, Stethoscope, UserRound } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
-import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import {
@@ -49,6 +48,11 @@ const mainNavItems: NavItem[] = [
         icon: Landmark,
     },
     {
+        title: 'Partners',
+        href: cms.partners.index(),
+        icon: Handshake,
+    },
+    {
         title: 'News',
         href: cms.news.index(),
         icon: Newspaper,
@@ -79,6 +83,16 @@ const mainNavItems: NavItem[] = [
         icon: Navigation,
     },
     {
+        title: 'Brand Identity',
+        href: cms.brandIdentity.index(),
+        icon: Palette,
+    },
+    {
+        title: 'About & Contact',
+        href: cms.instituteProfile.index(),
+        icon: MapPin,
+    },
+    {
         title: 'URL Redirects',
         href: cms.redirects.index(),
         icon: ArrowLeftRight,
@@ -87,19 +101,6 @@ const mainNavItems: NavItem[] = [
         title: 'Audit Log',
         href: cms.audit.index(),
         icon: ScrollText,
-    },
-];
-
-const footerNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: FolderGit2,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
     },
 ];
 
@@ -123,7 +124,6 @@ export function AppSidebar() {
             </SidebarContent>
 
             <SidebarFooter>
-                <NavFooter items={footerNavItems} className="mt-auto" />
                 <NavUser />
             </SidebarFooter>
         </Sidebar>

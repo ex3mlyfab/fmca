@@ -22,14 +22,16 @@ type Department = {
 
 type Props = {
     department: Department;
+    canPublish: boolean;
 };
 
 const fieldErrorClass = 'text-xs font-medium text-fmca-crimson';
 const selectClass =
     'h-11 w-full rounded-md border border-input bg-white px-3 text-sm text-fmca-ink outline-none focus-visible:border-fmca-sky focus-visible:ring-[3px] focus-visible:ring-fmca-sky/40';
 
-export default function DepartmentEditor({ department }: Props) {
+export default function DepartmentEditor({ department, canPublish }: Props) {
     const isEditing = Boolean(department?.id);
+    const canSetStatus = canPublish || department?.status === 'published';
 
     return (
         <>
@@ -136,7 +138,7 @@ export default function DepartmentEditor({ department }: Props) {
                                         <Label htmlFor="status">Publication status</Label>
                                         <select id="status" name="status" defaultValue={department?.status ?? 'draft'} className={selectClass}>
                                             <option value="draft">Draft (hidden from public site)</option>
-                                            <option value="published">Published (visible publicly)</option>
+                                            {canSetStatus && <option value="published">Published (visible publicly)</option>}
                                         </select>
                                     </div>
 

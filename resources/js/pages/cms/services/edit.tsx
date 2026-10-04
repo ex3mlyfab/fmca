@@ -30,14 +30,16 @@ type Service = {
 type Props = {
     service: Service;
     departments: Department[];
+    canPublish: boolean;
 };
 
 const fieldErrorClass = 'text-xs font-medium text-fmca-crimson';
 const selectClass =
     'h-11 w-full rounded-md border border-input bg-white px-3 text-sm text-fmca-ink outline-none focus-visible:border-fmca-sky focus-visible:ring-[3px] focus-visible:ring-fmca-sky/40';
 
-export default function ServiceEditor({ service, departments }: Props) {
+export default function ServiceEditor({ service, departments, canPublish }: Props) {
     const isEditing = Boolean(service?.id);
+    const canSetStatus = canPublish || service?.status === 'published';
 
     return (
         <>
@@ -164,7 +166,7 @@ export default function ServiceEditor({ service, departments }: Props) {
                                         <Label htmlFor="status">Publication status</Label>
                                         <select id="status" name="status" defaultValue={service?.status ?? 'draft'} className={selectClass}>
                                             <option value="draft">Draft (hidden from public site)</option>
-                                            <option value="published">Published (visible publicly)</option>
+                                            {canSetStatus && <option value="published">Published (visible publicly)</option>}
                                         </select>
                                     </div>
 

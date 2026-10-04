@@ -1,10 +1,13 @@
 import { Link, usePage } from '@inertiajs/react';
+import type { BrandAsset } from '@inertiajs/core';
 import { CalendarPlus, Home, MapPin, Menu, PhoneCall, Search, Stethoscope, X } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { appointments, contact, consultants, home, legal, news, patients, search, services } from '@/routes';
+import { useSiteInfo } from '@/lib/site-info';
+import { appointments, contact, consultants, home, legal, news, patients, search, services, about as aboutPage } from '@/routes';
 import about from '@/routes/about';
+import pageRoutes from '@/routes/page';
 
 // The header navigation is content-managed: editors add, reorder, edit and
 // unpublish entries in the Content Studio "Site Menu" workspace. Only
@@ -25,9 +28,33 @@ export function FmcaEmblem({ className = 'size-11' }: { className?: string }) {
     );
 }
 
+/**
+ * CMS-managed brand mark. A published logo asset replaces the built-in
+ * emblem; an empty or unpublished slot falls back to the emblem so the site
+ * never ships without a mark. The height is pinned and the width is allowed
+ * to flow, so a wordmark keeps the header row aligned with the emblem state.
+ */
+function BrandMark({
+    slot,
+    fallbackClassName,
+    imageClassName,
+}: {
+    slot: BrandAsset | null | undefined;
+    fallbackClassName: string;
+    imageClassName: string;
+}) {
+    if (slot === null || slot === undefined) {
+        return <FmcaEmblem className={fallbackClassName} />;
+    }
+
+    return <img src={slot.url} alt={slot.alt || 'Federal Medical Centre, Abuja'} className={imageClassName} />;
+}
+
 export function SiteShell({ children }: { children: React.ReactNode }) {
     const [open, setOpen] = useState(false);
     const navigation = usePage().props.siteMenu ?? [];
+    const brandIdentity = usePage().props.brandIdentity ?? {};
+    const siteInfo = useSiteInfo();
 
     return (
         <div className="min-h-screen bg-white text-fmca-ink">
@@ -37,13 +64,17 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
             <div className="hidden bg-fmca-green-dark text-white lg:block">
                 <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-2 text-xs font-medium tracking-wide">
                     <span>Federal Republic of Nigeria | Federal Medical Centre, Abuja</span>
-                    <span className="flex items-center gap-5"><span>Abuja, Nigeria</span><span>Patient desk: Verified dispatch line</span></span>
+                    <span className="flex items-center gap-5"><span>Abuja, Nigeria</span><span>Patient desk: {siteInfo.emergencyLabel}</span></span>
                 </div>
             </div>
             <header className="sticky top-0 z-40 border-b border-fmca-ink/10 bg-white/95 backdrop-blur-sm">
                 <div className="mx-auto flex h-18 max-w-7xl items-center justify-between gap-5 px-4 sm:px-6">
                     <Link href={home()} className="flex min-w-0 items-center gap-3" aria-label="FMCA home">
-                        <FmcaEmblem className="size-11 shrink-0" />
+                        <BrandMark
+                            slot={brandIdentity.header_logo}
+                            fallbackClassName="size-11 shrink-0"
+                            imageClassName="h-11 w-auto max-w-[280px] shrink-0 object-contain"
+                        />
                         <span className="min-w-0 leading-tight">
                             <strong className="block truncate font-display text-sm text-fmca-green-dark sm:text-base">Federal Medical Centre</strong>
                             <span className="block text-[11px] font-semibold tracking-[0.12em] text-slate-500">ABUJA | FMCA</span>
@@ -65,7 +96,7 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
                         <Button asChild className="hidden h-12 bg-fmca-green px-5 hover:bg-fmca-green-dark sm:inline-flex">
                             <Link href={appointments()}>Request an appointment</Link>
                         </Button>
-                        <a href="tel:+2340000000000" className="hidden min-h-12 items-center gap-2 rounded-md bg-fmca-crimson px-4 text-sm font-bold text-white hover:bg-red-700 lg:inline-flex">
+                        <a href={siteInfo.emergencyTel} className="hidden min-h-12 items-center gap-2 rounded-md bg-fmca-crimson px-4 text-sm font-bold text-white hover:bg-red-700 lg:inline-flex">
                             <PhoneCall size={17} /> SOS
                         </a>
                         <Sheet open={open} onOpenChange={setOpen}>
@@ -80,7 +111,7 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
                                             {item.label}
                                         </a>
                                     ))}
-                                    <a href="tel:+2340000000000" className="mt-5 flex min-h-14 items-center justify-center gap-2 rounded-md bg-fmca-crimson font-bold text-white">
+                                    <a href={siteInfo.emergencyTel} className="mt-5 flex min-h-14 items-center justify-center gap-2 rounded-md bg-fmca-crimson font-bold text-white">
                                         <PhoneCall size={18} /> Emergency contact
                                     </a>
                                     <Link
@@ -108,7 +139,11 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
                 <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.5fr_1fr_1fr_1.2fr]">
                     <div>
                         <div className="flex items-center gap-3">
-                            <FmcaEmblem className="size-10 shrink-0" />
+                            <BrandMark
+                                slot={brandIdentity.footer_logo}
+                                fallbackClassName="size-10 shrink-0"
+                                imageClassName="h-10 w-auto max-w-[240px] shrink-0 object-contain"
+                            />
                             <strong className="font-display text-lg">Federal Medical Centre, Abuja</strong>
                         </div>
                         <p className="mt-5 max-w-xs text-sm leading-6 text-white/70">
@@ -118,7 +153,7 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
                     <FooterGroup
                         title="Explore"
                         links={[
-                            { label: 'About FMCA', href: home() },
+                            { label: 'About FMCA', href: aboutPage() },
                             { label: 'Services', href: services() },
                             { label: 'Consultants', href: consultants() },
                             { label: 'Top Management Committee', href: about.leadership() },
@@ -141,7 +176,7 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
                         <p className="mt-4 text-sm leading-6 text-white/70">
                             Campus access and contact details are verified by the FMCA Communications and Clinical desks.
                         </p>
-                        <a href="tel:+2340000000000" className="mt-5 inline-flex min-h-12 items-center gap-2 font-semibold text-white underline underline-offset-4">
+                        <a href={siteInfo.emergencyTel} className="mt-5 inline-flex min-h-12 items-center gap-2 font-semibold text-white underline underline-offset-4">
                             <PhoneCall size={17} /> Emergency contact
                         </a>
                     </div>
@@ -150,8 +185,8 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
                     <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-5 text-xs text-white/60 sm:px-6 md:flex-row md:items-center md:justify-between">
                         <span>© 2026 Federal Medical Centre, Abuja. All rights reserved.</span>
                         <span className="flex gap-5">
-                            <a href="#privacy" className="hover:text-white">Privacy</a>
-                            <a href="#accessibility" className="hover:text-white">Accessibility</a>
+                            <Link href={pageRoutes.legal('privacy-statement')} className="hover:text-white">Privacy</Link>
+                            <Link href={pageRoutes.legal('accessibility-statement')} className="hover:text-white">Accessibility</Link>
                         </span>
                     </div>
                 </div>
@@ -165,7 +200,7 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
                     <Stethoscope size={19} />
                     <span>Services</span>
                 </a>
-                <a href="tel:+2340000000000" className="flex min-h-12 flex-col items-center justify-center gap-1 text-[11px] font-semibold text-fmca-crimson">
+                <a href={siteInfo.emergencyTel} className="flex min-h-12 flex-col items-center justify-center gap-1 text-[11px] font-semibold text-fmca-crimson">
                     <PhoneCall size={19} />
                     <span>SOS</span>
                 </a>
