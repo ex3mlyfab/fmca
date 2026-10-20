@@ -128,11 +128,12 @@ class HomepageController extends Controller
             abort(403);
         }
 
+        $homeConfiguration->delete();
+
         ContentRevision::query()
             ->where('content_type', 'home')
             ->where('content_id', $homeConfiguration->id)
             ->delete();
-        $homeConfiguration->delete();
 
         AuditLog::log(AuditLog::ACTION_DELETED, $request->user()->id, 'home', $homeConfiguration->id, 'Homepage configuration deleted');
 

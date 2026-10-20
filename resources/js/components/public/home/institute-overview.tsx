@@ -37,22 +37,22 @@ export function InstituteOverview({
     intro = 'A federal tertiary institution, its purpose, and the office that stewards it.',
     historyEyebrow = 'Institutional Legacy',
     historyHeading = 'History',
-    history = 'Federal Medical Centre, Abuja carries a federal tertiary mandate: advanced referral-level clinical care, postgraduate medical training, and the public-health leadership the capital region depends on.',
+    history = 'The Federal Medical Centre, Abuja was established on the 7th of June, 2012 but was fully commissioned by the President, Federal Republic of Nigeria, on 28th of January, 2013. The Medical Centre has recorded unprecedented growth and development. 0x0D; Today, we are now a Postgraduate Training Centre with Major Institutional Divisions and Clinical Departments as well as subspecialties.',
     visionHeading = 'Vision',
-    vision = 'To be a trusted centre of clinical excellence where advanced care, research, and postgraduate training set the national standard.',
+    vision = 'To be a world-class hospital for rendering quality healthcare through team work; and leverage on cutting edge technology to enhance research, training and innovation in healthcare provision.',
     missionHeading = 'Mission',
-    mission = 'To deliver safe, high-quality tertiary medical care and train the next generation of specialist clinicians.',
+    mission = 'To deliver the highest quality patient care with a strong commitment to clinical excellence and patient satisfaction.',
     leadershipEyebrow = 'Hospital Leadership',
     leadName = 'Medical Director',
     leadRole = '',
     leadMessage = 'Clinical governance, continuity of care, and the accountability of this institution sit with the medical leadership of FMCA Abuja.',
-    leadPortrait = null,
+    leadPortrait = '/storage/media/2026/10/6YmXLVYV7jEMSl9gmVECW6ghvdwiLg6JuvsrWMHI.jpg',
     leadPortraitAlt = 'Portrait of the Medical Director',
     leadershipLinkHref = '/about/leadership',
     leadershipLinkLabel = 'Meet the top management committee',
 }: InstituteOverviewProps) {
     return (
-        <section id="overview" className="bg-fmca-mist px-4 py-14 sm:px-6 lg:py-20" aria-labelledby="overview-heading">
+        <section id="overview" className="bg-fmca-mist px-4 py-14 sm:px-6 lg:py-20" aria-labelledby="overview-heading" style={{ backgroundImage: "url('/bg/indigo.png')", backgroundRepeat: 'no-repeat', backgroundPosition: 'top right', backgroundSize: 'auto 100%' }}>
             <div className="mx-auto max-w-7xl">
                 <div className="max-w-2xl">
                     <div className="inline-flex items-center gap-2 rounded-md border border-emerald-200/80 bg-emerald-50 px-2.5 py-1 text-xs font-bold text-fmca-green">
@@ -68,6 +68,62 @@ export function InstituteOverview({
                 </div>
 
                 <div className="mt-10 grid gap-6 lg:grid-cols-2 lg:gap-8">
+                    
+
+                    <article className="overflow-hidden rounded-xl border border-fmca-ink/10 bg-white shadow-xs">
+                        <div className="relative min-h-[18rem] bg-fmca-mist text-fmca-green sm:min-h-[24rem] lg:min-h-[26rem]">
+                            {leadPortrait ? (
+                                <img
+                                    src={leadPortrait}
+                                    alt={leadPortraitAlt}
+                                    className="absolute inset-0 h-full w-full object-cover"
+                                />
+                            ) : (
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <UserRound size={48} aria-hidden="true" />
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="flex flex-col p-6 sm:p-8">
+                            <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-fmca-green">
+                                <UserRound size={16} aria-hidden="true" />
+                                <span>{leadershipEyebrow}</span>
+                            </div>
+
+                            <div className="mt-6 min-w-0">
+                                <h3 id="overview-lead-name" className="font-display text-2xl font-bold leading-tight text-fmca-green-dark">
+                                    {leadName}
+                                </h3>
+                                {leadRole && (
+                                    <p className="mt-1 text-sm font-semibold text-slate-600">
+                                        {leadRole}
+                                    </p>
+                                )}
+                                {!leadPortrait && (
+                                    <p className="mt-2 text-xs text-slate-500">
+                                        Portrait to be confirmed
+                                    </p>
+                                )}
+                            </div>
+
+                            {leadMessage && (
+                                <blockquote className="mt-6 border-l-2 border-fmca-green/30 pl-4">
+                                    <p className="text-sm leading-relaxed text-slate-600 sm:text-base">
+                                        {leadMessage}
+                                    </p>
+                                </blockquote>
+                            )}
+
+                            <a
+                                href={leadershipLinkHref}
+                                className="mt-auto inline-flex min-h-12 items-center gap-2 rounded-md pt-6 text-sm font-bold text-fmca-green transition-colors hover:text-fmca-green-dark focus-visible:ring-2 focus-visible:ring-fmca-sky focus-visible:ring-offset-2"
+                            >
+                                <span>{leadershipLinkLabel}</span>
+                                <ArrowRight size={16} aria-hidden="true" />
+                            </a>
+                        </div>
+                    </article>
                     <article className="flex flex-col rounded-xl border border-fmca-ink/10 bg-white p-6 shadow-xs sm:p-8">
                         <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-fmca-green">
                             <Eye size={16} aria-hidden="true" />
@@ -109,59 +165,6 @@ export function InstituteOverview({
                                 </div>
                             </div>
                         </div>
-                    </article>
-
-                    <article className="flex flex-col rounded-xl border border-fmca-ink/10 bg-white p-6 shadow-xs sm:p-8">
-                        <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-fmca-green">
-                            <UserRound size={16} aria-hidden="true" />
-                            <span>{leadershipEyebrow}</span>
-                        </div>
-
-                        <div className="mt-6 flex flex-col gap-5 sm:flex-row sm:items-start">
-                            <div className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-fmca-ink/10 bg-fmca-mist text-fmca-green">
-                                {leadPortrait ? (
-                                    <img
-                                        src={leadPortrait}
-                                        alt={leadPortraitAlt}
-                                        className="h-full w-full object-cover"
-                                    />
-                                ) : (
-                                    <UserRound size={32} aria-hidden="true" />
-                                )}
-                            </div>
-
-                            <div className="min-w-0">
-                                <h3 id="overview-lead-name" className="font-display text-2xl font-bold leading-tight text-fmca-green-dark">
-                                    {leadName}
-                                </h3>
-                                {leadRole && (
-                                    <p className="mt-1 text-sm font-semibold text-slate-600">
-                                        {leadRole}
-                                    </p>
-                                )}
-                                {!leadPortrait && (
-                                    <p className="mt-2 text-xs text-slate-500">
-                                        Portrait to be confirmed
-                                    </p>
-                                )}
-                            </div>
-                        </div>
-
-                        {leadMessage && (
-                            <blockquote className="mt-6 border-l-2 border-fmca-green/30 pl-4">
-                                <p className="text-sm leading-relaxed text-slate-600 sm:text-base">
-                                    {leadMessage}
-                                </p>
-                            </blockquote>
-                        )}
-
-                        <a
-                            href={leadershipLinkHref}
-                            className="mt-auto inline-flex min-h-12 items-center gap-2 rounded-md pt-6 text-sm font-bold text-fmca-green transition-colors hover:text-fmca-green-dark focus-visible:ring-2 focus-visible:ring-fmca-sky focus-visible:ring-offset-2"
-                        >
-                            <span>{leadershipLinkLabel}</span>
-                            <ArrowRight size={16} aria-hidden="true" />
-                        </a>
                     </article>
                 </div>
             </div>

@@ -80,6 +80,39 @@ test('an editor creates a news item', function () {
     ]);
 });
 
+test('news article rich text is sanitized before storage on create and update', function () {
+    $editor = User::factory()->withRole('communications_editor')->create();
+    $category = Category::factory()->create();
+    $body = '<h2>Meeting details</h2><p>Visitors <strong>must</strong> register.</p>'
+        .'<script>alert(1)</script><a href="javascript:alert(1)">unsafe link</a>'
+        .'<a href="/visit">Plan a visit</a>';
+
+    $this->actingAs($editor)->post(route('cms.news.store'), [
+        ...postPayload(),
+        'body' => $body,
+        'category_id' => $category->id,
+    ])->assertRedirect();
+
+    $post = Post::query()->where('slug', 'staff-meeting-notice')->firstOrFail();
+    expect($post->body)
+        ->toContain('<h2>Meeting details</h2>')
+        ->toContain('<strong>must</strong>')
+        ->toContain('<a href="/visit">Plan a visit</a>')
+        ->not->toContain('<script')
+        ->not->toContain('javascript:');
+
+    $this->actingAs($editor)->put(route('cms.news.update', ['post' => $post->id]), [
+        ...postPayload($post),
+        'body' => '<p>Updated text.</p><iframe src="https://evil.example"></iframe>',
+        'category_id' => $category->id,
+    ])->assertRedirect(route('cms.news.index'));
+
+    expect($post->fresh()->body)
+        ->toContain('<p>Updated text.</p>')
+        ->not->toContain('<iframe')
+        ->not->toContain('evil.example');
+});
+
 test('a news item can be created as published by an editor with publish rights', function () {
     $editor = User::factory()->withRole('communications_editor')->create();
 

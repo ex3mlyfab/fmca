@@ -63,6 +63,7 @@ class HomeController extends Controller
                 ->published()
                 ->orderBy('sort_order')
                 ->orderBy('name')
+                ->limit(8)
                 ->get()
                 ->map(fn (Partner $partner): array => [
                     'id' => $partner->id,

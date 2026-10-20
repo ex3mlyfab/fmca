@@ -134,6 +134,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('cms/media/{media}', [MediaController::class, 'edit'])->name('cms.media.edit');
         Route::put('cms/media/{media}', [MediaController::class, 'update'])->name('cms.media.update');
         Route::delete('cms/media/{media}', [MediaController::class, 'destroy'])->name('cms.media.destroy');
+        Route::post('cms/media/bulk-delete', [MediaController::class, 'bulkDelete'])->name('cms.media.bulk-delete');
     });
 
     Route::middleware('can:viewAny,'.Document::class)->group(function (): void {

@@ -69,6 +69,13 @@ describe('rich text editor', () => {
         expect(paragraph?.getAttribute('data-placeholder')).toBe('Draft the notice…');
     });
 
+    it('marks the editing surface invalid for form validation errors', async () => {
+        const { container } = await mountEditor(<RichTextEditor invalid label="Full text" />);
+
+        expect(container.querySelector('[role="textbox"]')).toHaveAttribute('aria-invalid', 'true');
+        expect(container.firstElementChild).toHaveClass('border-fmca-crimson');
+    });
+
     it('syncs the document when the parent hands down a new value', async () => {
         function Harness() {
             const [html, setHtml] = useState('');

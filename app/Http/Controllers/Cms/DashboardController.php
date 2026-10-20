@@ -16,6 +16,7 @@ use App\Models\Media;
 use App\Models\Page;
 use App\Models\Post;
 use App\Models\Service;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Inertia\Inertia;
@@ -169,7 +170,15 @@ class DashboardController extends Controller
         $open = 'new';
 
         /** @var Collection<Model> $requests */
-        $requests = $model::query()->where('status', $open)->latest()->take(6)->get();
+        $requests = $model::query()
+            ->where('status', $open)
+            ->latest()
+            ->take(6)
+            ->when(
+                $model === AppointmentRequest::class,
+                fn (Builder $query) => $query->with('department:id,name'),
+            )
+            ->get();
 
         return [
             'newCount' => $model::query()->where('status', $open)->count(),

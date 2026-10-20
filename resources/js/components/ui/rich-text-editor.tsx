@@ -67,6 +67,8 @@ type RichTextEditorProps = {
     placeholder?: string;
     /** Accessible name for the editing surface. */
     label?: string;
+    /** Marks the editing surface invalid when its value fails validation. */
+    invalid?: boolean;
     className?: string;
 };
 
@@ -86,6 +88,7 @@ export function RichTextEditor({
     onContentChange,
     placeholder = 'Write the content…',
     label,
+    invalid = false,
     className,
 }: RichTextEditorProps) {
     const onChangeRef = useRef(onContentChange);
@@ -108,6 +111,7 @@ export function RichTextEditor({
             attributes: {
                 role: 'textbox',
                 'aria-multiline': 'true',
+                'aria-invalid': invalid ? 'true' : 'false',
                 ...(label ? { 'aria-label': label } : {}),
             },
         },
@@ -349,7 +353,13 @@ export function RichTextEditor({
             : [];
 
     return (
-        <div className={cn('overflow-hidden rounded-lg border border-input bg-white shadow-xs', className)}>
+        <div
+            className={cn(
+                'overflow-hidden rounded-lg border border-input bg-white shadow-xs',
+                invalid && 'border-fmca-crimson',
+                className,
+            )}
+        >
             <div
                 role="toolbar"
                 aria-label="Text formatting"
@@ -409,7 +419,7 @@ function ToolbarButton({ item }: { item: ToolbarItem }) {
                     aria-pressed={item.pressed}
                     title={item.shortcut ? `${item.label} (${item.shortcut})` : item.label}
                     className={cn(
-                        'flex h-10 w-10 items-center justify-center rounded-md text-slate-600 transition-colors hover:bg-white hover:text-fmca-green-dark active:translate-y-px focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-fmca-sky/40',
+                        'flex h-12 w-12 items-center justify-center rounded-md text-slate-600 transition-colors hover:bg-white hover:text-fmca-green-dark active:translate-y-px focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-fmca-sky/40',
                         item.pressed && 'bg-fmca-green/10 text-fmca-green-dark',
                         item.dimmed && 'cursor-not-allowed opacity-40',
                     )}

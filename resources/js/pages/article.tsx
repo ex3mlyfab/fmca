@@ -1,6 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import { ArrowRight, CalendarDays, CheckCircle2, Clock3, Newspaper, PenLine } from 'lucide-react';
 import { SiteShell } from '@/components/public/site-shell';
+import { RichBody } from '@/components/public/rich-body';
 import { Badge } from '@/components/ui/badge';
 import { news } from '@/routes';
 import newsRoutes from '@/routes/news';
@@ -97,11 +98,7 @@ export default function Article({ post, related }: Props) {
                         </figure>
                     )}
                     <div className="grid gap-8 lg:grid-cols-[2fr_1fr]">
-                        <div>
-                            <p className="max-w-[65ch] whitespace-pre-line text-base leading-relaxed text-slate-700">
-                                {post.body}
-                            </p>
-                        </div>
+                        <RichBody body={post.body} className="max-w-[65ch]" />
 
                         <aside className="space-y-4">
                             {related.length > 0 && (

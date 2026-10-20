@@ -47,6 +47,7 @@ describe('institute overview', () => {
 
         const portrait = screen.getByRole('img', { name: 'Portrait of the Medical Director' });
         expect(portrait).toHaveAttribute('src', '/media/medical-director.webp');
+        expect(portrait.parentElement).toHaveClass('min-h-[18rem]', 'lg:min-h-[26rem]');
         expect(screen.getByText('Federal Executive Director')).toBeInTheDocument();
         expect(screen.queryByText('Portrait to be confirmed')).not.toBeInTheDocument();
     });

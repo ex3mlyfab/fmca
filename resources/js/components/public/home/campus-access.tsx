@@ -18,10 +18,10 @@ export function CampusAccess() {
                         <div>
                             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-300">
                                 <Navigation size={16} aria-hidden="true" />
-                                <span>Campus Location & Wayfinding</span>
+                                <span>Hospital Location & Wayfinding</span>
                             </div>
                             <h2 id="campus-access-heading" className="mt-4 font-display text-2xl font-bold sm:text-3xl">
-                                Find your way to the FMCA Campus
+                                Find your way to the FMC Abuja
                             </h2>
                             <p className="mt-3 text-sm leading-relaxed text-white/85 sm:text-base">
                                 Located in the Federal Capital Territory, with dedicated emergency vehicle access, patient drop-off zones, and secure visitor parking.

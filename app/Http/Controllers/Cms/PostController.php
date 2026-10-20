@@ -7,6 +7,7 @@ use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Models\Category;
 use App\Models\Post;
+use App\Support\BlockContentSanitizer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
@@ -38,7 +39,9 @@ class PostController extends Controller
 
     public function store(StorePostRequest $request): RedirectResponse
     {
-        $post = Post::query()->create($request->validated());
+        $data = $request->validated();
+        $data['body'] = BlockContentSanitizer::richTextBody($data['body']);
+        $post = Post::query()->create($data);
 
         return to_route('cms.news.edit', ['post' => $post->id]);
     }
@@ -53,7 +56,9 @@ class PostController extends Controller
 
     public function update(UpdatePostRequest $request, Post $post): RedirectResponse
     {
-        $post->update($request->validated());
+        $data = $request->validated();
+        $data['body'] = BlockContentSanitizer::richTextBody($data['body']);
+        $post->update($data);
 
         return to_route('cms.news.index');
     }

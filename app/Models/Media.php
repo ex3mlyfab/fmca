@@ -16,6 +16,9 @@ class Media extends Model
         'kind',
         'file_name',
         'file_path',
+        'thumbnail_path',
+        'medium_path',
+        'large_path',
         'mime_type',
         'size_bytes',
         'alt_text',
@@ -39,9 +42,22 @@ class Media extends Model
 
     /**
      * The public URL of the stored asset.
+     *
+     * @param  string  $size  original, thumbnail, medium, or large
      */
-    public function url(): string
+    public function url(string $size = 'original'): string
     {
-        return Storage::disk('public')->url($this->file_path);
+        $path = match ($size) {
+            'thumbnail' => $this->thumbnail_path,
+            'medium' => $this->medium_path,
+            'large' => $this->large_path,
+            default => $this->file_path,
+        };
+
+        if (! $path) {
+            $path = $this->file_path;
+        }
+
+        return Storage::disk('public')->url($path);
     }
 }

@@ -1,32 +1,72 @@
-// Credit: https://usehooks-ts.com/
-import { useState } from 'react';
+// Adapted from https://www.shadcn.io/hooks/use-copy-to-clipboard
+import { useCallback, useEffect, useRef, useState } from 'react';
 
-export type CopiedValue = string | null;
-export type CopyFn = (text: string) => Promise<boolean>;
-export type UseClipboardReturn = [CopiedValue, CopyFn];
+export type UseCopyToClipboardReturn = [
+    copy: (text: string) => Promise<void>,
+    isCopied: boolean,
+];
 
-export function useClipboard(): UseClipboardReturn {
-    const [copiedText, setCopiedText] = useState<CopiedValue>(null);
+export function useCopyToClipboard(resetDelay = 2000): UseCopyToClipboardReturn {
+    const [isCopied, setIsCopied] = useState(false);
+    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    const copy: CopyFn = async (text) => {
-        if (!navigator?.clipboard) {
-            console.warn('Clipboard not supported');
+    useEffect(() => {
+        return () => {
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
+        };
+    }, []);
 
-            return false;
-        }
+    const copy = useCallback(
+        async (text: string) => {
+            if (!navigator?.clipboard) {
+                // Fallback for non-secure contexts
+                try {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = text;
+                    textArea.style.position = 'fixed';
+                    textArea.style.left = '-//9999px';
+                    textArea.style.top = '0';
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    setIsCopied(true);
+                    
+                    if (timeoutRef.current) {
+                        clearTimeout(timeoutRef.current);
+                    }
 
-        try {
-            await navigator.clipboard.writeText(text);
-            setCopiedText(text);
+                    timeoutRef.current = setTimeout(() => {
+                        setIsCopied(false);
+                    }, resetDelay);
+                } catch (err) {
+                    console.error('Fallback copy failed', err);
+                }
+                return;
+            }
 
-            return true;
-        } catch (error) {
-            console.warn('Copy failed', error);
-            setCopiedText(null);
+            try {
+                await navigator.clipboard.writeText(text);
+                setIsCopied(true);
 
-            return false;
-        }
-    };
+                if (timeoutRef.current) {
+                    clearTimeout(timeoutRef.current);
+                }
 
-    return [copiedText, copy];
+                timeoutRef.current = setTimeout(() => {
+                    setIsCopied(false);
+                }, resetDelay);
+            } catch (err) {
+                console.error('Clipboard copy failed', err);
+            }
+        },
+        [resetDelay],
+    );
+
+    return [copy, isCopied];
 }
+
+export default useCopyToClipboard;

@@ -10,6 +10,9 @@ type Media = {
     label: string;
     kind: string;
     url: string;
+    thumbnailUrl: string;
+    mediumUrl: string;
+    largeUrl: string;
     fileName: string;
     altText?: string | null;
     owner?: string | null;
@@ -56,7 +59,7 @@ export default function MediaEditor({ media }: Props) {
                                 <video src={media.url} controls className="h-24 rounded-lg border border-fmca-ink/10 bg-slate-900 object-cover" preload="metadata" />
                             ) : (
                                 <img
-                                    src={media.url}
+                                    src={media.mediumUrl}
                                     alt={media.altText ?? media.label}
                                     className="h-24 rounded-lg border border-fmca-ink/10 object-cover"
                                 />

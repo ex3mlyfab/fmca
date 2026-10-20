@@ -1,8 +1,10 @@
 import { Form, Head, Link } from '@inertiajs/react';
+import { useState } from 'react';
 import { ArrowLeft, ArrowUpRight, CheckCircle2, Globe, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { StatusChip } from '@/pages/cms/departments';
 import cmsNews from '@/routes/cms/news';
 import cmsMedia from '@/routes/cms/media';
@@ -42,6 +44,7 @@ const selectClass =
 
 export default function NewsEditor({ post, categories }: Props) {
     const isEditing = Boolean(post?.id);
+    const [body, setBody] = useState(post?.body ?? '');
 
     return (
         <>
@@ -158,19 +161,19 @@ export default function NewsEditor({ post, categories }: Props) {
                                     </div>
 
                                     <div className="grid gap-1.5">
-                                        <Label htmlFor="body">
+                                        <Label>
                                             Full text <span className="text-fmca-crimson">*</span>
                                         </Label>
-                                        <textarea
-                                            id="body"
-                                            name="body"
-                                            defaultValue={post?.body ?? ''}
-                                            rows={8}
-                                            aria-invalid={Boolean(errors.body)}
-                                            className="w-full rounded-md border border-input bg-white px-3 py-2 text-sm text-fmca-ink outline-none focus-visible:border-fmca-sky focus-visible:ring-[3px] focus-visible:ring-fmca-sky/40"
+                                        <RichTextEditor
+                                            value={body}
+                                            onContentChange={setBody}
+                                            label="Full text"
+                                            placeholder="Write the article body. Use the toolbar to format it."
+                                            invalid={Boolean(errors.body)}
                                         />
-                                        {errors.body && <p className={fieldErrorClass}>{errors.body}</p>}
-                                        <p className="text-xs text-slate-500">Plain text with line breaks. Do not state fees, availability or clinical advice.</p>
+                                        <input type="hidden" name="body" value={body} />
+                                        {errors.body && <p role="alert" className={fieldErrorClass}>{errors.body}</p>}
+                                        <p className="text-xs text-slate-500">Do not state fees, availability or clinical advice.</p>
                                     </div>
 
                                     <div className="border-t border-fmca-ink/10 pt-5">

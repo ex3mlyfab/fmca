@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/input-otp';
 import { Spinner } from '@/components/ui/spinner';
 import { useAppearance } from '@/hooks/use-appearance';
-import { useClipboard } from '@/hooks/use-clipboard';
+import { useCopyToClipboard } from '@/hooks/use-clipboard';
 import { OTP_MAX_LENGTH } from '@/hooks/use-two-factor-auth';
 import { confirm } from '@/routes/two-factor';
 
@@ -63,8 +63,8 @@ function TwoFactorSetupStep({
     errors: string[];
 }) {
     const { resolvedAppearance } = useAppearance();
-    const [copiedText, copy] = useClipboard();
-    const IconComponent = copiedText === manualSetupKey ? Check : Copy;
+    const [copy, isCopied] = useCopyToClipboard();
+    const IconComponent = isCopied ? Check : Copy;
 
     return (
         <>

@@ -120,6 +120,27 @@ test('the public news detail page shows a published post with related items', fu
                 && ! collect($related)->pluck('slug')->contains('related-draft')));
 });
 
+test('the public article safely renders stored rich text and keeps legacy plain text', function () {
+    $richPost = Post::factory()->published()->create([
+        'slug' => 'formatted-story',
+        'body' => '<p>Approved <strong>news</strong>.</p><script>alert(1)</script>',
+    ]);
+    $plainPost = Post::factory()->published()->create([
+        'slug' => 'plain-story',
+        'body' => "Line one\nLine two",
+    ]);
+
+    $this->get(route('news.show', ['slug' => $richPost->slug]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->component('article')
+            ->where('post.body', '<p>Approved <strong>news</strong>.</p>'));
+
+    $this->get(route('news.show', ['slug' => $plainPost->slug]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->component('article')
+            ->where('post.body', "Line one\nLine two"));
+});
+
 test('an unknown news slug renders the 404 page', function () {
     $this->get(route('news.show', ['slug' => 'no-such-story']))
         ->assertNotFound()

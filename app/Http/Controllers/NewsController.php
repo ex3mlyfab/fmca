@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Post;
 use App\Models\SeoMetadata;
+use App\Support\BlockContentSanitizer;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -79,7 +80,7 @@ class NewsController extends Controller
                 'title' => $post->title,
                 'slug' => $post->slug,
                 'summary' => $post->summary,
-                'body' => $post->body,
+                'body' => BlockContentSanitizer::richTextBody($post->body),
                 'featureImage' => $post->feature_image,
                 'featureImageAlt' => $post->feature_image_alt,
                 'author' => $post->author,

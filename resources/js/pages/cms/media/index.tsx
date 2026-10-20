@@ -1,14 +1,45 @@
-import { Form, Head, Link } from '@inertiajs/react';
-import { Image as ImageIcon, Inbox, PencilLine, Plus, Trash2, UploadCloud, Video } from 'lucide-react';
+import { Form, Head, Link, router } from '@inertiajs/react';
+import { Check, Copy, Image as ImageIcon, Inbox, PencilLine, Plus, Trash2, Video, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { useState } from 'react';
+import { useCopyToClipboard } from '@/hooks/use-clipboard';
 import cmsMedia from '@/routes/cms/media';
+import MediaUploadModal from '@/components/MediaUploadModal';
+
+function MediaCopyButton({ url }: { url: string }) {
+    const [copy, isCopied] = useCopyToClipboard();
+
+    return (
+        <button
+            onClick={async () => {
+                if (url) {
+                    await copy(url);
+                }
+            }}
+            disabled={false}
+            className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-md border border-fmca-ink/15 bg-white px-3 text-sm font-bold text-fmca-ink transition-colors hover:bg-fmca-mist focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fmca-sky"
+            title="Copy link"
+        >
+            {isCopied ? (
+                <Check size={15} aria-hidden="true" />
+            ) : (
+                <Copy size={15} aria-hidden="true" />
+            )}
+            <span className="sr-only">Copy link</span>
+        </button>
+    );
+}
 
 type MediaItem = {
     id: number;
     label: string;
     kind: string;
     url: string;
+    thumbnailUrl: string;
+    mediumUrl: string;
+    largeUrl: string;
     fileName: string;
     sizeBytes?: number | null;
     altText?: string | null;
@@ -20,13 +51,19 @@ type MediaItem = {
 type Props = {
     media: MediaItem[];
     canUpload: boolean;
+    pagination: {
+        currentPage: number;
+        lastPage: number;
+        perPage: number;
+        total: number;
+    };
+    filters: {
+        search: string;
+        kind: string;
+    };
 };
 
 const fieldErrorClass = 'text-xs font-medium text-fmca-crimson';
-const selectClass =
-    'h-11 w-full rounded-md border border-input bg-white px-3 text-sm text-fmca-ink outline-none focus-visible:border-fmca-sky focus-visible:ring-[3px] focus-visible:ring-fmca-sky/40';
-const fileInputClass =
-    'h-11 w-full cursor-pointer rounded-md border border-dashed border-fmca-ink/25 bg-white px-3 text-sm text-slate-600 file:ml-3 file:border-0 file:bg-fmca-mist file:px-3 file:py-2 file:text-xs file:font-bold file:text-fmca-green dark:bg-transparent file:dark:bg-transparent focus-visible:border-fmca-sky focus-visible:ring-[3px] focus-visible:ring-fmca-sky/40';
 
 function formatBytes(size?: number | null): string {
     if (!size) {
@@ -38,7 +75,54 @@ function formatBytes(size?: number | null): string {
     return `${(size / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export default function MediaIndex({ media, canUpload }: Props) {
+export default function MediaIndex({ media, canUpload, pagination, filters }: Props) {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set());
+    const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+
+    const toggleSelect = (id: number) => {
+        setSelectedItems((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) {
+                next.delete(id);
+            } else {
+                next.add(id);
+            }
+            return next;
+        });
+    };
+
+    const toggleSelectAll = () => {
+        if (selectedItems.size === media.length) {
+            setSelectedItems(new Set());
+        } else {
+            setSelectedItems(new Set(media.map((m) => m.id)));
+        }
+    };
+
+    const handleBulkDelete = () => {
+        if (selectedItems.size === 0) return;
+        if (!window.confirm(`Delete ${selectedItems.size} media item(s)? This cannot be undone.`)) return;
+
+        setIsBulkDeleting(true);
+        router.post(
+            cmsMedia.bulkDelete.url(),
+            { ids: Array.from(selectedItems) },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setSelectedItems(new Set());
+                    setIsBulkDeleting(false);
+                },
+                onError: () => {
+                    setIsBulkDeleting(false);
+                },
+            }
+        );
+    };
+
+    const hasDeletableSelection = media.some((m) => selectedItems.has(m.id) && m.canDelete);
+
     return (
         <>
             <Head title="Media | FMCA Content Studio" />
@@ -46,7 +130,7 @@ export default function MediaIndex({ media, canUpload }: Props) {
                 <div className="mx-auto max-w-5xl">
                     <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                         <div>
-                            <p className="text-xs font-bold uppercase tracking-[0.14em] text-fmca-green">Content Studio | Media &amp; Publications</p>
+                            <p className="text-xs font-bold uppercase tracking-[0.14em] text-fmca-green">Content Studio | Media & Publications</p>
                             <h1 className="mt-2 font-display text-3xl font-bold text-fmca-green-dark">Media library</h1>
                             <p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-600">
                                 Approved imagery and short video for campaigns, blocks and home page modules.
@@ -54,31 +138,130 @@ export default function MediaIndex({ media, canUpload }: Props) {
                                 is reviewed.
                             </p>
                         </div>
+                        <div className="flex items-center gap-2">
+                            <Button
+                                onClick={() => setIsModalOpen(true)}
+                                className="h-11 rounded-md border border-input bg-white px-3 text-sm text-fmca-ink outline-none focus-visible:border-fmca-sky focus-visible:ring-[3px] focus-visible:ring-fmca-sky/40"
+                            >
+                                <Plus size={18} aria-hidden="true" />
+                                <span>New media</span>
+                            </Button>
+                            <Label htmlFor="media-search" className="sr-only">Search media</Label>
+                            <Input
+                                id="media-search"
+                                type="text"
+                                placeholder="Search media..."
+                                className="h-11 w-64 rounded-md border border-input bg-white px-3 text-sm text-fmca-ink outline-none focus-visible:border-fmca-sky focus-visible:ring-[3px] focus-visible:ring-fmca-sky/40"
+                                value={filters.search}
+                                onChange={(e) => {
+                                    const url = new URLSearchParams(window.location.search);
+                                    url.set('search', e.target.value);
+                                    window.history.pushState({}, '', `${window.location.pathname}?${url.toString()}`);
+                                }}
+                            />
+                            <Label htmlFor="media-kind" className="sr-only">Filter by kind</Label>
+                            <select
+                                id="media-kind"
+                                value={filters.kind}
+                                onChange={(e) => {
+                                    const url = new URLSearchParams(window.location.search);
+                                    url.set('kind', e.target.value);
+                                    window.history.pushState({}, '', `${window.location.pathname}?${url.toString()}`);
+                                }}
+                                className="h-11 rounded-md border border-input bg-white px-3 text-sm text-fmca-ink outline-none focus-visible:border-fmca-sky focus-visible:ring-[3px] focus-visible:ring-fmca-sky/40"
+                            >
+                                <option value="">All kinds</option>
+                                <option value="image">Image</option>
+                                <option value="video">Video</option>
+                            </select>
+                        </div>
                     </header>
 
-                    {canUpload && <UploadForm />}
+                    <MediaUploadModal
+                      isOpen={isModalOpen}
+                      onClose={() => setIsModalOpen(false)}
+                      canUpload={canUpload}
+                    />
+
+                    {selectedItems.size > 0 && hasDeletableSelection && (
+                        <div className="sticky bottom-0 z-10 mt-4 flex items-center justify-between rounded-lg border border-fmca-ink/10 bg-white p-4 shadow-xs">
+                            <p className="text-sm font-bold text-fmca-ink">{selectedItems.size} selected</p>
+                            <div className="flex items-center gap-2">
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => setSelectedItems(new Set())}
+                                    className="h-9 px-3 text-sm"
+                                >
+                                    Clear selection
+                                </Button>
+                                <Button
+                                    size="sm"
+                                    onClick={handleBulkDelete}
+                                    disabled={isBulkDeleting}
+                                    className="h-9 border-fmca-crimson/30 bg-fmca-crimson/10 px-3 text-sm text-fmca-crimson hover:bg-red-50"
+                                >
+                                    <Trash2 size={14} aria-hidden="true" />
+                                    {isBulkDeleting ? 'Deleting…' : 'Delete selected'}
+                                </Button>
+                            </div>
+                        </div>
+                    )}
 
                     {media.length === 0 ? (
                         <EmptyState canUpload={canUpload} />
                     ) : (
-                        <div className="mt-8 overflow-hidden rounded-xl border border-fmca-ink/10 bg-white shadow-xs">
+                        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                            <div className="col-span-full flex items-center gap-2 border-b border-fmca-ink/10 pb-2">
+                                <input
+                                    type="checkbox"
+                                    id="select-all"
+                                    checked={selectedItems.size === media.length && media.length > 0}
+                                    onChange={toggleSelectAll}
+                                    className="size-4 rounded border-fmca-ink/25 text-fmca-green focus:ring-fmca-sky"
+                                />
+                                <Label htmlFor="select-all" className="text-xs font-bold text-slate-600">
+                                    Select all on this page
+                                </Label>
+                            </div>
                             {media.map((item) => (
                                 <div
                                     key={item.id}
                                     className="flex flex-col gap-3 border-b border-fmca-ink/10 p-5 last:border-0 sm:flex-row sm:items-center sm:justify-between"
                                 >
                                     <div className="flex min-w-0 items-start gap-4">
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedItems.has(item.id)}
+                                            onChange={() => toggleSelect(item.id)}
+                                            className="mt-1 size-4 rounded border-fmca-ink/25 text-fmca-green focus:ring-fmca-sky"
+                                            aria-label={`Select ${item.label}`}
+                                        />
                                         {item.kind === 'video' ? (
-                                            <div className="flex size-14 shrink-0 items-center justify-center rounded-lg bg-fmca-mist text-fmca-teal">
+                                            <a
+                                                href={item.url}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="flex size-14 shrink-0 items-center justify-center rounded-lg bg-fmca-mist text-fmca-teal"
+                                            >
                                                 <Video size={22} aria-hidden="true" />
-                                            </div>
+                                            </a>
                                         ) : (
-                                            <img
-                                                src={item.url}
-                                                alt={item.altText ?? item.label}
-                                                className="size-14 shrink-0 rounded-lg border border-fmca-ink/10 object-cover"
-                                                loading="lazy"
-                                            />
+                                            <a
+                                                href={item.url}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="size-14 shrink-0 overflow-hidden rounded-lg border border-fmca-ink/10"
+                                            >
+                                                <img
+                                                    src={item.thumbnailUrl}
+                                                    srcSet={`${item.thumbnailUrl} 100w, ${item.mediumUrl} 500w, ${item.largeUrl} 1200w`}
+                                                    sizes="(max-width: 768px) 56px, 56px"
+                                                    alt={item.altText ?? item.label}
+                                                    loading="lazy"
+                                                    className="size-14 object-cover"
+                                                />
+                                            </a>
                                         )}
                                         <div className="min-w-0">
                                             <div className="flex flex-wrap items-center gap-2">
@@ -121,80 +304,50 @@ export default function MediaIndex({ media, canUpload }: Props) {
                                                 <span>Delete</span>
                                             </Form>
                                         )}
+                                        <MediaCopyButton url={item.url} />
                                     </div>
                                 </div>
                             ))}
                         </div>
                     )}
+
+                    <div className="mt-6">
+                        <div className="flex items-center justify-between">
+                            <p className="text-xs text-slate-500">
+                                Showing {pagination.currentPage > 0 ? Math.min((pagination.currentPage - 1) * pagination.perPage + 1, pagination.total) : 0} - {Math.min(pagination.currentPage * pagination.perPage, pagination.total)} of {pagination.total} media items
+                            </p>
+                            <div className="flex gap-2">
+                                <Button
+                                    size="sm"
+                                    onClick={() => {
+                                        const url = new URLSearchParams(window.location.search);
+                                        url.set('page', '1');
+                                        window.history.pushState({}, '', `${window.location.pathname}?${url.toString()}`);
+                                    }}
+                                    disabled={pagination.currentPage <= 1}
+                                    className="h-10 py-2"
+                                >
+                                    <ChevronLeft size={14} aria-hidden="true" />
+                                    Previous
+                                </Button>
+                                <Button
+                                    size="sm"
+                                    onClick={() => {
+                                        const url = new URLSearchParams(window.location.search);
+                                        url.set('page', pagination.lastPage.toString());
+                                        window.history.pushState({}, '', `${window.location.pathname}?${url.toString()}`);
+                                    }}
+                                    disabled={pagination.currentPage >= pagination.lastPage}
+                                    className="h-10 py-2"
+                                >
+                                    Next <ChevronRight size={14} aria-hidden="true" />
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </>
-    );
-}
-
-function UploadForm() {
-    return (
-        <div className="mt-8 rounded-2xl border border-fmca-ink/10 bg-white p-6 shadow-xs sm:p-8">
-            <div className="flex items-center gap-2">
-                <UploadCloud size={20} className="text-fmca-green" aria-hidden="true" />
-                <h2 className="font-display text-lg font-bold text-fmca-green-dark">Upload media</h2>
-            </div>
-            <Form method="post" action={cmsMedia.store.url()} resetOnError>
-                {({ errors, processing }) => (
-                    <div className="mt-5 grid gap-5 sm:grid-cols-2">
-                        <div className="grid gap-1.5">
-                            <Label htmlFor="media-label">
-                                Label <span className="text-fmca-crimson">*</span>
-                            </Label>
-                            <Input id="media-label" name="label" maxLength={120} className="h-11" aria-invalid={Boolean(errors.label)} />
-                            {errors.label && <p className={fieldErrorClass}>{errors.label}</p>}
-                        </div>
-                        <div className="grid gap-1.5">
-                            <Label htmlFor="media-kind">Type</Label>
-                            <select id="media-kind" name="kind" defaultValue="image" className={selectClass}>
-                                <option value="image">Image (jpg, png, webp, gif · 4 MB max)</option>
-                                <option value="video">Video (mp4, webm, mov · 50 MB max)</option>
-                            </select>
-                            {errors.kind && <p className={fieldErrorClass}>{errors.kind}</p>}
-                        </div>
-                        <div className="grid gap-1.5 sm:col-span-2">
-                            <Label htmlFor="media-file">
-                                File <span className="text-fmca-crimson">*</span>
-                            </Label>
-                            <input id="media-file" name="file" type="file" accept=".jpg,.jpeg,.png,.webp,.gif,.mp4,.webm,.mov" className={fileInputClass} aria-invalid={Boolean(errors.file)} />
-                            {errors.file && <p className={fieldErrorClass}>{errors.file}</p>}
-                        </div>
-                        <div className="grid gap-1.5 sm:col-span-2">
-                            <Label htmlFor="media-alt">
-                                Alt text <span className="text-fmca-crimson">*</span>
-                            </Label>
-                            <Input id="media-alt" name="alt_text" maxLength={500} className="h-11" aria-invalid={Boolean(errors.alt_text)} />
-                            {errors.alt_text && <p className={fieldErrorClass}>{errors.alt_text}</p>}
-                            <p className="text-xs text-slate-500">Describe what the asset shows. It is used for accessible rendering of campaigns and blocks.</p>
-                        </div>
-                        <div className="grid gap-1.5">
-                            <Label htmlFor="media-owner">Content owner</Label>
-                            <Input id="media-owner" name="owner" maxLength={120} className="h-11" />
-                            <p className="text-xs text-slate-500">Team or desk name, not a single person.</p>
-                        </div>
-                        <div className="grid gap-1.5">
-                            <Label htmlFor="media-reviewed">Last reviewed</Label>
-                            <input id="media-reviewed" name="reviewed_at" type="date" className={selectClass} />
-                        </div>
-                        <div className="sm:col-span-2">
-                            <button
-                                type="submit"
-                                disabled={processing}
-                                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-fmca-green px-6 text-sm font-bold text-white shadow-sm transition-colors hover:bg-fmca-green-dark focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-fmca-sky disabled:opacity-50"
-                            >
-                                <Plus size={18} aria-hidden="true" />
-                                {processing ? 'Uploading…' : 'Add to library'}
-                            </button>
-                        </div>
-                    </div>
-                )}
-            </Form>
-        </div>
     );
 }
 

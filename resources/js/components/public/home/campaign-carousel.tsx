@@ -537,7 +537,7 @@ export function CampaignCarousel({
                                         </span>,
                                     ])}
                                 </h1>
-                                <p className="campaign-copy mt-5 max-w-md text-sm leading-relaxed text-white/90 sm:text-base">{slide.copy}</p>
+                                <p className="campaign-copy mt-5 max-w-md rounded-xl border border-white/25 bg-fmca-green-dark/80 px-4 py-3 text-base leading-relaxed text-white shadow-sm backdrop-blur-md">{slide.copy}</p>
 
                                 <div className="campaign-cta mt-7 flex flex-wrap gap-3">
                                     {slide.primaryCtaLabel && (

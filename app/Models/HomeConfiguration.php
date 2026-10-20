@@ -31,9 +31,6 @@ class HomeConfiguration extends Model
         $query->where('status', 'published')
             ->where(function (Builder $query): void {
                 $query->whereNull('publish_at')->orWhere('publish_at', '<=', now());
-            })
-            ->where(function (Builder $query): void {
-                $query->whereNull('published_at')->orWhere('published_at', '<=', now());
             });
     }
 
