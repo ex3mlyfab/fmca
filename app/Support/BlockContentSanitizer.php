@@ -9,18 +9,17 @@ use DOMNode;
 /**
  * Cleans editor-authored HTML before content blocks are stored.
  *
- * The rich text editor lets staff compose headings, lists, links, quotes and
- * code. The public site may only render a fixed whitelist of that markup, so
- * everything else — scripts, event handlers, iframes, images, styles — is
- * stripped, and link targets are restricted to the same safe set the
- * validation layer uses (internal path, anchor, `.`/`..` relative, or
- * http(s)).
+ * The rich text editor lets staff compose headings, lists, links, quotes,
+ * images and code. The public site may only render a fixed whitelist of that
+ * markup, so unsupported elements, event handlers and styles are stripped.
+ * Link and image targets are restricted to the same safe set the validation
+ * layer uses (internal path, anchor, `.`/`..` relative, or http(s)).
  */
 final class BlockContentSanitizer
 {
     /** Elements allowed in a public document. */
     private const ALLOWED_TAGS = [
-        'a', 'blockquote', 'br', 'code', 'em', 'h2', 'h3', 'hr', 'i', 'li',
+        'a', 'blockquote', 'br', 'code', 'em', 'h2', 'h3', 'hr', 'i', 'img', 'li',
         'ol', 'p', 'pre', 's', 'strong', 'u', 'ul',
     ];
 
@@ -30,13 +29,14 @@ final class BlockContentSanitizer
      */
     private const DROPPED_TAGS = [
         'script', 'style', 'svg', 'math', 'iframe', 'object', 'embed',
-        'form', 'input', 'button', 'textarea', 'select', 'img',
+        'form', 'input', 'button', 'textarea', 'select',
         'video', 'audio', 'source', 'picture', 'link', 'meta', 'base',
     ];
 
     /** Per-element attribute allow-list; every other attribute is stripped. */
     private const ALLOWED_ATTRIBUTES = [
         'a' => ['href'],
+        'img' => ['src', 'alt'],
     ];
 
     /**
@@ -138,12 +138,18 @@ final class BlockContentSanitizer
             return;
         }
 
+        if ($name === 'img' && ! self::isAllowedImageSource($element->getAttribute('src'))) {
+            return;
+        }
+
         $clean = $target->ownerDocument->createElement($name);
 
         foreach (self::ALLOWED_ATTRIBUTES[$name] ?? [] as $attribute) {
             $value = $element->getAttribute($attribute);
 
-            if ($value !== '' && self::isAllowedHref($value)) {
+            if ($attribute === 'alt') {
+                $clean->setAttribute($attribute, $value);
+            } elseif ($value !== '' && ($name === 'img' ? self::isAllowedImageSource($value) : self::isAllowedHref($value))) {
                 $clean->setAttribute($attribute, $value);
             }
         }
@@ -155,5 +161,10 @@ final class BlockContentSanitizer
     private static function isAllowedHref(string $value): bool
     {
         return SafeHrefs::isSafe($value);
+    }
+
+    private static function isAllowedImageSource(string $value): bool
+    {
+        return $value !== '' && ! str_starts_with($value, '#') && SafeHrefs::isSafe($value);
     }
 }

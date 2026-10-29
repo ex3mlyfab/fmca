@@ -7,6 +7,7 @@ use App\Http\Requests\StoreServiceRequest;
 use App\Http\Requests\UpdateServiceRequest;
 use App\Models\Department;
 use App\Models\Service;
+use App\Support\BlockContentSanitizer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
@@ -39,7 +40,9 @@ class ServiceController extends Controller
 
     public function store(StoreServiceRequest $request): RedirectResponse
     {
-        $service = Service::query()->create($request->validated());
+        $data = $request->validated();
+        $data['description'] = BlockContentSanitizer::richTextBody($data['description']);
+        $service = Service::query()->create($data);
 
         return to_route('cms.services.edit', ['service' => $service->id]);
     }
@@ -55,7 +58,9 @@ class ServiceController extends Controller
 
     public function update(UpdateServiceRequest $request, Service $service): RedirectResponse
     {
-        $service->update($request->validated());
+        $data = $request->validated();
+        $data['description'] = BlockContentSanitizer::richTextBody($data['description']);
+        $service->update($data);
 
         return to_route('cms.services.index');
     }

@@ -1,5 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import { ArrowRight, Building2, Clock3, Mail, PhoneCall } from 'lucide-react';
+import { RichBody } from '@/components/public/rich-body';
 import { SiteShell } from '@/components/public/site-shell';
 import { departments } from '@/routes';
 import serviceRoutes from '@/routes/services';
@@ -54,9 +55,7 @@ export default function Department({ department, services }: Props) {
                         <div className="space-y-8">
                             <div>
                                 <h2 className="font-display text-xl font-bold text-fmca-green-dark">About this department</h2>
-                                <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-slate-700 sm:text-base">
-                                    {department.description}
-                                </p>
+                                <RichBody body={department.description} className="mt-3 max-w-[65ch]" />
                             </div>
 
                             <div>

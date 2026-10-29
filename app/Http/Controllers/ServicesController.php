@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\SeoMetadata;
 use App\Models\Service;
+use App\Support\BlockContentSanitizer;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -61,7 +62,7 @@ class ServicesController extends Controller
                 'name' => $service->name,
                 'slug' => $service->slug,
                 'summary' => $service->summary,
-                'description' => $service->description,
+                'description' => BlockContentSanitizer::richTextBody($service->description),
                 'referralGuidance' => $service->referral_guidance,
                 'eligibility' => $service->eligibility,
                 'owner' => $service->owner,

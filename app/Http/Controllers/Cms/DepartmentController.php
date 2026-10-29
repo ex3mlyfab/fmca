@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreDepartmentRequest;
 use App\Http\Requests\UpdateDepartmentRequest;
 use App\Models\Department;
+use App\Support\BlockContentSanitizer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
@@ -34,7 +35,9 @@ class DepartmentController extends Controller
 
     public function store(StoreDepartmentRequest $request): RedirectResponse
     {
-        $department = Department::query()->create($request->validated());
+        $data = $request->validated();
+        $data['description'] = BlockContentSanitizer::richTextBody($data['description']);
+        $department = Department::query()->create($data);
 
         return to_route('cms.departments.edit', ['department' => $department->id]);
     }
@@ -42,14 +45,19 @@ class DepartmentController extends Controller
     public function edit(Department $department): Response
     {
         return Inertia::render('cms/departments/edit', [
-            'department' => $department,
+            'department' => [
+                ...$department->toArray(),
+                'description' => BlockContentSanitizer::richTextBody($department->description),
+            ],
             'canPublish' => $this->user()?->hasPermission('publish_departments') ?? false,
         ]);
     }
 
     public function update(UpdateDepartmentRequest $request, Department $department): RedirectResponse
     {
-        $department->update($request->validated());
+        $data = $request->validated();
+        $data['description'] = BlockContentSanitizer::richTextBody($data['description']);
+        $department->update($data);
 
         return to_route('cms.departments.index');
     }

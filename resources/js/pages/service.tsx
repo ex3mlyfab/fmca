@@ -2,6 +2,7 @@ import { Head } from '@inertiajs/react';
 import { ArrowRight, CheckCircle2, Clock3, Info, Stethoscope } from 'lucide-react';
 import { Link } from '@inertiajs/react';
 import { SiteShell } from '@/components/public/site-shell';
+import { RichBody } from '@/components/public/rich-body';
 import { Badge } from '@/components/ui/badge';
 import { services } from '@/routes';
 import serviceRoutes from '@/routes/services';
@@ -72,9 +73,7 @@ export default function Service({ service, related }: Props) {
                         <div className="space-y-8">
                             <div>
                                 <h2 className="font-display text-xl font-bold text-fmca-green-dark">About this service</h2>
-                                <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-slate-700 sm:text-base">
-                                    {service.description}
-                                </p>
+                                <RichBody body={service.description} className="mt-3 max-w-[65ch]" />
                             </div>
 
                             {service.referralGuidance && (

@@ -49,6 +49,17 @@ test('a published service shows its details', function () {
             ->where('service.department.name', $department->name));
 });
 
+test('a legacy service description is sanitized before public rendering', function () {
+    $service = Service::factory()->published()->create([
+        'description' => '<p>Clinical <strong>care</strong>.</p><script>alert(1)</script>',
+    ]);
+
+    $this->get(route('services.show', ['slug' => $service->slug]))
+        ->assertInertia(fn ($page) => $page
+            ->component('service')
+            ->where('service.description', '<p>Clinical <strong>care</strong>.</p>'));
+});
+
 test('draft services are not publicly accessible', function () {
     $draft = Service::factory()->create(['slug' => 'draft-service']);
 

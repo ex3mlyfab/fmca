@@ -53,6 +53,55 @@ test('a department editor creates a draft department', function () {
     ]);
 });
 
+test('department descriptions are sanitized before storage on create and update', function () {
+    $editor = User::factory()->withRole('department_editor')->create();
+    $description = '<h2>Department details</h2><p>Patients <strong>must</strong> register.</p>'
+        .'<script>alert(1)</script><img src="javascript:alert(1)" alt="Unsafe image">'
+        .'<img src="/storage/media/renal-team.jpg" alt="Renal care team" onerror="alert(1)">';
+
+    $this->actingAs($editor)->post(route('cms.departments.store'), [
+        ...departmentPayload(),
+        'description' => $description,
+    ])->assertRedirect();
+
+    $department = Department::query()->where('slug', 'renal-medicine')->firstOrFail();
+
+    expect($department->description)
+        ->toContain('<h2>Department details</h2>')
+        ->toContain('<strong>must</strong>')
+        ->toContain('src="/storage/media/renal-team.jpg"')
+        ->toContain('alt="Renal care team"')
+        ->not->toContain('<script')
+        ->not->toContain('javascript:')
+        ->not->toContain('onerror');
+
+    $this->actingAs($editor)->put(route('cms.departments.update', ['department' => $department->id]), [
+        ...departmentPayload(),
+        'description' => '<p>Updated department details.</p><iframe src="https://evil.example"></iframe>',
+    ])->assertRedirect(route('cms.departments.index'));
+
+    expect($department->fresh()->description)
+        ->toContain('<p>Updated department details.</p>')
+        ->not->toContain('<iframe')
+        ->not->toContain('evil.example');
+});
+
+test('editing a department sanitizes legacy description markup', function () {
+    $editor = User::factory()->withRole('department_editor')->create();
+    $department = Department::factory()->create([
+        'description' => '<p>Legacy detail.</p><img src="javascript:alert(1)" alt="Unsafe">'
+            .'<img src="/storage/media/department.jpg" alt="Department team" onerror="alert(1)">',
+    ]);
+
+    $this->actingAs($editor)->get(route('cms.departments.edit', ['department' => $department->id]))
+        ->assertInertia(fn ($page) => $page
+            ->component('cms/departments/edit')
+            ->where('department.description', fn ($description) => str_contains($description, '<p>Legacy detail.</p>')
+                && str_contains($description, 'src="/storage/media/department.jpg"')
+                && ! str_contains($description, 'javascript:')
+                && ! str_contains($description, 'onerror')));
+});
+
 test('department slugs are unique', function () {
     $editor = User::factory()->withRole('department_editor')->create();
     Department::factory()->create(['slug' => 'renal-medicine']);

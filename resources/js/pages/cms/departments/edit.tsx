@@ -1,8 +1,10 @@
 import { Form, Head, Link } from '@inertiajs/react';
+import { useState } from 'react';
 import { ArrowLeft, ArrowUpRight, CheckCircle2, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { StatusChip } from '@/pages/cms/departments';
 import cmsDepartments from '@/routes/cms/departments';
 import cmsSeo from '@/routes/cms/seo';
@@ -32,6 +34,7 @@ const selectClass =
 export default function DepartmentEditor({ department, canPublish }: Props) {
     const isEditing = Boolean(department?.id);
     const canSetStatus = canPublish || department?.status === 'published';
+    const [description, setDescription] = useState(department?.description ?? '');
 
     return (
         <>
@@ -103,18 +106,18 @@ export default function DepartmentEditor({ department, canPublish }: Props) {
                                     </div>
 
                                     <div className="grid gap-1.5">
-                                        <Label htmlFor="description">
+                                        <Label>
                                             Description <span className="text-fmca-crimson">*</span>
                                         </Label>
-                                        <textarea
-                                            id="description"
-                                            name="description"
-                                            defaultValue={department?.description ?? ''}
-                                            rows={5}
-                                            aria-invalid={Boolean(errors.description)}
-                                            className="w-full rounded-md border border-input bg-white px-3 py-2 text-sm text-fmca-ink outline-none focus-visible:border-fmca-sky focus-visible:ring-[3px] focus-visible:ring-fmca-sky/40"
+                                        <RichTextEditor
+                                            value={description}
+                                            onContentChange={setDescription}
+                                            label="Description"
+                                            placeholder="Describe this department. Use the toolbar to format the content."
+                                            invalid={Boolean(errors.description)}
                                         />
-                                        {errors.description && <p className={fieldErrorClass}>{errors.description}</p>}
+                                        <input type="hidden" name="description" value={description} />
+                                        {errors.description && <p role="alert" className={fieldErrorClass}>{errors.description}</p>}
                                     </div>
 
                                     <div className="grid gap-5 border-t border-fmca-ink/10 pt-5 sm:grid-cols-2">

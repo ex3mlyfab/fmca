@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Department;
 use App\Models\SeoMetadata;
+use App\Support\BlockContentSanitizer;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -47,7 +48,7 @@ class DepartmentsController extends Controller
                 'name' => $department->name,
                 'slug' => $department->slug,
                 'summary' => $department->summary,
-                'description' => $department->description,
+                'description' => BlockContentSanitizer::richTextBody($department->description),
                 'contactPhone' => $department->contact_phone,
                 'contactEmail' => $department->contact_email,
                 'owner' => $department->owner,

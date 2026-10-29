@@ -13,7 +13,7 @@ const defaultServices: ServiceItem[] = [
     {
         title: 'Find a clinical specialty',
         description: 'Explore verified departments, consultant clinics and outpatient services.',
-        href: '#services',
+        href: '/services',
         icon: Compass,
         isPrimary: true,
     },
@@ -25,7 +25,7 @@ const defaultServices: ServiceItem[] = [
         isPrimary: true,
     },
     {
-        title: 'Campus directions & arrival',
+        title: 'Hospital directions & arrival',
         description: 'Interactive route guidance, parking, and facility accessibility.',
         href: '#visiting',
         icon: MapPin,
@@ -48,7 +48,7 @@ const defaultServices: ServiceItem[] = [
     {
         title: 'Diagnostic & laboratory information',
         description: 'Verified test pathways, sample collection hours, and physician result release.',
-        href: '#services',
+        href: '/services',
         icon: HeartPulse,
         isPrimary: false,
     },

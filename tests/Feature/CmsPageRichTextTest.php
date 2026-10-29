@@ -37,7 +37,8 @@ test('rich text block html is reduced to the public whitelist before storage', f
 
     $body = '<p>Visitors <strong>must</strong> register.</p>'
         .'<script>document.cookie</script>'
-        .'<img src="x" onerror="alert(1)">'
+        .'<img src="javascript:alert(1)" alt="Unsafe image">'
+        .'<img src="/storage/media/visiting.jpg" alt="Visitors entering the ward" onerror="alert(1)">'
         .'<a href="javascript:alert(1)">bad link</a>'
         .'<a href="https://fmca.gov.ng/visit" class="x">national site</a>'
         .'<a href="/visiting">internal link</a>'
@@ -53,12 +54,14 @@ test('rich text block html is reduced to the public whitelist before storage', f
         ->toContain('<strong>must</strong>')
         ->toContain('<em>nested note</em>')
         ->toContain('https://fmca.gov.ng/visit')
-        ->toContain('/visiting');
+        ->toContain('/visiting')
+        ->toContain('src="/storage/media/visiting.jpg"')
+        ->toContain('alt="Visitors entering the ward"');
 
     expect($stored)
         ->not->toContain('script')
         ->not->toContain('document.cookie')
-        ->not->toContain('<img')
+        ->not->toContain('javascript:')
         ->not->toContain('onerror')
         ->not->toContain('javascript:')
         ->not->toContain('<style')

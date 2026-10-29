@@ -53,6 +53,7 @@ describe('rich text editor', () => {
             'Code block',
             'Divider',
             'Insert link',
+            'Insert image',
             'Remove link',
             'Clear formatting',
         ]) {
@@ -134,5 +135,53 @@ describe('rich text editor', () => {
         fireEvent.click(screen.getByRole('button', { name: 'Apply' }));
 
         expect(screen.getByRole('alert')).toHaveTextContent('Links must be an internal path');
+    });
+
+    it('inserts an image with required alt text from a safe URL', async () => {
+        const onContentChange = vi.fn();
+
+        await mountEditor(<RichTextEditor onContentChange={onContentChange} />);
+        fireEvent.click(screen.getByRole('button', { name: 'Insert image' }));
+        fireEvent.change(screen.getByLabelText('Image URL'), {
+            target: { value: '/storage/media/renal-team.jpg' },
+        });
+        fireEvent.change(screen.getByLabelText('Alternative text'), {
+            target: { value: 'Renal care team' },
+        });
+        fireEvent.click(screen.getAllByRole('button', { name: 'Insert image' }).at(-1)!);
+
+        const image = document.querySelector('.ProseMirror img');
+        expect(image).toHaveAttribute('src', '/storage/media/renal-team.jpg');
+        expect(image).toHaveAttribute('alt', 'Renal care team');
+        expect(onContentChange).toHaveBeenLastCalledWith(
+            expect.stringContaining('alt="Renal care team"'),
+        );
+    });
+
+    it('rejects unsafe image destinations', async () => {
+        await mountEditor(<RichTextEditor />);
+        fireEvent.click(screen.getByRole('button', { name: 'Insert image' }));
+        fireEvent.change(screen.getByLabelText('Image URL'), {
+            target: { value: 'javascript:alert(1)' },
+        });
+        fireEvent.change(screen.getByLabelText('Alternative text'), {
+            target: { value: 'Unsafe image' },
+        });
+        fireEvent.click(screen.getAllByRole('button', { name: 'Insert image' }).at(-1)!);
+
+        expect(screen.getByRole('alert')).toHaveTextContent('Use an internal media URL');
+        expect(document.querySelector('.ProseMirror img')).toBeNull();
+    });
+
+    it('requires alternative text before inserting an image', async () => {
+        await mountEditor(<RichTextEditor />);
+        fireEvent.click(screen.getByRole('button', { name: 'Insert image' }));
+        fireEvent.change(screen.getByLabelText('Image URL'), {
+            target: { value: '/storage/media/renal-team.jpg' },
+        });
+        fireEvent.click(screen.getAllByRole('button', { name: 'Insert image' }).at(-1)!);
+
+        expect(screen.getByRole('alert')).toHaveTextContent('Add alternative text');
+        expect(document.querySelector('.ProseMirror img')).toBeNull();
     });
 });

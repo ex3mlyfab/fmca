@@ -1,4 +1,5 @@
 import { EditorContent, useEditor } from '@tiptap/react';
+import { mergeAttributes, Node } from '@tiptap/core';
 import { StarterKit } from '@tiptap/starter-kit';
 import { Link } from '@tiptap/extension-link';
 import { Placeholder } from '@tiptap/extension-placeholder';
@@ -11,6 +12,7 @@ import {
     Eraser,
     Heading2,
     Heading3,
+    Image as ImageIcon,
     Italic,
     Link as LinkIcon,
     List,
@@ -32,6 +34,7 @@ import { Label } from '@/components/ui/label';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { isExternalHref, isSafeHref } from '@/lib/safe-href';
+import cmsMedia from '@/routes/cms/media';
 
 /**
  * The FMCA link mark. It mirrors the server-side guard in
@@ -57,6 +60,55 @@ const SafeLink = Link.extend({
         ] as [string, Record<string, unknown>, number];
     },
 }).configure({ openOnClick: false });
+
+function isSafeImageSource(source: string): boolean {
+    const url = source.trim();
+
+    return url !== '' && !url.startsWith('#') && isSafeHref(url);
+}
+
+const SafeImage = Node.create({
+    name: 'image',
+    group: 'block',
+    draggable: true,
+
+    addAttributes() {
+        return {
+            src: { default: null },
+            alt: { default: '' },
+        };
+    },
+
+    parseHTML() {
+        return [
+            {
+                tag: 'img[src]',
+                getAttrs: (node) => {
+                    if (typeof node === 'string') {
+                        return false;
+                    }
+
+                    const src = node.getAttribute('src') ?? '';
+                    if (!isSafeImageSource(src)) {
+                        return false;
+                    }
+
+                    return { src: src.trim(), alt: node.getAttribute('alt') ?? '' };
+                },
+            },
+        ];
+    },
+
+    renderHTML({ HTMLAttributes }) {
+        return [
+            'img',
+            mergeAttributes(HTMLAttributes, {
+                loading: 'lazy',
+                decoding: 'async',
+            }),
+        ];
+    },
+});
 
 type RichTextEditorProps = {
     /** The HTML document for the editor. Kept in sync from the parent. */
@@ -99,6 +151,7 @@ export function RichTextEditor({
         extensions: [
             StarterKit.configure({ link: false }),
             SafeLink,
+            SafeImage,
             // v3 prepends `data-` to the given value, so `placeholder` becomes
             // the data-placeholder attribute the .fmca-prose CSS reads.
             Placeholder.configure({ placeholder, dataAttribute: 'placeholder' }),
@@ -140,8 +193,14 @@ export function RichTextEditor({
     const [linkFormOpen, setLinkFormOpen] = useState(false);
     const [linkHref, setLinkHref] = useState('');
     const [linkError, setLinkError] = useState<string | null>(null);
+    const [imageFormOpen, setImageFormOpen] = useState(false);
+    const [imageSrc, setImageSrc] = useState('');
+    const [imageAlt, setImageAlt] = useState('');
+    const [imageError, setImageError] = useState<string | null>(null);
     const storedSelection = useRef<Selection | null>(null);
     const linkFieldId = useId();
+    const imageSourceId = useId();
+    const imageAltId = useId();
 
     const openLinkForm = () => {
         if (!editor || editor.isDestroyed) {
@@ -160,6 +219,53 @@ export function RichTextEditor({
         setLinkFormOpen(false);
         setLinkHref('');
         setLinkError(null);
+    };
+
+    const openImageForm = () => {
+        if (!editor || editor.isDestroyed) {
+            return;
+        }
+
+        storedSelection.current = editor.state.selection;
+        setImageSrc('');
+        setImageAlt('');
+        setImageError(null);
+        setImageFormOpen(true);
+        requestAnimationFrame(() => document.getElementById(imageSourceId)?.focus());
+    };
+
+    const closeImageForm = () => {
+        setImageFormOpen(false);
+        setImageSrc('');
+        setImageAlt('');
+        setImageError(null);
+    };
+
+    const applyImage = (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        if (!editor) {
+            return;
+        }
+
+        const source = imageSrc.trim();
+        const alt = imageAlt.trim();
+
+        if (!isSafeImageSource(source)) {
+            setImageError('Use an internal media URL or an http(s) image URL.');
+            return;
+        }
+
+        if (!alt) {
+            setImageError('Add alternative text describing the image.');
+            return;
+        }
+
+        if (storedSelection.current) {
+            editor.view.dispatch(editor.state.tr.setSelection(storedSelection.current));
+        }
+
+        editor.chain().focus().insertContent({ type: 'image', attrs: { src: source, alt } }).run();
+        closeImageForm();
     };
 
     const applyLink = (event: FormEvent<HTMLFormElement>) => {
@@ -331,8 +437,16 @@ export function RichTextEditor({
                       group: 5,
                       icon: LinkIcon,
                       label: 'Insert link',
-                      dimmed: linkFormOpen,
+                      dimmed: linkFormOpen || imageFormOpen,
                       onClick: openLinkForm,
+                  },
+                  {
+                      key: 'image',
+                      group: 5,
+                      icon: ImageIcon,
+                      label: 'Insert image',
+                      dimmed: imageFormOpen || linkFormOpen,
+                      onClick: openImageForm,
                   },
                   {
                       key: 'unlink',
@@ -397,6 +511,57 @@ export function RichTextEditor({
                     {linkError && (
                         <p role="alert" className="w-full text-xs font-medium text-fmca-crimson">
                             {linkError}
+                        </p>
+                    )}
+                </form>
+            )}
+
+            {imageFormOpen && (
+                <form className="grid gap-3 border-b border-fmca-ink/10 bg-white p-4" onSubmit={applyImage}>
+                    <div className="grid gap-1.5">
+                        <Label htmlFor={imageSourceId}>Image URL</Label>
+                        <Input
+                            id={imageSourceId}
+                            value={imageSrc}
+                            onChange={(event) => setImageSrc(event.target.value)}
+                            placeholder="/storage/media/2026/10/image.jpg"
+                            aria-invalid={Boolean(imageError && !isSafeImageSource(imageSrc))}
+                            className="h-11"
+                        />
+                    </div>
+                    <div className="grid gap-1.5">
+                        <Label htmlFor={imageAltId}>Alternative text</Label>
+                        <Input
+                            id={imageAltId}
+                            value={imageAlt}
+                            onChange={(event) => setImageAlt(event.target.value)}
+                            placeholder="Describe what the image shows"
+                            aria-invalid={Boolean(imageError && !imageAlt.trim())}
+                            className="h-11"
+                        />
+                    </div>
+                    <div className="flex flex-wrap items-center gap-3">
+                        <Button type="submit" className="h-11 bg-fmca-green px-4 text-white hover:bg-fmca-green-dark">
+                            Insert image
+                        </Button>
+                        <Button type="button" variant="outline" className="h-11 px-4" onClick={closeImageForm}>
+                            Cancel
+                        </Button>
+                        <a
+                            href={cmsMedia.index.url()}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex min-h-11 items-center text-sm font-semibold text-fmca-green underline underline-offset-2 hover:text-fmca-green-dark focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-fmca-sky"
+                        >
+                            Copy an image URL from the media library
+                        </a>
+                    </div>
+                    <p className="text-sm text-slate-600">
+                        Use an approved image from the media library and provide alt text for accessibility.
+                    </p>
+                    {imageError && (
+                        <p role="alert" className="text-sm font-medium text-fmca-crimson">
+                            {imageError}
                         </p>
                     )}
                 </form>

@@ -64,6 +64,17 @@ test('a published department shows its details', function () {
             ->where('department.reviewedAt', fn ($reviewedAt) => is_string($reviewedAt) && strlen($reviewedAt) > 0));
 });
 
+test('a legacy department description is sanitized before public rendering', function () {
+    $department = Department::factory()->published()->create([
+        'description' => '<p>Clinical <strong>care</strong>.</p><img src="javascript:alert(1)" alt="Unsafe">',
+    ]);
+
+    $this->get(route('departments.show', ['slug' => $department->slug]))
+        ->assertInertia(fn ($page) => $page
+            ->component('department')
+            ->where('department.description', '<p>Clinical <strong>care</strong>.</p>'));
+});
+
 test('draft departments are not publicly accessible', function () {
     $draft = Department::factory()->create(['slug' => 'draft-department']);
 

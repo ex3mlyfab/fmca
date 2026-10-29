@@ -51,6 +51,37 @@ test('a department editor creates a draft service', function () {
     ]);
 });
 
+test('service descriptions are sanitized before storage on create and update', function () {
+    $editor = User::factory()->withRole('department_editor')->create();
+    $description = '<h2>Service details</h2><p>Patients <strong>must</strong> register.</p>'
+        .'<script>alert(1)</script><a href="javascript:alert(1)">unsafe link</a>'
+        .'<a href="/referrals">Referral information</a>';
+
+    $this->actingAs($editor)->post(route('cms.services.store'), [
+        ...servicePayload(),
+        'description' => $description,
+    ])->assertRedirect();
+
+    $service = Service::query()->where('slug', 'dialysis-services')->firstOrFail();
+
+    expect($service->description)
+        ->toContain('<h2>Service details</h2>')
+        ->toContain('<strong>must</strong>')
+        ->toContain('<a href="/referrals">Referral information</a>')
+        ->not->toContain('<script')
+        ->not->toContain('javascript:');
+
+    $this->actingAs($editor)->put(route('cms.services.update', ['service' => $service->id]), [
+        ...servicePayload(),
+        'description' => '<p>Updated service details.</p><iframe src="https://evil.example"></iframe>',
+    ])->assertRedirect(route('cms.services.index'));
+
+    expect($service->fresh()->description)
+        ->toContain('<p>Updated service details.</p>')
+        ->not->toContain('<iframe')
+        ->not->toContain('evil.example');
+});
+
 test('service slugs are unique', function () {
     $editor = User::factory()->withRole('department_editor')->create();
     Service::factory()->create(['slug' => 'dialysis-services']);
